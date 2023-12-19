@@ -37,8 +37,9 @@ class NotificationService {
 
     sendEmail = async (email: string, code: any) => {
 
-        const message = "Uexchange, tu código de verificación es: " + code;
-
+        const message = "Transmisora, tu código de verificación es: " + code;
+        console.log("EMAIL GENERATION");
+        console.log(email,code);
         var params = {
             Destination: {
                 ToAddresses: [
@@ -61,7 +62,7 @@ class NotificationService {
                     Data: 'Uexchange, tu código de verificación'
                 }
             },
-            Source: 'isaac.hernandez@ironbit.com.mx',
+            Source: 'gerardo.orozco@ironbit.com.mx',
         };
 
         var sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
