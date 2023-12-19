@@ -15,6 +15,7 @@ const schema = new Schema<IUser>({
     isAdminVerified: { type: Boolean, default: false },
     isCellPhonVerified: { type: Boolean, default: false },
     isEmailVerified: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     RegistrationStage: { type: String, default: RegistrationStage.INITIAL },
 
     language: { type: Schema.Types.ObjectId, ref: 'Catalog' },

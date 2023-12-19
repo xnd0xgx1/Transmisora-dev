@@ -62,6 +62,13 @@ class SystemService extends BaseService<SystemRepository> {
         return datasDb[0];
     }
 
+    getTimePlatform = async () => {
+        const all = await this.settingsTimeRepository.getAll();
+        const data = all[0];
+        const time = (2 * 60) + 10 + (10 / 60);
+        return time;
+    }
+
     setTime = async (data: any) => {
         const datasDb = await this.settingsTimeRepository.getAll();
         console.log(datasDb)

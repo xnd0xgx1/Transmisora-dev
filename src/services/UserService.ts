@@ -4,7 +4,7 @@ import UserRepository from "../repositories/UserRepository";
 import BaseService from "./base/BaseService";
 import * as bcrypt from 'bcrypt';
 import LoginDto from "../dto/LoginDto";
-import { LIVE_AUCTION, SECRET, TOKEN_EXPIRES } from "../common/constants";
+import { SECRET, TOKEN_EXPIRES } from "../common/constants";
 import * as jwt from 'jsonwebtoken';
 import TokenData from "../interfaces/tokenData.interface";
 import DataStoredInToken from "../interfaces/dataStoredInToken";
@@ -43,6 +43,7 @@ import moment from "moment";
 import OtpService from "./OtpService";
 import OtpRepository from "../repositories/OtpRepository";
 import OTP from "../models/OTP";
+import SystemService from "./SystemService";
 
 class UserService extends BaseService<UserRepository> {
 
@@ -60,6 +61,7 @@ class UserService extends BaseService<UserRepository> {
     private purchaseOfferService = new PurchaseOfferService();
     private transactionService = new TransactionService();
     private kycService = new KycService();
+    private systemservice = new SystemService();
 
     private affinity_group_id = "afg-2JBuRSkKIsLtD8KnfKpHCCVj9kw"; // TODO: move to .ENV
 
@@ -198,9 +200,10 @@ class UserService extends BaseService<UserRepository> {
         // Get pending purchase.
         let purchaseOffers: any = await this.purchaseOfferRepository.getAllByUser(userDb);
         if (purchaseOffers.length > 0) {
+            const time = await this.systemservice.getTimePlatform();
             const purchaseOffer: any = purchaseOffers[0]; // Get last.
             const minutesPassed = getMinutesPassed(purchaseOffer.createdAt);
-            if (minutesPassed >= LIVE_AUCTION) {
+            if (minutesPassed >= time) {
                 await this.purchaseOfferService.setNoMatch(purchaseOffer);
             }
         }
@@ -252,9 +255,10 @@ class UserService extends BaseService<UserRepository> {
         // Get pending purchase.
         const purchaseOffers = await this.purchaseOfferRepository.getAllByUser(userDb);
         if (purchaseOffers.length > 0) {
+            const time = await this.systemservice.getTimePlatform();
             const purchaseOffer: any = purchaseOffers[0]; // Get last.
             const minutesPassed = getMinutesPassed(purchaseOffer.createdAt);
-            if (minutesPassed >= LIVE_AUCTION) {
+            if (minutesPassed >= time) {
                 await this.purchaseOfferService.setNoMatch(purchaseOffer);
             }
         }

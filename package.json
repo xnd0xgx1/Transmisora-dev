@@ -1,15 +1,18 @@
 {
-  "name": "uexchange-api",
+  "name": "transmisora-api",
   "version": "0.0.1",
-  "description": "uexchange",
+  "description": "transmisora",
   "private": true,
   "main": "dist/server.js",
   "scripts": {
     "compile": "tsc && node ./dist/server.js",
-    "start": "node src/server.ts",
+    "start": "node ./server.js",
     "start:dev": "node ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run compile\"",
     "dispatch": "gcloud config set project uexchange-366915 && gcloud app deploy dispatch.yaml",
     "build": "tsc"
+  },
+  "engines": {
+    "node": "14.21.3"
   },
   "author": "Ironbit",
   "license": "ISC",

@@ -7,18 +7,18 @@ import PurchaseOfferStatus from "../enums/PurchaseOfferStatus";
 import AuctionStatus from "../enums/AuctionStatus";
 import { formatCurrency, getMinutesPassed, getText } from "../common/Utilities";
 import TextType from "../enums/TextType";
-import { LIVE_AUCTION } from "../common/constants";
 import TransactionType from "../enums/TransactionType";
 import CurrencyType from "../enums/CurrencyType";
 import TransactionService from "./TransactionService";
 import NotificationService from "./NotificationService";
-
+import SystemService from "./SystemService";
 class AuctionService extends BaseService<AuctionRepository> {
 
     private notificationService = new NotificationService();
     private purchaseOfferService = new PurchaseOfferService();
     private transactionService = new TransactionService();
     private userService = new UserService();
+    private systemservice = new SystemService();
 
     constructor() {
         super(new AuctionRepository(Auction));
@@ -183,18 +183,19 @@ class AuctionService extends BaseService<AuctionRepository> {
     }
 
     execute = async () => {
+        const time = await this.systemservice.getTimePlatform();
         const auctions = await this.getAllActive();
         for (let i = 0; i < auctions.length; i++) {
             const auction = auctions[i];
-            if (getMinutesPassed(auction.createdAt) >= LIVE_AUCTION) {
+            if (getMinutesPassed(auction.createdAt) >= time) {
                 await this.finish(auction._id)
             }
         }
-
+        
         const purchaseOffers = await this.purchaseOfferService.getAllActive();
         for (let i = 0; i < purchaseOffers.length; i++) {
             const purchaseOffer = purchaseOffers[i];
-            if (getMinutesPassed(purchaseOffer.createdAt) >= LIVE_AUCTION) {
+            if (getMinutesPassed(purchaseOffer.createdAt) >= time) {
                 await this.purchaseOfferService.setNoMatch(purchaseOffer);
             }
         }
