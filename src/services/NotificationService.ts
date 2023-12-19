@@ -59,7 +59,7 @@ class NotificationService {
                 },
                 Subject: {
                     Charset: 'UTF-8',
-                    Data: 'Uexchange, tu código de verificación'
+                    Data: 'Transmisora, tu código de verificación'
                 }
             },
             Source: 'gerardo.orozco@ironbit.com.mx',
@@ -147,7 +147,7 @@ class NotificationService {
                     Data: subject
                 }
             },
-            Source: 'isaac.hernandez@ironbit.com.mx',
+            Source: 'gerardo.orozco@ironbit.com.mx',
         };
 
         const sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
