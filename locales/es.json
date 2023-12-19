@@ -1,0 +1,18 @@
+{
+	"BLOCKED_ACCOUNT": "Tu cuenta ha sido bloqueada",
+	"WITHOUT_FUNDS": "No cuentas con el dinero suficiente para realizar esta acción, tu saldo actual es de ",
+	"ONLY_ONE_PURCHASE": "Solo puedes tener una compra activa",
+	"WRONG_ACCESS_DATA": "Datos de acceso incorrectos",
+	"WRONG_VERIFICATION_CODE": "El código de verificación es incorrecto",
+	"ADD_FUNDS_TITLE": "Haz agregado fondos a tu cuenta",
+	"ADD_FUNDS_DESCRIPTION": "Se han depositado con éxito: ",
+	"WHITDRAW_FUNDS_TITLE": "Haz retirado fondos de tu cuenta",
+	"WHITDRAW_FUNDS_DESCRIPTION": "Se han retirado con éxito: ",
+	"TRANSACTION_SUCCESS": "Transacción exitosa",
+	"TRANSACTION_ERROR": "Transacción fallida",
+	"AUCTION_START": "Subasta iniciada",
+	"AUCTION_CLOSE": "Subasta cerrada",
+	"TICKET_GENERATED": "Se ha generado el ticket",
+	"INVOICE_GENERATED": "Se ha generado la factura",
+	"USER_NOT_FOUND": "Usuario no encontrado"
+}

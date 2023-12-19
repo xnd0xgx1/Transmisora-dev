@@ -1,0 +1,24 @@
+# Do not change version. This is the version of aws buildspec, not the version of your buldspec file.
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo Pre Build started on `date`
+      - npm install --force
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Compiling
+      - npm run build
+  post_build:
+    commands:
+      - cp .npmrc dist/.npmrc
+      - cp package.json dist/package.json
+      - cp -r ./locales ./dist
+      - cp -r ./.platform ./dist
+      - echo Build completed on `date`
+# Include only the files required for your application to run.   
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'dist'

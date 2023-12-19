@@ -1,0 +1,18 @@
+{
+	"BLOCKED_ACCOUNT": "Your account has been blocked",
+	"WITHOUT_FUNDS": "You do not have enough money to carry out this action, your current balance is ",
+	"ONLY_ONE_PURCHASE": "You can only have one active purchase",
+	"WRONG_ACCESS_DATA": "Incorrect access data",
+	"WRONG_VERIFICATION_CODE": "The verification code is wrong",
+	"ADD_FUNDS_TITLE": "You have added funds to your account",
+	"ADD_FUNDS_DESCRIPTION": "Have been successfully deposited: ",
+	"WHITDRAW_FUNDS_TITLE": "You have withdrawn funds from your account",
+	"WHITDRAW_FUNDS_DESCRIPTION": "Have been successfully whitdraw: ",
+	"TRANSACTION_SUCCESS": "Succesful transaction",
+	"TRANSACTION_ERROR": "Failed transaction",
+	"AUCTION_START": "Auction started",
+	"AUCTION_CLOSE": "Closed auction",
+	"TICKET_GENERATED": "The ticket has been generated",
+	"INVOICE_GENERATED": "The invoice has been generated",
+	"USER_NOT_FOUND": "User not found"
+}
