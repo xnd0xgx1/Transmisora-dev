@@ -79,7 +79,7 @@ class NotificationService {
     sendSMS = async (phoneNumber: string, code: any) => {
         try {
             const params: any = {
-                Message: "Uexchange, tu código de verificación es: " + code,
+                Message: "Transmisora, tu código de verificación es: " + code,
                 PhoneNumber: phoneNumber,
             };
 
