@@ -1151,6 +1151,7 @@ class UserService extends BaseService<UserRepository> {
     }
 
     updatePIN = async (user: any, verifyDto: any, pin: any) => {
+        console.log(verifyDto);
         let codeDb = await this.otpService.verifyOTP(verifyDto);
         if (codeDb === null)
             throw new Error('Código incorrecto');
