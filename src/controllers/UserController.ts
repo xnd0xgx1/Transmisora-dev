@@ -782,7 +782,11 @@ class UserController extends BaseController<UserService> {
             let user: any = request.user;
             const { code, pin }: any = request.body;
             const change = await this.service.updatePIN(user, { code }, pin);
-            response.send({ status: change ? 'ok' : 'error' });
+            if(change){
+                response.send({ status: change ? 'ok' : 'error' });
+            }else{
+                next(new BadRequestException("error"));
+            }
         }
         catch (e) {
             next(new BadRequestException(e.message));

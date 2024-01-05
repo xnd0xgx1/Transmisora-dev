@@ -336,6 +336,11 @@ class UserService extends BaseService<UserRepository> {
         if (user.isBlocked)
             throw new Error(getText(TextType.BLOCKED_ACCOUNT));
 
+        
+        const isPasswordMatching = await bcrypt.compare(setPasswordDto.newPassword, user.password );
+        if (isPasswordMatching)
+            throw new Error("El código ingresado es incorrecto 5");
+        
         const hashedPassword = await bcrypt.hash(setPasswordDto.newPassword, 10);
         user.password = hashedPassword;
         await this.update(user);
@@ -355,6 +360,9 @@ class UserService extends BaseService<UserRepository> {
         if (user.isBlocked)
             throw new Error(getText(TextType.BLOCKED_ACCOUNT));
 
+        const isPasswordMatching = await bcrypt.compare(resetPasswordDto.newPassword, user.password );
+        if (isPasswordMatching)
+            throw new Error("No puedes utilizar la misma contraseña.");
         const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
         user.password = hashedPassword;
         await this.update(user);
@@ -1169,6 +1177,12 @@ class UserService extends BaseService<UserRepository> {
                 otpRepository.update(codeDb);
 
                 await this.update(user);
+                await this.notificationService.sendInfoEmail(user.email,"Pin update","Your PIN has changed");
+
+                // await this.verifyService.request()
+                // await this.verifyService.request({
+                //     value: user.email !== undefined ? user.email : `${user.phoneCode}${user.phone}`
+                // }, OtpType.UPDATE_PIN, user);
                 return true;
             }
         }
