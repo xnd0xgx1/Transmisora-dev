@@ -14,5 +14,10 @@
 	"AUCTION_CLOSE": "Subasta cerrada",
 	"TICKET_GENERATED": "Se ha generado el ticket",
 	"INVOICE_GENERATED": "Se ha generado la factura",
-	"USER_NOT_FOUND": "Usuario no encontrado"
+	"USER_NOT_FOUND": "Usuario no encontrado",
+	"BAD_CODE": "Codigo incorrecto",
+	"USED_CODE": "Ya has utilizado este código de verificación",
+	"PIN_UPDATE_HEADER":"Actualización de PIN",
+	"PIN_UPDATE_MESSAGE":"El PIN de tu cuenta Transmisora ha cambiado",
+	"VERIFICATION_DATA":"Datos de verificación incorrectos"
 }

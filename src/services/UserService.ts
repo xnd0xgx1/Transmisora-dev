@@ -1162,10 +1162,11 @@ class UserService extends BaseService<UserRepository> {
         console.log(verifyDto);
         let codeDb = await this.otpService.verifyOTP(verifyDto);
         if (codeDb === null)
-            throw new Error('Código incorrecto');
+            
+            throw new Error(getText(TextType.BAD_CODE));
 
         if (codeDb.isUsed)
-            throw new Error('Ya haz utilizado ese código de verificación');
+            throw new Error(getText(TextType.USED_CODE));
 
         if (codeDb.otpType === OtpType.UPDATE_PIN) {
             // TODO: Validar fecha vencimiento.
@@ -1177,7 +1178,7 @@ class UserService extends BaseService<UserRepository> {
                 otpRepository.update(codeDb);
 
                 await this.update(user);
-                await this.notificationService.sendInfoEmail(user.email,"Pin update","Your PIN has changed");
+                await this.notificationService.sendInfoEmail(user.email,getText(TextType.PIN_UPDATE_HEADER),getText(TextType.PIN_UPDATE_MESSAGE));
 
                 // await this.verifyService.request()
                 // await this.verifyService.request({

@@ -14,5 +14,10 @@
 	"AUCTION_CLOSE": "Closed auction",
 	"TICKET_GENERATED": "The ticket has been generated",
 	"INVOICE_GENERATED": "The invoice has been generated",
-	"USER_NOT_FOUND": "User not found"
+	"USER_NOT_FOUND": "User not found",
+	"BAD_CODE": "Wrong code",
+	"USED_CODE": "You have already used this verification code",
+	"PIN_UPDATE_HEADER":"PIN update",
+	"PIN_UPDATE_MESSAGE":"Your Transmisora account PIN has changed",
+	"VERIFICATION_DATA":"Incorrect verification data"
 }

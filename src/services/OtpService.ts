@@ -4,6 +4,8 @@ import OTPType from "../enums/OtpType";
 import OTP from "../models/OTP";
 import VerifyDto from "../dto/VerifyDto";
 import NotificationService from "./NotificationService";
+import { getText } from "../common/Utilities";
+import TextType from "../enums/TextType";
 
 class OtpService extends BaseService<OtpRepository> {
 
@@ -61,7 +63,7 @@ class OtpService extends BaseService<OtpRepository> {
         let code = await this.repository.getByCode(verifyDto.code);
         console.log(verifyDto.code);
         if (code === null)
-            throw new Error('Código incorrecto');
+            throw new Error(getText(TextType.BAD_CODE));
 
         code.isUsed = true;
         await this.repository.update(code);
@@ -73,7 +75,7 @@ class OtpService extends BaseService<OtpRepository> {
         // TODO: Verificar e incrementar numerador de intentos.
         let code = await this.repository.getByCode(verifyDto.code);
         if (code === null)
-            throw new Error('Código incorrecto');
+            throw new Error(getText(TextType.BAD_CODE));
         return code;
     }
 }

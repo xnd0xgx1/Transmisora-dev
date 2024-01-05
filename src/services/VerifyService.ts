@@ -5,6 +5,8 @@ import OtpService from "./OtpService";
 import OtpType from "../enums/OtpType";
 import VerifyDto from "../dto/VerifyDto";
 import VerifyRequestDto from "../dto/VerifyRequestDto";
+import { getText } from "../common/Utilities";
+import TextType from "../enums/TextType";
 
 class VerifyService extends BaseService<VerifyRepository> {
 
@@ -47,10 +49,10 @@ class VerifyService extends BaseService<VerifyRepository> {
         // TODO: Marcar código como usado.
         let verifyDb = await this.repository.getByValueAndCode(verifyDto.value, verifyDto.code);
         if (verifyDb === undefined)
-            throw new Error('Datos de verificación incorrectos');
+            throw new Error(getText(TextType.VERIFICATION_DATA));
 
         if (verifyDb.isVerified)
-            throw new Error('Ya se ha utilizado esta verificación');
+            throw new Error(getText(TextType.USED_CODE));
 
         // let codeDb = await this.otpService.verify(verifyDto);
         // if (codeDb === null)
