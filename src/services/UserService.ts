@@ -362,7 +362,7 @@ class UserService extends BaseService<UserRepository> {
 
         const isPasswordMatching = await bcrypt.compare(resetPasswordDto.newPassword, user.password );
         if (isPasswordMatching)
-            throw new Error("No puedes utilizar la misma contraseña.");
+            throw new Error(getText(TextType.SAME_PASS));
         const hashedPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
         user.password = hashedPassword;
         await this.update(user);

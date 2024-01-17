@@ -4,6 +4,8 @@ import DeviceRepository from "../repositories/DeviceRepository";
 import UserService from "./UserService";
 import Role from "../enums/Role";
 import NotificationService from "./NotificationService";
+import { getText } from "../common/Utilities";
+import TextType from "../enums/TextType";
 
 class DeviceService extends BaseService<DeviceRepository> {
 
@@ -49,7 +51,7 @@ class DeviceService extends BaseService<DeviceRepository> {
         // TODO: Validar ya está verificado.
         // TODO: Validar ei el dispositovo es del usuario.
         if (deviceDb.verifyCode !== verifyCode)
-            throw new Error("Código de verificación incorrecto");
+            throw new Error(getText(TextType.BAD_CODE));
 
         deviceDb.isVerify = true;
         deviceDb.activeSesion = true;

@@ -19,5 +19,6 @@
 	"USED_CODE": "You have already used this verification code",
 	"PIN_UPDATE_HEADER":"PIN update",
 	"PIN_UPDATE_MESSAGE":"Your Transmisora account PIN has changed",
-	"VERIFICATION_DATA":"Incorrect verification data"
+	"VERIFICATION_DATA":"Incorrect verification data",
+	"SAME_PASS":"You cannot use the same password."
 }

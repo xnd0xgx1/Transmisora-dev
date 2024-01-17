@@ -19,5 +19,6 @@
 	"USED_CODE": "Ya has utilizado este código de verificación",
 	"PIN_UPDATE_HEADER":"Actualización de PIN",
 	"PIN_UPDATE_MESSAGE":"El PIN de tu cuenta Transmisora ha cambiado",
-	"VERIFICATION_DATA":"Datos de verificación incorrectos"
+	"VERIFICATION_DATA":"Datos de verificación incorrectos",
+	"SAME_PASS":"No puedes utilizar la misma contraseña."
 }
