@@ -339,7 +339,7 @@ class UserService extends BaseService<UserRepository> {
         
         const isPasswordMatching = await bcrypt.compare(setPasswordDto.newPassword, user.password );
         if (isPasswordMatching)
-            throw new Error("El código ingresado es incorrecto 5");
+            throw new Error(getText(TextType.SAME_PASS));
         
         const hashedPassword = await bcrypt.hash(setPasswordDto.newPassword, 10);
         user.password = hashedPassword;
