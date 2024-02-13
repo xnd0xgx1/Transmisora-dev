@@ -54,6 +54,12 @@ export default class UserRepository extends BaseRepository<typeof User> {
         return false;
     }
 
+    // USERS APP-CMS
+    getUsersForCMS = async () => {
+       // return the users with status isDeleted = false, and populate with devices. sessionDate is obtained from the devices.
+       return await User.find({ isDeleted: false }).populate('devices');
+    }
+
     // CMS
 
     getById(id: any): Promise<typeof User> {

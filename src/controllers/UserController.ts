@@ -62,6 +62,9 @@ class UserController extends BaseController<UserService> {
         this.router.delete(`${this.path}/:id/administrators/:idAdministrator`, await authMiddleware([Role.PERSONA_MORAL]), this.deleteAdministrator);
         this.router.post(`${this.path}/:id/verifyPin`, await authMiddleware(this.usersRols, false), this.verifyPin);
 
+        // USERS APP-CMS
+        this.router.get(`${this.path}/getAllUsersForCMS`, this.getAllUsersCMS);
+
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
         this.router.put(`${this.path}/:id/cancelCard/:idCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL]), this.cancelCard);
@@ -582,6 +585,16 @@ class UserController extends BaseController<UserService> {
             response.send({ isVerify: isVerify });
         } catch (e) {
             // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    // USERS APP-CMS
+    private getAllUsersCMS = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try{
+            const users = await this.service.getAllUsersForCMS();
+            response.send(users);
+        } catch (e) {
             next(new HttpException(400, e.message));
         }
     }

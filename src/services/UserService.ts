@@ -884,6 +884,36 @@ class UserService extends BaseService<UserRepository> {
         }
     }
 
+    // USERS APP-CMS
+    getAllUsersForCMS = async () => {
+        let users = await this.repository.getUsersForCMS();
+        if (users === null){
+            throw new Error('USUARIOS NO ENCONTRADOS');
+        }
+        // A new users array is created, with only the properties that will be shown in the CMS
+        users = users.map((user: any) => {
+            return {
+                _id: user._id,
+                email: user.email,
+                createdAt: user.createdAt,
+                //the session date will be obtained from the array devices, on its property sessionDate, i need to show the latest
+                sessionDate: user.devices.length > 0 ? user.devices.sort((a: any, b: any) => b.sessionDate - a.sessionDate)[0].sessionDate : '',
+                //the businessName is only for the persona moral users, so if user.roles is not persona moral, it will be empty
+                businessName: user.roles.includes(Role.PERSONA_MORAL) ? user.businessName : '',
+                //the firstName is only for the persona fisica users, so if user.roles is not persona fisica, it will be empty
+                firstName: user.roles.includes(Role.PERSONA_FISICA) ? user.firstName : '',
+                //the lastName is only for the persona fisica users, so if user.roles is not persona fisica, it will be empty
+                lastName: user.roles.includes(Role.PERSONA_FISICA) ? user.lastName : '',
+                //the mothersLastName is only for the persona fisica users, so if user.roles is not persona fisica, it will be empty
+                mothersLastName: user.roles.includes(Role.PERSONA_FISICA) ? user.mothersLastName : '',
+                roles: user.roles,
+                isActive: user.isActive,
+                isDeleted: user.isDeleted
+            }
+        })
+        return users;
+    }
+
     // CMS
 
     createUserCMS = async (user:any) => {        
