@@ -62,8 +62,9 @@ class UserController extends BaseController<UserService> {
         this.router.delete(`${this.path}/:id/administrators/:idAdministrator`, await authMiddleware([Role.PERSONA_MORAL]), this.deleteAdministrator);
         this.router.post(`${this.path}/:id/verifyPin`, await authMiddleware(this.usersRols, false), this.verifyPin);
 
-        // USERS APP-CMS
-        this.router.get(`${this.path}/getAllUsersForCMS`, this.getAllUsersCMS);
+        // APP-CMS
+        this.router.get(`${this.path}/getAllUsersForCMS`,this.getAllUsersCMS); //Gets all trasmisora users for CMS
+        this.router.post(`${this.path}/loginFromCMS`, this.loginFromCMS); //Validates the received token and creates a local one to be used in CMS
 
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
@@ -585,6 +586,19 @@ class UserController extends BaseController<UserService> {
             response.send({ isVerify: isVerify });
         } catch (e) {
             // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    // AUTH CMS
+    // Creates a local token to be used in CMS
+    private loginFromCMS = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            const sender = request.headers.host;
+            const userName = request.body.user;
+            const val = await this.service.loginFromCMS(sender, userName);
+            response.send(val);
+        } catch (e) {
             next(new HttpException(400, e.message));
         }
     }

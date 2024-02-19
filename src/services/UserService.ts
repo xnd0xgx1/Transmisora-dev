@@ -8,6 +8,7 @@ import { SECRET, TOKEN_EXPIRES } from "../common/constants";
 import * as jwt from 'jsonwebtoken';
 import TokenData from "../interfaces/tokenData.interface";
 import DataStoredInToken from "../interfaces/dataStoredInToken";
+import DataStoredInTokenCMS from "../interfaces/dataStoredInTokenCMS";
 import Role from "../enums/Role";
 import RegisterWithEmailDto from "../dto/RegisterWithEmailDto";
 import RegisterWithPhoneDto from "../dto/RegisterWithPhoneDto";
@@ -275,6 +276,23 @@ class UserService extends BaseService<UserRepository> {
             isNewDevice,
             device,
             activeSessions
+        }
+    }
+
+    loginFromCMS = async (sender: string, userName: string) => {
+        const allowedAddresses = ['localhost:4000', 'transmisoracmsback.azurewebsites.net/api/', 'localhost:7109'];
+        //If the request comes from an allowed address, create a token for the user and return it
+        if (allowedAddresses.some((address) => sender.includes(address))) {
+            const tokenData = this.createTokenForCMSUser(userName);
+            //Get the token from the tokenData
+            const token = tokenData.token;
+            return {
+                userName,
+                token
+            }
+        }
+        else {
+            throw new Error('No autorizado');
         }
     }
 
@@ -1343,6 +1361,17 @@ class UserService extends BaseService<UserRepository> {
         const dataStoredInToken: DataStoredInToken = {
             id: user._id,
             role: user.role
+        };
+        return {
+            expiresIn: TOKEN_EXPIRES,
+            token: jwt.sign(dataStoredInToken, SECRET, { expiresIn: TOKEN_EXPIRES }),
+        };
+    }
+
+    private createTokenForCMSUser(userName: string): TokenData{
+        const dataStoredInToken: DataStoredInTokenCMS = {
+            userName: userName,
+            role: Role.ADMIN
         };
         return {
             expiresIn: TOKEN_EXPIRES,
