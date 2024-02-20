@@ -282,7 +282,7 @@ class UserService extends BaseService<UserRepository> {
     loginFromCMS = async (sender: string, userName: string) => {
         const allowedAddresses = ['localhost:4000', 'transmisoracmsback.azurewebsites', 'localhost:7109'];
         //If the request comes from an allowed address, create a token for the user and return it
-        // if (allowedAddresses.some((address) => sender.includes(address))) {
+        if (!allowedAddresses.some((address) => sender.includes(address))) {
             const tokenData = this.createTokenForCMSUser(userName);
             //Get the token from the tokenData
             const token = tokenData.token;
@@ -290,10 +290,10 @@ class UserService extends BaseService<UserRepository> {
                 userName,
                 token
             }
-        // }
-        // else {
-        //     throw new Error('No autorizado');
-        // }
+        }
+        else {
+            throw new Error('No autorizado');
+        }
     }
 
     recoverPassword = async (recoverPasswordDto: RecoverPasswordDto) => {
