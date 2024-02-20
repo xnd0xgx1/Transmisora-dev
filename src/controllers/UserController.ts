@@ -9,6 +9,7 @@ import RegisterWithEmailDto from '../dto/RegisterWithEmailDto';
 import RegisterWithPhoneDto from '../dto/RegisterWithPhoneDto';
 import Role from '../enums/Role';
 import authMiddleware from '../middleware/auth.middleware';
+import authMiddlewareCMS from '../middleware/auth.middleware.cms';
 import LoginPhoneDto from '../dto/LoginPhoneDto';
 import UploadINEDto from '../dto/UploadINEDto';
 import TransactionService from '../services/TransactionService';
@@ -63,7 +64,7 @@ class UserController extends BaseController<UserService> {
         this.router.post(`${this.path}/:id/verifyPin`, await authMiddleware(this.usersRols, false), this.verifyPin);
 
         // APP-CMS
-        this.router.get(`${this.path}/getAllUsersForCMS`,this.getAllUsersCMS); //Gets all trasmisora users for CMS
+        this.router.get(`${this.path}/getAllUsersForCMS`,await authMiddlewareCMS([Role.ADMIN]),this.getAllUsersCMS); //Gets all trasmisora users for CMS
         this.router.post(`${this.path}/loginFromCMS`, this.loginFromCMS); //Validates the received token and creates a local one to be used in CMS
 
         // CARD POMELO
