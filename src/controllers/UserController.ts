@@ -594,9 +594,13 @@ class UserController extends BaseController<UserService> {
     // Creates a local token to be used in CMS
     private loginFromCMS = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
+            const url = require('url');
+            const parsedUrl = url.parse(request.url);
+            const sender2 = parsedUrl.hostname;
+            console.log(sender2);
             const sender = request.headers.host;
             const userName = request.body.user;
-            const val = await this.service.loginFromCMS(sender, userName);
+            const val = await this.service.loginFromCMS(sender2, userName);
             response.send(val);
         } catch (e) {
             next(new HttpException(400, e.message));
