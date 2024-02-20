@@ -926,10 +926,28 @@ class UserService extends BaseService<UserRepository> {
                 mothersLastName: user.roles.includes(Role.PERSONA_FISICA) ? user.mothersLastName : '',
                 roles: user.roles,
                 isActive: user.isActive,
-                isDeleted: user.isDeleted
+                isDeleted: user.isDeleted,
+                isBlocked: user.isBlocked
             }
         })
         return users;
+    }
+
+    changeStatusUserForCMS = async (id: string, field: string) => {
+        // Depending on the field, the status of the user will be changed
+        let user = await this.repository.getById(id);
+        if (user === null){
+            throw new Error('USUARIO NO ENCONTRADO');
+        }
+        if (field === 'isActive'){
+            user.isActive = !user.isActive;
+        }
+        else if (field === 'isBlocked'){
+            user.isBlocked = !user.isBlocked;
+        }
+        else if (field === 'isDeleted'){
+            user.isDeleted = !user.isDeleted;
+        }
     }
 
     // CMS

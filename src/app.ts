@@ -54,6 +54,7 @@ class App {
             'http://localhost:3000',
             'http://localhost:3001',
             'http://localhost:5173',
+            'https://orange-mud-01409780f.4.azurestaticapps.net',
             'http://uexchangecmsstage-enuexchangecmsstagev.eba-hbd2mpyw.us-east-2.elasticbeanstalk.com'
         ];
         this.app.use(this.except(['/payments/oxxoPayHook'], cors({
