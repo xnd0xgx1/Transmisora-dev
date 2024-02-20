@@ -66,6 +66,9 @@ class UserController extends BaseController<UserService> {
         // APP-CMS
         this.router.get(`${this.path}/getAllUsersForCMS`,await authMiddlewareCMS([Role.ADMIN]),this.getAllUsersCMS); //Gets all trasmisora users for CMS
         this.router.post(`${this.path}/loginFromCMS`, this.loginFromCMS); //Validates the received token and creates a local one to be used in CMS
+        this.router.put(`${this.path}/:id/deleteUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.deleteFromCMS); //Deletes a user from CMS
+        this.router.put(`${this.path}/:id/blockUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.blockUserFromCMS); //Updates a user from CMS
+        this.router.put(`${this.path}/:id/deactivateUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.deactivateUserFromCMS); //Updates a user from CMS
 
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
@@ -613,6 +616,37 @@ class UserController extends BaseController<UserService> {
             next(new HttpException(400, e.message));
         }
     }
+    private deleteFromCMS = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try{
+            const userId = request.params.id;
+            const field = "isDeleted"
+            const res = await this.service.changeStatusUserForCMS(userId, field);
+            response.send(res);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+    private blockUserFromCMS = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try{
+            const userId = request.params.id;
+            const field = "isBlocked"
+            const res = await this.service.changeStatusUserForCMS(userId, field);
+            response.send(res);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+    private deactivateUserFromCMS = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try{
+            const userId = request.params.id;
+            const field = "isActive"
+            const res = await this.service.changeStatusUserForCMS(userId, field);
+            response.send(res);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
 
     // CMS
 
