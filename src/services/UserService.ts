@@ -935,18 +935,24 @@ class UserService extends BaseService<UserRepository> {
 
     changeStatusUserForCMS = async (id: string, field: string) => {
         // Depending on the field, the status of the user will be changed
+        if (id.length !== 24){
+            throw new Error('ID INVALIDO');
+        }
         let user = await this.repository.getById(id);
         if (user === null){
             throw new Error('USUARIO NO ENCONTRADO');
         }
         if (field === 'isActive'){
             user.isActive = !user.isActive;
+            return await this.repository.update(user);
         }
         else if (field === 'isBlocked'){
             user.isBlocked = !user.isBlocked;
+            return await this.repository.update(user);
         }
         else if (field === 'isDeleted'){
             user.isDeleted = !user.isDeleted;
+            return await this.repository.update(user);
         }
     }
 
