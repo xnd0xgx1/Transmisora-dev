@@ -599,8 +599,9 @@ class UserController extends BaseController<UserService> {
     private loginFromCMS = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
             const sender = request.headers.host;
+            const secretKey = request.body.secretKey;
             const userName = request.body.user;
-            const val = await this.service.loginFromCMS(sender, userName);
+            const val = await this.service.loginFromCMS(sender, userName, secretKey);
             response.send(val);
         } catch (e) {
             next(new HttpException(400, e.message));

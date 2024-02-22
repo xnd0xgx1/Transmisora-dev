@@ -279,10 +279,9 @@ class UserService extends BaseService<UserRepository> {
         }
     }
 
-    loginFromCMS = async (sender: string, userName: string) => {
-        const allowedAddresses = ['localhost:4000', 'transmisoracmsback.azurewebsites.net/api/', 'localhost:7109'];
-        //If the request comes from an allowed address, create a token for the user and return it
-        if (allowedAddresses.some((address) => sender.includes(address))) {
+    loginFromCMS = async (sender: string, userName: string, secretKey: string) => {
+        // const allowedAddresses = ['localhost:4000', 'transmisoracmsback.azurewebsites', 'localhost:7109'];
+        if (secretKey === '856f5dd984b5813c2f839dd1a2898485') {
             const tokenData = this.createTokenForCMSUser(userName);
             //Get the token from the tokenData
             const token = tokenData.token;
