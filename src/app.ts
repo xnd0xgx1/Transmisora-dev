@@ -47,6 +47,8 @@ class App {
     private initializeMiddlewares() {
         this.app.use(bodyParser.raw());
         this.app.use(bodyParser.text());
+        this.app.use(bodyParser.text({ type: 'application/jwt' }))
+        this.app.use(bodyParser.json());
         this.app.use(cookieParser());
         this.app.use(i18NMiddleware());
 
