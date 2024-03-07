@@ -45,6 +45,11 @@ import OtpService from "./OtpService";
 import OtpRepository from "../repositories/OtpRepository";
 import OTP from "../models/OTP";
 import SystemService from "./SystemService";
+import axios from 'axios';
+import { URLSearchParams } from 'url';
+import RegistersService from "./RegistersService";
+import Registers from "../models/Registers";
+
 
 class UserService extends BaseService<UserRepository> {
 
@@ -63,6 +68,7 @@ class UserService extends BaseService<UserRepository> {
     private transactionService = new TransactionService();
     private kycService = new KycService();
     private systemservice = new SystemService();
+    private registersRepository = new RegistersService();
 
     private affinity_group_id = "afg-2JBuRSkKIsLtD8KnfKpHCCVj9kw"; // TODO: move to .ENV
 
@@ -954,6 +960,73 @@ class UserService extends BaseService<UserRepository> {
             return await this.repository.update(user);
         }
     }
+
+    testFlowTruora = async (userName: string, userId: string): Promise<any> => {
+        const data = new URLSearchParams({
+            key_name: userName,
+            key_type: 'web',
+            grant: 'digital-identity',
+            api_key_version: '1',
+            country: 'ALL',
+            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
+            account_id: userId
+        });
+    
+        try {
+            const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
+                headers: {
+                    'Truora-API-Key': process.env.TRUORA_API_KEY,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            // console.log(response.data);
+            return response.data; // Return the response data to be used in the controller
+        } catch (error) {
+            console.error('Error making POST request:', error.message);
+            throw new Error(error.response.data.message); // Rethrow with error message
+        }
+    };
+
+    //create a service that registers the results of the flow in the mongoDB
+    registerFlowTruora = async (data: any): Promise<any> => {
+
+        if(data.events[0].event_action == "succeeded"){
+          
+            try {
+                const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
+                    headers: {
+                        'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NTI1MzgwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDg0NTM4MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6IjIyMjNlMzkxLTZhNDEtNDc2YS1iMmJiLTQ1MzRkY2M4OGE3MiIsImtleV9uYW1lIjoidHJhc21pc29yYWtleSIsImtleV90eXBlIjoiYmFja2VuZCIsInVzZXJuYW1lIjoidHJhc21pc29yYS10cmFzbWlzb3Jha2V5In0.yueWuCGx6vyyVuxi8KQk4-xee93S4rrL1lBQuZ_hHY4",
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const reg = new Registers({
+                    process_id: response.data.process_id,
+                    account_id: response.data.account_id,
+                    client_id: response.data.client_id,
+                    flow_id: response.data.flow_id,
+                    status: response.data.status,
+                    validations: response.data.validations
+                });
+                const register = await this.registersRepository.create(reg);
+
+                return register; // Return the response data to be used in the controller
+            } catch (error) {
+                console.error('Error making POST request:', error.message);
+                throw new Error(error.response.data.message); // Rethrow with error message
+            }
+        }
+        return "EVENT NOT SUCCEED";
+        
+        // return register;
+       
+
+
+
+        
+       
+    };
 
     // CMS
 
