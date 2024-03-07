@@ -976,7 +976,7 @@ class UserService extends BaseService<UserRepository> {
         try {
             const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
                 headers: {
-                    'Truora-API-Key': process.env.TRUORA_API_KEY,
+                    'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
@@ -996,7 +996,32 @@ class UserService extends BaseService<UserRepository> {
             try {
                 const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
                     headers: {
-                        'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NTI1MzgwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDg0NTM4MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6IjIyMjNlMzkxLTZhNDEtNDc2YS1iMmJiLTQ1MzRkY2M4OGE3MiIsImtleV9uYW1lIjoidHJhc21pc29yYWtleSIsImtleV90eXBlIjoiYmFja2VuZCIsInVzZXJuYW1lIjoidHJhc21pc29yYS10cmFzbWlzb3Jha2V5In0.yueWuCGx6vyyVuxi8KQk4-xee93S4rrL1lBQuZ_hHY4",
+                        'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                        'Accept': 'application/json'
+                    }
+                });
+    
+                const reg = new Registers({
+                    process_id: response.data.process_id,
+                    account_id: response.data.account_id,
+                    client_id: response.data.client_id,
+                    flow_id: response.data.flow_id,
+                    status: response.data.status,
+                    validations: response.data.validations
+                });
+                const register = await this.registersRepository.create(reg);
+    
+                return register; // Return the response data to be used in the controller
+            } catch (error) {
+                console.error('Error making POST request:', error.message);
+                throw new Error(error.response.data.message); // Rethrow with error message
+            }
+        } else if(data.events[0].event_action == "failed") {
+            try {
+                console.log('Event failed. Taking necessary action.');
+                const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
+                    headers: {
+                        'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
                         'Accept': 'application/json'
                     }
                 });
@@ -1009,24 +1034,19 @@ class UserService extends BaseService<UserRepository> {
                     status: response.data.status,
                     validations: response.data.validations
                 });
+                
                 const register = await this.registersRepository.create(reg);
-
-                return register; // Return the response data to be used in the controller
+    
+                return register;
+                
             } catch (error) {
-                console.error('Error making POST request:', error.message);
-                throw new Error(error.response.data.message); // Rethrow with error message
+                console.error('Error handling failed event:', error.message);
+                throw new Error('An error occurred while handling a failed event.');
             }
         }
-        return "EVENT NOT SUCCEED";
-        
-        // return register;
-       
-
-
-
-        
-       
+        return "EVENT NOT SUCCEED OR FAILED"; // For cases where event_action is neither "succeeded" nor "failed".
     };
+    
 
     // CMS
 

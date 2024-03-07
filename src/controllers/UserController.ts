@@ -685,8 +685,6 @@ class UserController extends BaseController<UserService> {
 
     private webhooktruora = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
-
-            
             const logInData = request.body;
             // const user = await this.service.login(logInData);
             const decoded = jwt.verify(logInData, '30bfbe305d7c1f2ae79dd4d25757109c7d4301ebc5de2d7d65931d35b36eafcb');
