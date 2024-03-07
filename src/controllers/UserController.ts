@@ -18,6 +18,7 @@ import ResetPasswordDto from '../dto/ResetPasswordDto';
 import TransactionType from '../enums/TransactionType';
 import AdministratorDto from '../dto/AdministratorDto';
 import RecoverPasswordDto from '../dto/RecoverPasswordDto';
+import jwt from 'jsonwebtoken';
 
 class UserController extends BaseController<UserService> {
 
@@ -70,6 +71,9 @@ class UserController extends BaseController<UserService> {
         this.router.put(`${this.path}/:id/blockUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.blockUserFromCMS); //Updates a user from CMS
         this.router.put(`${this.path}/:id/deactivateUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.deactivateUserFromCMS); //Updates a user from CMS
 
+        //Truora post test
+        this.router.post(this.path + '/auth/truora', this.testFlowTruora);
+        this.router.post(`${this.path}/auth/truora/callback`, await this.truoraCallback);
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
         this.router.put(`${this.path}/:id/cancelCard/:idCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL]), this.cancelCard);
@@ -642,11 +646,55 @@ class UserController extends BaseController<UserService> {
             const userId = request.params.id;
             const field = "isActive"
             const res = await this.service.changeStatusUserForCMS(userId, field);
+            //send the response
             response.send(res);
         } catch (e) {
             next(new HttpException(400, e.message));
         }
     }
+
+    //create an endpoint
+    private testFlowTruora = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const userName = request.body.userName;
+            const userId = request.body.userId;
+            const result = await this.service.testFlowTruora(userName, userId);
+            console.log(result);
+            
+            // Assuming result already contains api_key and message
+            const process_url = `https://identity.truora.com/?token=${result.api_key}`;
+    
+            // Construct the final response object
+            const finalResponse = {
+                api_key: result.api_key,
+                message: result.message,
+                process_url: process_url
+            };
+    
+            response.send(finalResponse);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+    
+    //create an endpoint that recieves information from truora containing the result of the verification in the body
+    private truoraCallback = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            let info = request.body;
+
+            console.log(info);
+
+            const decoded = jwt.verify(info, '30bfbe305d7c1f2ae79dd4d25757109c7d4301ebc5de2d7d65931d35b36eafcb');
+
+            console.log(decoded);
+
+            console.log(info);
+            response.send({status: "ok"});
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+    
 
 
     // CMS

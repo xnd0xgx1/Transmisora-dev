@@ -45,6 +45,8 @@ import OtpService from "./OtpService";
 import OtpRepository from "../repositories/OtpRepository";
 import OTP from "../models/OTP";
 import SystemService from "./SystemService";
+import axios from 'axios';
+import { URLSearchParams } from 'url';
 
 class UserService extends BaseService<UserRepository> {
 
@@ -954,6 +956,38 @@ class UserService extends BaseService<UserRepository> {
             return await this.repository.update(user);
         }
     }
+
+    testFlowTruora = async (userName: string, userId: string): Promise<any> => {
+        const data = new URLSearchParams({
+            key_name: userName,
+            key_type: 'web',
+            grant: 'digital-identity',
+            api_key_version: '1',
+            country: 'ALL',
+            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
+            account_id: userId
+        });
+    
+        try {
+            const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
+                headers: {
+                    'Truora-API-Key': process.env.TRUORA_API_KEY,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            // console.log(response.data);
+            return response.data; // Return the response data to be used in the controller
+        } catch (error) {
+            console.error('Error making POST request:', error.message);
+            throw new Error(error.response.data.message); // Rethrow with error message
+        }
+    };
+
+    //create a service that registers the results of the flow in the mongoDB
+    registerFlowTruora = async (data: any): Promise<any> => {
+        
+    };
 
     // CMS
 
