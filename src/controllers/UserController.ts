@@ -3,6 +3,7 @@ import HttpException from '../exceptions/HttpException';
 import validationMiddleware from '../middleware/validation.middleware';
 import BaseController from './base/BaseController';
 import LoginDto from '../dto/LoginDto';
+import TruoraDto from '../dto/TruoraDto';
 import UserService from '../services/UserService';
 import BadRequestException from '../exceptions/BadRequestException';
 import RegisterWithEmailDto from '../dto/RegisterWithEmailDto';
@@ -73,7 +74,10 @@ class UserController extends BaseController<UserService> {
 
         //Truora post test
         this.router.post(this.path + '/auth/truora', this.testFlowTruora);
-        this.router.post(`${this.path}/auth/truora/callback`, await this.truoraCallback);
+        // this.router.post(`${this.path}/auth/truora/callback`, validationMiddleware(TruoraDto),this.webhooktruora);
+
+        this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
+
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
         this.router.put(`${this.path}/:id/cancelCard/:idCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL]), this.cancelCard);
@@ -676,24 +680,25 @@ class UserController extends BaseController<UserService> {
             next(new HttpException(400, e.message));
         }
     }
-    
-    //create an endpoint that recieves information from truora containing the result of the verification in the body
-    private truoraCallback = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+
+
+
+    private webhooktruora = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
-            let info = request.body;
-
-            console.log(info);
-
-            const decoded = jwt.verify(info, '30bfbe305d7c1f2ae79dd4d25757109c7d4301ebc5de2d7d65931d35b36eafcb');
-
-            console.log(decoded);
-
-            console.log(info);
-            response.send({status: "ok"});
+            const logInData = request.body;
+            // const user = await this.service.login(logInData);
+            const decoded = jwt.verify(logInData, '30bfbe305d7c1f2ae79dd4d25757109c7d4301ebc5de2d7d65931d35b36eafcb');
+            const registro = await this.service.registerFlowTruora(decoded);
+            response.send(registro);
         } catch (e) {
-            next(new HttpException(400, e.message));
+            if (e.toString().includes('bloqueada') || e.toString().includes('blocked'))
+                next(new HttpException(403, e.message));
+            else
+                next(new HttpException(400, e.message));
         }
     }
+    
+   
     
 
 
