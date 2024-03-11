@@ -68,7 +68,7 @@ class UserService extends BaseService<UserRepository> {
     private transactionService = new TransactionService();
     private kycService = new KycService();
     private systemservice = new SystemService();
-    private registersRepository = new RegistersService();
+    private registerService = new RegistersService();
 
     private affinity_group_id = "afg-2JBuRSkKIsLtD8KnfKpHCCVj9kw"; // TODO: move to .ENV
 
@@ -961,16 +961,24 @@ class UserService extends BaseService<UserRepository> {
         }
     }
 
-    testFlowTruora = async (userName: string, userId: string): Promise<any> => {
+    generateTruoraProcessUrl = async (phone: string): Promise<any> => {
+        // Check if the user already has a process_id based on the phone number
+        const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
+        // If the user already has a process_id, the process_id is returned
+        if (register !== null){
+            return register;
+        }
+
+        // If the user does not have a process_id, a new process_id is generated
         const data = new URLSearchParams({
-            key_name: userName,
+            key_name: 'test-1',
             key_type: 'web',
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
             redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
             flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
-            account_id: userId
+            account_id: phone
         });
     
         try {
@@ -979,8 +987,27 @@ class UserService extends BaseService<UserRepository> {
                     'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
-            });
-            // console.log(response.data);
+            })
+            if (response.status === 200){
+                const decodedJwt = jwt.decode(response.data.api_key);
+                var process_id = "";
+                // Decode the JWT
+                if (typeof decodedJwt === 'object' && decodedJwt !== null) {
+                    // Parse the additional_data field to a JSON object
+                    const additionalData = JSON.parse(decodedJwt.additional_data);
+                    // Access the flow_id
+                    process_id = additionalData.process_id;
+                }
+                //if the response is successful, the data is saved in the database
+                const intialObject = new Registers({
+                    account_id: data.get('account_id'),
+                    process_id: process_id,
+                    flow_id: data.get('flow_id'),
+                    status: "created",
+                });
+                const register = await this.registerService.create(intialObject);
+                console.log("registroTruora",register);
+            }            
             return response.data; // Return the response data to be used in the controller
         } catch (error) {
             console.error('Error making POST request:', error.message);
@@ -990,9 +1017,7 @@ class UserService extends BaseService<UserRepository> {
 
     //create a service that registers the results of the flow in the mongoDB
     registerFlowTruora = async (data: any): Promise<any> => {
-
         if(data.events[0].event_action == "succeeded"){
-          
             try {
                 const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
                     headers: {
@@ -1009,7 +1034,7 @@ class UserService extends BaseService<UserRepository> {
                     status: response.data.status,
                     validations: response.data.validations
                 });
-                const register = await this.registersRepository.create(reg);
+                const register = await this.registerService.updateRegister(reg);
     
                 return register; // Return the response data to be used in the controller
             } catch (error) {
@@ -1035,7 +1060,7 @@ class UserService extends BaseService<UserRepository> {
                     validations: response.data.validations
                 });
                 
-                const register = await this.registersRepository.create(reg);
+                const register = await this.registerService.updateRegister(reg);
     
                 return register;
                 

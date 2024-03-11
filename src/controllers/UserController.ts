@@ -73,7 +73,7 @@ class UserController extends BaseController<UserService> {
         this.router.put(`${this.path}/:id/deactivateUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.deactivateUserFromCMS); //Updates a user from CMS
 
         //Truora post test
-        this.router.post(this.path + '/auth/truora', this.testFlowTruora);
+        this.router.post(this.path + '/truora/createFlow', this.createTruoraFlow);
         // this.router.post(`${this.path}/auth/truora/callback`, validationMiddleware(TruoraDto),this.webhooktruora);
 
         this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
@@ -658,12 +658,20 @@ class UserController extends BaseController<UserService> {
     }
 
     //create an endpoint
-    private testFlowTruora = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+    private createTruoraFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
-            const userName = request.body.userName;
-            const userId = request.body.userId;
-            const result = await this.service.testFlowTruora(userName, userId);
-            console.log(result);
+            const phone = request.body.phone;
+            // Method responsible for generating the process_url, it creates a new one if the user does not have one
+            const result = await this.service.generateTruoraProcessUrl(phone);
+
+            // If the user already has a process_url, it creates a response object with the existing process_url
+            if (!result.api_key || !result.message) {
+                const existingResponse = {
+                    process_url: `https://identity.truora.com/${result.process_id}`
+                }
+                response.send(existingResponse);
+                return;
+            }
             
             // Assuming result already contains api_key and message
             const process_url = `https://identity.truora.com/?token=${result.api_key}`;
