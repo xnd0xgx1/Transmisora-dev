@@ -11,18 +11,18 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @param status 
      * @returns 
      */
-    getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Registers> {
-    return this.collection.findOne({ account_id: account_id, status: status });
+    async getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Registers> {
+    return await this.collection.findOne({ account_id: account_id, status: status });
     }
 
-    /**
+     /**
      * Update entire register object.
      * @param register
      * @returns
      */
-    updateRegister(register: any): Promise<typeof Registers> {
-        let objectDb = this.collection.findOne({ account_id: register.account_id, status: "created" });
-        if (objectDb !== undefined) {
+    async updateRegister(register: any): Promise<typeof Registers> {
+        let objectDb = await this.collection.findOne({ account_id: register.account_id, status: "created" });
+        if (objectDb) {
             Object.assign(objectDb, register);
             return objectDb.save();
         }
