@@ -21,7 +21,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @returns
      */
     updateRegister(register: any): Promise<typeof Registers> {
-        let objectDb = this.collection.findOne({ account_id: register.account_id, status: register.status });
+        let objectDb = this.collection.findOne({ account_id: register.account_id, status: "created" });
         if (objectDb !== undefined) {
             Object.assign(objectDb, register);
             return objectDb.save();
