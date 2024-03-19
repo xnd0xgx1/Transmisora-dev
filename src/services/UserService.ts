@@ -962,12 +962,17 @@ class UserService extends BaseService<UserRepository> {
     }
 
     generateTruoraProcessUrl = async (phone: string): Promise<any> => {
-        // Check if the user already has a process_id based on the phone number
-        const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
-        // If the user already has a process_id, the process_id is returned
-        if (register !== null){
-            return register;
-        }
+        try{
+            // Check if the user already has a process_id based on the phone number
+            const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
+            // If the user already has a process_id, the process_id is returned
+            if (register !== null){
+                return register;
+            }
+        }catch (error){
+            console.error('Error getting Truora process_id:', error.message);
+            throw new Error(error.message);
+        }        
 
         // If the user does not have a process_id, a new process_id is generated
         const data = new URLSearchParams({
@@ -1071,6 +1076,38 @@ class UserService extends BaseService<UserRepository> {
         }
         return "EVENT NOT SUCCEED OR FAILED"; // For cases where event_action is neither "succeeded" nor "failed".
     };
+
+    // Create a service that receives the userId and returns the status of the process
+    getTruoraStatus = async (userId: string): Promise<any> => {
+        try{
+            const register = await this.registerService.getStatusByAccountId(userId);
+            const status = new Registers({
+                status: register.status,
+            });
+            if (register === null){
+                throw new Error('PROCESS NOT FOUND');
+            }
+            return status;
+        }catch (error){
+            console.error('Error getting Truora status', error.message);
+            throw new Error(error.message);
+        }   
+    }
+
+    updateTruoraRegister = async (userId: string, data: any): Promise<any> => {
+        try{
+            console.log('userId', userId);
+            console.log('data', data);
+            const register = await this.registerService.updateStatusByAccountId(userId, data);
+            if (register === null){
+                throw new Error('PROCESS NOT FOUND');
+            }
+            return register;
+        }catch (error){
+            console.error('Error updating Register Object', error.message);
+            throw new Error(error.message);
+        }   
+    }
     
 
     // CMS

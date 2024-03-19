@@ -75,8 +75,9 @@ class UserController extends BaseController<UserService> {
         //Truora post test
         this.router.post(this.path + '/truora/createFlow', this.createTruoraFlow);
         // this.router.post(`${this.path}/auth/truora/callback`, validationMiddleware(TruoraDto),this.webhooktruora);
-
         this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
+        this.router.get(`${this.path}/truora/status/:id`, this.getTruoraStatus);
+        this.router.put(`${this.path}/truora/update`, this.updateTruoraRegister);
 
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
@@ -706,8 +707,30 @@ class UserController extends BaseController<UserService> {
         }
     }
     
-   
+    // Endpoint that receives the userId and returns the status of the truora process
+    private getTruoraStatus = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const userId = request.params.id;
+            console.log(userId);
+            const status = await this.service.getTruoraStatus(userId);
+            response.send(status);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
     
+    // Endpoint that receives the userId in the header, a json object in the body and returns the modified register
+    private updateTruoraRegister = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            console.log(request.headers);
+            const userId = request.headers.user_id;
+            const register = request.body;
+            const updatedRegister = await this.service.updateTruoraRegister(userId, register);
+            response.send(updatedRegister);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
 
 
     // CMS
