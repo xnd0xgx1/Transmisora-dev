@@ -8,6 +8,7 @@ const schema = new Schema<IRegisters>({
     flow_id: { type: String, require: false },
     status: { type: String, require: false },
     validations: { type: Schema.Types.Mixed, required: false },
+    extras: { type: Schema.Types.Mixed, required: false },
 }, { timestamps: true });
 
 const Registers = model<IRegisters>('registers', schema, 'registers');
