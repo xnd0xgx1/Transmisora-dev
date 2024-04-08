@@ -2,8 +2,9 @@
 
 import { BaseRepository } from './base/BaseRepository';
 import Registers from '../models/Registers';
+import { AnyArray, Schema, model } from 'mongoose';
 
-class RegistersRepository extends BaseRepository<typeof Registers> {
+class RegistersRepository extends BaseRepository<any> {
     /**
      * Get by account_id and status.
      * 
@@ -12,7 +13,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @returns 
      */
     async getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Registers> {
-    return await this.collection.findOne({ account_id: account_id, status: status });
+    return await this.collection.findOne({ account_id: account_id});
     }
 
      /**
@@ -21,14 +22,15 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @param register
      * @returns
      */
-    async updateRegister(register: any): Promise<typeof Registers> {
-        let objectDb = await this.collection.findOne({ account_id: register.account_id, status: "created" });
+    async updateRegister(register: any): Promise<any> {
+        let objectDb = await this.collection.findOne({ account_id: register.account_id});
         if (objectDb !== undefined) {
-            Object.assign(objectDb, register);
+            Object.assign(objectDb, {Truora:register,status: `Truora ${register.status}`});
             return objectDb.save();
         }
-        else
+        else{
             return register;
+        }
     }
 
     /**
@@ -42,7 +44,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
     }
 
     // create a method that receives the account_id and a field named test and updates the register with the account_id adding the test field to it
-    async updateStatusByAccountId(account_id: string, data: any): Promise<any> {
+    async updateStatusByAccountId(account_id: string, data: any,status:any): Promise<any> {
         console.log('Updating register:', account_id, data);
         let objectDb = await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 });
         console.log('objectDb:', objectDb);
@@ -51,6 +53,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
             Object.keys(data).forEach(key => {
                 objectDb.set(`extras.${key}`, data[key]);
             });
+            objectDb.status = status;
             await objectDb.save(); // Intenta guardar los cambios en la base de datos
             console.log('Updated register:', objectDb);
             return objectDb;

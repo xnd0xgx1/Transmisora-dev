@@ -696,7 +696,7 @@ class UserController extends BaseController<UserService> {
         try {
             const logInData = request.body;
             // const user = await this.service.login(logInData);
-            const decoded = jwt.verify(logInData, '30bfbe305d7c1f2ae79dd4d25757109c7d4301ebc5de2d7d65931d35b36eafcb');
+            const decoded = jwt.verify(logInData, '27e69cc916a4700e7d6c9108f8b755fea43b05e56cc6eac234d6e7b53902890f');
             const registro = await this.service.registerFlowTruora(decoded);
             response.send(registro);
         } catch (e) {
@@ -724,8 +724,9 @@ class UserController extends BaseController<UserService> {
         try {
             console.log(request.headers);
             const userId = request.headers.user_id;
+            const status = request.headers.status;
             const register = request.body;
-            const updatedRegister = await this.service.updateTruoraRegister(userId, register);
+            const updatedRegister = await this.service.updateTruoraRegister(userId, register,status);
             response.send(updatedRegister);
         } catch (e) {
             next(new HttpException(400, e.message));

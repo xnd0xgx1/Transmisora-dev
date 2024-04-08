@@ -1022,6 +1022,8 @@ class UserService extends BaseService<UserRepository> {
 
     //create a service that registers the results of the flow in the mongoDB
     registerFlowTruora = async (data: any): Promise<any> => {
+        console.log("JWT DECODED: ",data);
+        console.log("JWT object: ",data.events[0].object);
         if(data.events[0].event_action == "succeeded"){
             try {
                 const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
@@ -1031,15 +1033,8 @@ class UserService extends BaseService<UserRepository> {
                     }
                 });
     
-                const reg = new Registers({
-                    process_id: response.data.process_id,
-                    account_id: response.data.account_id,
-                    client_id: response.data.client_id,
-                    flow_id: response.data.flow_id,
-                    status: response.data.status,
-                    validations: response.data.validations
-                });
-                const register = await this.registerService.updateRegister(reg);
+                
+                const register = await this.registerService.updateRegister(response.data);
     
                 return register; // Return the response data to be used in the controller
             } catch (error) {
@@ -1047,25 +1042,18 @@ class UserService extends BaseService<UserRepository> {
                 throw new Error(error.response.data.message); // Rethrow with error message
             }
         } else if(data.events[0].event_action == "failed") {
+            
             try {
                 console.log('Event failed. Taking necessary action.');
-                const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
+                const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.process_id}/result?account_id=${data.events[0].object.account_id}`, {
                     headers: {
                         'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
                         'Accept': 'application/json'
                     }
                 });
 
-                const reg = new Registers({
-                    process_id: response.data.process_id,
-                    account_id: response.data.account_id,
-                    client_id: response.data.client_id,
-                    flow_id: response.data.flow_id,
-                    status: response.data.status,
-                    validations: response.data.validations
-                });
-                
-                const register = await this.registerService.updateRegister(reg);
+                console.log("Response: ",response.data);
+                const register = await this.registerService.updateRegister(response.data);
     
                 return register;
                 
@@ -1081,24 +1069,22 @@ class UserService extends BaseService<UserRepository> {
     getTruoraStatus = async (userId: string): Promise<any> => {
         try{
             const register = await this.registerService.getStatusByAccountId(userId);
-            const status = new Registers({
-                status: register.status,
-            });
+            
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
             }
-            return status;
+            return register;
         }catch (error){
             console.error('Error getting Truora status', error.message);
             throw new Error(error.message);
         }   
     }
 
-    updateTruoraRegister = async (userId: string, data: any): Promise<any> => {
+    updateTruoraRegister = async (userId: string, data: any,status:any): Promise<any> => {
         try{
             console.log('userId', userId);
             console.log('data', data);
-            const register = await this.registerService.updateStatusByAccountId(userId, data);
+            const register = await this.registerService.updateStatusByAccountId(userId, data,status);
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
             }

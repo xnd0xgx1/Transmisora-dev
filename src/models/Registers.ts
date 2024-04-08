@@ -7,9 +7,9 @@ const schema = new Schema<IRegisters>({
     client_id: { type: String, require: false },
     flow_id: { type: String, require: false },
     status: { type: String, require: false },
-    validations: { type: Schema.Types.Mixed, required: false },
+    Truora: { type: Schema.Types.Mixed, required: false },
     extras: { type: Schema.Types.Mixed, required: false },
-}, { timestamps: true });
+}, { timestamps: true ,strict:false});
 
 const Registers = model<IRegisters>('registers', schema, 'registers');
 export default Registers;
