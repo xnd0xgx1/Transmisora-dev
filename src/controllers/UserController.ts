@@ -78,6 +78,7 @@ class UserController extends BaseController<UserService> {
         this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
         this.router.get(`${this.path}/truora/status/:id`, this.getTruoraStatus);
         this.router.put(`${this.path}/truora/update`, this.updateTruoraRegister);
+        this.router.get(`${this.path}/registerdict`, this.getDictRegisterProcess);
 
         // CARD POMELO
         this.router.post(`${this.path}/:id/requestCard`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.requestCard);
@@ -704,6 +705,15 @@ class UserController extends BaseController<UserService> {
                 next(new HttpException(403, e.message));
             else
                 next(new HttpException(400, e.message));
+        }
+    }
+     // Endpoint that returns dictionary of register process
+     private getDictRegisterProcess = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const status = await this.service.getDictRegister();
+            response.send(status);
+        } catch (e) {
+            next(new HttpException(400, e.message));
         }
     }
     

@@ -49,6 +49,7 @@ import axios from 'axios';
 import { URLSearchParams } from 'url';
 import RegistersService from "./RegistersService";
 import Registers from "../models/Registers";
+import DictService from "./DictService";
 
 
 class UserService extends BaseService<UserRepository> {
@@ -69,6 +70,7 @@ class UserService extends BaseService<UserRepository> {
     private kycService = new KycService();
     private systemservice = new SystemService();
     private registerService = new RegistersService();
+    private dictService = new DictService();
 
     private affinity_group_id = "afg-2JBuRSkKIsLtD8KnfKpHCCVj9kw"; // TODO: move to .ENV
 
@@ -1024,7 +1026,7 @@ class UserService extends BaseService<UserRepository> {
     registerFlowTruora = async (data: any): Promise<any> => {
         console.log("JWT DECODED: ",data);
         console.log("JWT object: ",data.events[0].object);
-        if(data.events[0].event_action == "succeeded"){
+        if(data.events[0].event_action == "success"){
             try {
                 const response = await axios.get(`https://api.identity.truora.com/v1/processes/${data.events[0].object.identity_process_id}/result?account_id=${data.events[0].object.account_id}`, {
                     headers: {
@@ -1065,6 +1067,18 @@ class UserService extends BaseService<UserRepository> {
         return "EVENT NOT SUCCEED OR FAILED"; // For cases where event_action is neither "succeeded" nor "failed".
     };
 
+
+    // getDictionary
+    getDictRegister = async (): Promise<any> => {
+        try{
+            const register = await this.dictService.getAll();
+            return register;
+          
+        }catch (error){
+            console.error('Error getting Truora status', error.message);
+            throw new Error(error.message);
+        }   
+    }
     // Create a service that receives the userId and returns the status of the process
     getTruoraStatus = async (userId: string): Promise<any> => {
         try{
@@ -1073,7 +1087,28 @@ class UserService extends BaseService<UserRepository> {
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
             }
-            return register;
+            
+            const process_id = register.process_id;
+
+            if(register.status == 'created' || register.status == 'Truora pending'){
+                try {
+                    const response = await axios.get(`https://api.identity.truora.com/v1/processes/${process_id}/result?account_id=${userId}`, {
+                        headers: {
+                            'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                            'Accept': 'application/json'
+                        }
+                    });
+        
+                    
+                    const register2 = await this.registerService.updateRegister(response.data);
+        
+                    return register2; // Return the response data to be used in the controller
+                } catch (error) {
+                    return register;
+                }
+            }else{
+                return register;
+            }
         }catch (error){
             console.error('Error getting Truora status', error.message);
             throw new Error(error.message);
