@@ -36,7 +36,7 @@ class NotificationService {
     private notificationRepository = new NotificationRepository(Notification);
 
     sendEmail = async (email: string, code: any) => {
-
+        AWS.config.region = "us-east-2";
         const message = "Transmisora, tu código de verificación es: " + code;
         console.log("EMAIL GENERATION");
         console.log(email,code);
@@ -62,7 +62,7 @@ class NotificationService {
                     Data: 'Transmisora, tu código de verificación'
                 }
             },
-            Source: 'gerardo.orozco@ironbit.com.mx',
+            Source: 'notificaciones@trasmisora.com',
         };
 
         var sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
@@ -78,8 +78,9 @@ class NotificationService {
 
     sendSMS = async (phoneNumber: string, code: any) => {
         try {
+            AWS.config.region = "us-east-1";
             const params: any = {
-                Message: "Transmisora, tu código de verificación es: " + code,
+                Message: "Trasmisora, tu código de verificación es: " + code,
                 PhoneNumber: phoneNumber,
             };
 
@@ -121,7 +122,7 @@ class NotificationService {
     }
 
     sendInfoEmail = async (email: any, subject: any, message: string) => {
-
+        AWS.config.region = "us-east-2";
         if (email === undefined)
             return;
 
@@ -147,7 +148,7 @@ class NotificationService {
                     Data: subject
                 }
             },
-            Source: 'gerardo.orozco@ironbit.com.mx',
+            Source: 'notificaciones@trasmisora.com',
         };
 
         const sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();

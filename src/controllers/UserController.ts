@@ -73,6 +73,13 @@ class UserController extends BaseController<UserService> {
         this.router.put(`${this.path}/:id/deactivateUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.deactivateUserFromCMS); //Updates a user from CMS
 
         //Truora post test
+        this.router.post(this.path + '/register/sendsms', this.createTruoraFlow);
+        this.router.post(this.path + '/register/verifysms', this.createTruoraFlow);
+        this.router.post(this.path + '/register/sendemail', this.createTruoraFlow);
+        this.router.post(this.path + '/register/verifyemail', this.createTruoraFlow);
+        this.router.post(this.path + '/register/startFlow', this.createTruoraFlow);
+        this.router.get(`${this.path}/register/status/:id`, this.getTruoraStatus);
+
         this.router.post(this.path + '/truora/createFlow', this.createTruoraFlow);
         // this.router.post(`${this.path}/auth/truora/callback`, validationMiddleware(TruoraDto),this.webhooktruora);
         this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
