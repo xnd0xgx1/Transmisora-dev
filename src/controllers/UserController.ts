@@ -20,6 +20,7 @@ import TransactionType from '../enums/TransactionType';
 import AdministratorDto from '../dto/AdministratorDto';
 import RecoverPasswordDto from '../dto/RecoverPasswordDto';
 import jwt from 'jsonwebtoken';
+import VerifyDto from '../dto/VerifyDto';
 
 class UserController extends BaseController<UserService> {
 
@@ -73,17 +74,19 @@ class UserController extends BaseController<UserService> {
         this.router.put(`${this.path}/:id/deactivateUserFromCMS`,await authMiddlewareCMS([Role.ADMIN]),this.deactivateUserFromCMS); //Updates a user from CMS
 
         //Truora post test
-        this.router.post(this.path + '/register/sendsms', this.createTruoraFlow);
-        this.router.post(this.path + '/register/verifysms', this.createTruoraFlow);
-        this.router.post(this.path + '/register/sendemail', this.createTruoraFlow);
-        this.router.post(this.path + '/register/verifyemail', this.createTruoraFlow);
-        this.router.post(this.path + '/register/startFlow', this.createTruoraFlow);
+        this.router.post(this.path + '/register/sendsms', this.SendSMSOTP);
+        this.router.post(this.path + '/register/verifysms', this.verifysms);
+        this.router.post(this.path + '/register/sendemail', this.SendEMAILOTP);
+        this.router.post(this.path + '/register/verifyemail', this.verifyemail);
+        this.router.post(this.path + '/register/startFlow', this.createregisterFlow);
         this.router.get(`${this.path}/register/status/:id`, this.getTruoraStatus);
+        this.router.put(`${this.path}/register/update`, this.updateTruoraRegister);
 
         this.router.post(this.path + '/truora/createFlow', this.createTruoraFlow);
         // this.router.post(`${this.path}/auth/truora/callback`, validationMiddleware(TruoraDto),this.webhooktruora);
         this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
         this.router.get(`${this.path}/truora/status/:id`, this.getTruoraStatus);
+        
         this.router.put(`${this.path}/truora/update`, this.updateTruoraRegister);
         this.router.get(`${this.path}/registerdict`, this.getDictRegisterProcess);
 
@@ -194,6 +197,65 @@ class UserController extends BaseController<UserService> {
             response.send(user);
         } catch (e) {
             // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private verifysms = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const Verifyobj: VerifyDto = {value:`${request.body.phoneCode}${request.body.phone}`,code:request.body.code}
+            const { _id } = await this.service.verify(Verifyobj);
+            if(_id){
+                response.send({ "status": 200,message:"OK" });
+            }else{
+                next(new HttpException(400, "ERROR"));
+            }
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private SendSMSOTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            const recoverPasswordDto: RecoverPasswordDto = request.body;
+            const resp = await this.service.sendOTPs(recoverPasswordDto);
+            if(resp){
+                response.send({ "status": 200,message:"OK" });
+            }else{
+                next(new HttpException(400, "ERROR"));
+            }
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private SendEMAILOTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            const recoverPasswordDto: RecoverPasswordDto = request.body;
+            const resp = await this.service.sendOTPs(recoverPasswordDto);
+            if(resp){
+                response.send({ "status": 200,message:"OK" });
+            }else{
+                next(new HttpException(400, "ERROR"));
+            }
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private verifyemail = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const Verifyobj: VerifyDto = {value:request.body.email,code:request.body.code}
+            const userdata: RecoverPasswordDto = request.body;
+            const { _id } = await this.service.verify(Verifyobj);
+
+            if(_id){
+                const preregister = await this.service.startPreregister(userdata)
+                response.send({ "status": 200,message:"OK","preregister":preregister});
+            }else{
+                next(new HttpException(400, "ERROR"));
+            }
+        } catch (e) {
             next(new HttpException(400, e.message));
         }
     }
@@ -665,6 +727,45 @@ class UserController extends BaseController<UserService> {
             next(new HttpException(400, e.message));
         }
     }
+
+    
+  
+
+
+    private createregisterFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const phone = request.body.id;
+            // Method responsible for generating the process_url, it creates a new one if the user does not have one
+            const crear:boolean = request.body.crear;
+            const nacionalidad:boolean = request.body.nacionalidad;
+            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad);
+
+            // If the user already has a process_url, it creates a response object with the existing process_url
+            if (!result.api_key || !result.message) {
+                const existingResponse = {
+                    process_url: `https://identity.truora.com/${result.process_id}`,
+                    initialurl: result.initialurl
+                }
+                response.send(existingResponse);
+                return;
+            }
+            
+            // Assuming result already contains api_key and message
+            const process_url = `https://identity.truora.com/?token=${result.api_key}`;
+    
+            // Construct the final response object
+            const finalResponse = {
+                api_key: result.api_key,
+                message: result.message,
+                process_url: process_url
+            };
+    
+            response.send(finalResponse);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
 
     //create an endpoint
     private createTruoraFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {

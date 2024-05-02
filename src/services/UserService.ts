@@ -48,8 +48,10 @@ import SystemService from "./SystemService";
 import axios from 'axios';
 import { URLSearchParams } from 'url';
 import RegistersService from "./RegistersService";
-import Registers from "../models/Registers";
+import Registers, { Preregisters } from "../models/Registers";
 import DictService from "./DictService";
+import PreregistersService from "./PreregistersService";
+import VerifyDto from "../dto/VerifyDto";
 
 
 class UserService extends BaseService<UserRepository> {
@@ -71,6 +73,7 @@ class UserService extends BaseService<UserRepository> {
     private systemservice = new SystemService();
     private registerService = new RegistersService();
     private dictService = new DictService();
+    private preregisgterService = new PreregistersService();
 
     private affinity_group_id = "afg-2JBuRSkKIsLtD8KnfKpHCCVj9kw"; // TODO: move to .ENV
 
@@ -326,6 +329,33 @@ class UserService extends BaseService<UserRepository> {
             await this.verifyService.request({
                 value: `${recoverPasswordDto.phoneCode}${recoverPasswordDto.phone}`
             }, OtpType.RECOVER_PASSWORD, user);
+        }
+
+        return { "status": "ok" }
+    }
+    verify = async (verifydto: VerifyDto) => {
+        const { _id } = await this.verifyService.verify(verifydto);
+        return { _id };
+    }
+
+    sendOTPs = async (recoverPasswordDto: RecoverPasswordDto) => {
+
+        if (recoverPasswordDto.email !== undefined) {
+            // const user = await this.repository.getByEmail(recoverPasswordDto.email);
+            // if (!user)
+            //     throw new Error(getText(TextType.USER_NOT_FOUND));
+
+            // if (user.isBlocked)
+            //     throw new Error(getText(TextType.BLOCKED_ACCOUNT));
+
+            await this.verifyService.request({
+                value: recoverPasswordDto.email
+            }, OtpType.RECOVER_PASSWORD, recoverPasswordDto.email);
+        }
+        else {
+            await this.verifyService.request({
+                value: `${recoverPasswordDto.phoneCode}${recoverPasswordDto.phone}`
+            }, OtpType.VERIFY, `${recoverPasswordDto.phoneCode}${recoverPasswordDto.phone}`);
         }
 
         return { "status": "ok" }
@@ -963,12 +993,42 @@ class UserService extends BaseService<UserRepository> {
         }
     }
 
-    generateTruoraProcessUrl = async (phone: string): Promise<any> => {
+    startPreregister = async (userdata:RecoverPasswordDto): Promise<any> => {
+        try{
+            // Check if the user already has been preregistered based on the user data
+            const register = await this.preregisgterService.getByPhoneAndEmail(userdata);
+            if (register !== null){
+                return register;
+            }
+        }catch (error){
+            console.error('Error getting user info:', error.message);
+            throw new Error(error.message);
+        }        
+
+        // If the user does not have a preregister, a new preregister is generated
+    
+        try {
+            const intialObject = new Preregisters({
+                phoneCode: userdata.phoneCode,
+                phone: userdata.phone,
+                email: userdata.email
+            });
+            const register = await this.preregisgterService.create(intialObject);
+            console.log("registroTruora",register);
+                  
+            return register; // Return the response data to be used in the controller
+        } catch (error) {
+            console.error('Error creating register', error.message);
+            throw new Error(error.response.data.message); // Rethrow with error message
+        }
+    };
+
+    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string): Promise<any> => {
         try{
             // Check if the user already has a process_id based on the phone number
             const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
             // If the user already has a process_id, the process_id is returned
-            if (register !== null){
+            if (register !== null && crear == false){
                 return register;
             }
         }catch (error){
@@ -1010,7 +1070,9 @@ class UserService extends BaseService<UserRepository> {
                     account_id: data.get('account_id'),
                     process_id: process_id,
                     flow_id: data.get('flow_id'),
+                    initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
                     status: "created",
+                    data_obtenida:{"nacionalidad":nacionalidad}
                 });
                 const register = await this.registerService.create(intialObject);
                 console.log("registroTruora",register);

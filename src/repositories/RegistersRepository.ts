@@ -13,7 +13,7 @@ class RegistersRepository extends BaseRepository<any> {
      * @returns 
      */
     async getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Registers> {
-    return await this.collection.findOne({ account_id: account_id});
+    return await this.collection.findOne({ account_id: account_id}).sort({ createdAt: -1 });
     }
 
      /**
@@ -23,7 +23,7 @@ class RegistersRepository extends BaseRepository<any> {
      * @returns
      */
     async updateRegister(register: any): Promise<any> {
-        let objectDb = await this.collection.findOne({ account_id: register.account_id});
+        let objectDb = await this.collection.findOne({ account_id: register.account_id}).sort({ createdAt: -1 });
         if (objectDb !== undefined) {
             Object.assign(objectDb, {Truora:register,status: `Truora ${register.status}`});
             return objectDb.save();
@@ -51,7 +51,7 @@ class RegistersRepository extends BaseRepository<any> {
         if (objectDb !== null) {
             // Añadir o actualizar campos en el documento
             Object.keys(data).forEach(key => {
-                objectDb.set(`extras.${key}`, data[key]);
+                objectDb.set(`data_obtenida.${key}`, data[key]);
             });
             objectDb.status = status;
             await objectDb.save(); // Intenta guardar los cambios en la base de datos

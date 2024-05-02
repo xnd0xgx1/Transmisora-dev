@@ -1,10 +1,11 @@
 
 
 import { BaseRepository } from './base/BaseRepository';
-import Registers from '../models/Registers';
+import { Preregisters } from '../models/Registers';
 import { AnyArray, Schema, model } from 'mongoose';
+import RecoverPasswordDto from '../dto/RecoverPasswordDto';
 
-class StatusDictionary extends BaseRepository<any> {
+class PreregistersRepository extends BaseRepository<any> {
     /**
      * Get by account_id and status.
      * 
@@ -12,9 +13,20 @@ class StatusDictionary extends BaseRepository<any> {
      * @param status 
      * @returns 
      */
-    async getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Registers> {
+    async getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Preregisters> {
     return await this.collection.findOne({ account_id: account_id});
     }
+
+    /**
+     * Get by email and phone.
+     * 
+     * @param account_id 
+     * @param status 
+     * @returns 
+     */
+    async getByEmailAndPhone(userdata: RecoverPasswordDto): Promise<typeof Preregisters> {
+        return await this.collection.findOne({ phoneCode: userdata.phoneCode,phone:userdata.phone,email:userdata.email});
+        }
 
      /**
      * Update entire register object.
@@ -39,7 +51,7 @@ class StatusDictionary extends BaseRepository<any> {
      * @param account_id 
      * @returns 
      */
-    async getLastRegisterByAccountId(account_id: string): Promise<typeof Registers> {
+    async getLastRegisterByAccountId(account_id: string): Promise<typeof Preregisters> {
         return await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 });
     }
 
@@ -69,4 +81,4 @@ class StatusDictionary extends BaseRepository<any> {
 
 }
 
-export default StatusDictionary;
+export default PreregistersRepository;
