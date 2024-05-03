@@ -841,7 +841,7 @@ class UserController extends BaseController<UserService> {
     private updateTruoraRegister = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
             console.log(request.headers);
-            const userId = request.headers.user_id;
+            const userId = request.headers.iduser;
             const status = request.headers.status;
             const register = request.body;
             const updatedRegister = await this.service.updateTruoraRegister(userId, register,status);
