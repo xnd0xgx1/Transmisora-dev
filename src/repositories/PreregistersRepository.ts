@@ -5,7 +5,7 @@ import { Preregisters } from '../models/Registers';
 import { AnyArray, Schema, model } from 'mongoose';
 import RecoverPasswordDto from '../dto/RecoverPasswordDto';
 
-class PreregistersRepository extends BaseRepository<any> {
+class PreregistersRepository extends BaseRepository<typeof Preregisters> {
     /**
      * Get by account_id and status.
      * 

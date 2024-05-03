@@ -4,7 +4,7 @@ import { BaseRepository } from './base/BaseRepository';
 import Registers from '../models/Registers';
 import { AnyArray, Schema, model } from 'mongoose';
 
-class RegistersRepository extends BaseRepository<any> {
+class RegistersRepository extends BaseRepository<typeof Registers> {
     /**
      * Get by account_id and status.
      * 
