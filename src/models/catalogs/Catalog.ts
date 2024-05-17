@@ -6,7 +6,8 @@ const schema = new Schema<ICatalog>({
     // isActive: { type: Boolean, default: false },
     discriminator: { type: String },
     name: { type: String },
-    locale: { type: String, default: 'es' }
+    locale: { type: String, default: 'es' },
+    list: {type: [String], default: []}
 });
 
 const Catalog = model<ICatalog>('Catalog', schema);

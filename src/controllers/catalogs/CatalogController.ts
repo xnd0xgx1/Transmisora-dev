@@ -15,13 +15,17 @@ class CatalogController extends BaseController<CatalogService> {
 
     private async intializeRoutes() {
         this.router.get(`${this.path}/:discriminator`, this.getByDiscriminator);
+        
     }
 
     private getByDiscriminator = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
             const discriminator: string = request.params.discriminator;
             console.log(discriminator);
-            const res = await this.service.getAllByDiscriminator(discriminator);
+            const lang = request.headers["accept-language"] ? request.headers["accept-language"] : "es";
+            console.log("prelocale: ",lang);
+            const res = await this.service.getAllByDiscriminator(discriminator,lang);
+            // const res = await this.service.getAll();
             response.send(res);
         }
         catch (e) {

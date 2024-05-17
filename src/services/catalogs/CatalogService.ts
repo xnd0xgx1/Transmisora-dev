@@ -20,8 +20,8 @@ class CatalogService extends BaseService<CatalogRepository> {
         super(new CatalogRepository(Catalog));
     }
 
-    getAllByDiscriminator = async (discriminator: string) => {
-        return await this.repository.getAllByDiscriminator(discriminator);
+    getAllByDiscriminator = async (discriminator: string, lang: string) => {
+        return await this.repository.getAllByDiscriminator(discriminator,lang);
     }
 }
 
