@@ -1023,7 +1023,7 @@ class UserService extends BaseService<UserRepository> {
         }
     };
 
-    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string): Promise<any> => {
+    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string,othernation?:string,residenciatemp?:boolean,recidenciaperm?:boolean,motivo?:string): Promise<any> => {
         try{
             // Check if the user already has a process_id based on the phone number
             const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1034,10 +1034,9 @@ class UserService extends BaseService<UserRepository> {
         }catch (error){
             console.error('Error getting Truora process_id:', error.message);
             throw new Error(error.message);
-        }        
-
-        // If the user does not have a process_id, a new process_id is generated
-        const data = new URLSearchParams({
+        }       
+        
+        var data = new URLSearchParams({
             key_name: 'FLUJOPF',
             key_type: 'web',
             grant: 'digital-identity',
@@ -1047,6 +1046,21 @@ class UserService extends BaseService<UserRepository> {
             flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
             account_id: phone
         });
+
+        if(nacionalidad.toLowerCase() == "extranjera"){
+            data = new URLSearchParams({
+                key_name: 'FlujoPFExtranjera',
+                key_type: 'web',
+                grant: 'digital-identity',
+                api_key_version: '1',
+                country: 'ALL',
+                redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+                flow_id: 'IPF74c1bcd19b1bc15921f12609973748a0',
+                account_id: phone
+            });
+        }
+        // If the user does not have a process_id, a new process_id is generated
+        
     
         try {
             const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
@@ -1072,7 +1086,7 @@ class UserService extends BaseService<UserRepository> {
                     flow_id: data.get('flow_id'),
                     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
                     status: "created",
-                    data_obtenida:{"nacionalidad":nacionalidad}
+                    data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo}
                 });
                 const register = await this.registerService.create(intialObject);
                 console.log("registroTruora",register);
@@ -1265,11 +1279,15 @@ class UserService extends BaseService<UserRepository> {
         }   
     }
 
-    updateTruoraRegister = async (userId: string, data: any,status:any): Promise<any> => {
+    updateTruoraRegister = async (userId: string, data: any,status:string): Promise<any> => {
         try{
             console.log('userId', userId);
             console.log('data', data);
             const register = await this.registerService.updateStatusByAccountId(userId, data,status);
+            if(status.toUpperCase() == "PASO15B" || status.toUpperCase() == "PASO16B"){
+                await this.notificationService.sendEmail2(data.email_proveedor, "trasmisora://register?userid="+userId+"?tipoproveedor="+data.tipo_proveedor);
+                await this.notificationService.sendSMS2(data.celular_proveedor, "trasmisora://register?userid="+userId+"?tipoproveedor="+data.tipo_proveedor);
+            }
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
             }

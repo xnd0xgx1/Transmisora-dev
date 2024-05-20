@@ -76,11 +76,75 @@ class NotificationService {
                 });
     }
 
+
+    sendEmail2 = async (email: string, code: any) => {
+        AWS.config.region = "us-east-2";
+        const message = "Ingresa para realizar el registro: " + code;
+        console.log("EMAIL GENERATION");
+        console.log(email,code);
+        var params = {
+            Destination: {
+                ToAddresses: [
+                    email
+                ]
+            },
+            Message: {
+                Body: {
+                    Html: {
+                        Charset: "UTF-8",
+                        Data: message
+                    },
+                    Text: {
+                        Charset: "UTF-8",
+                        Data: message
+                    }
+                },
+                Subject: {
+                    Charset: 'UTF-8',
+                    Data: 'Transmisora, ingresa para el registro'
+                }
+            },
+            Source: 'notificaciones@trasmisora.com',
+        };
+
+        var sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
+
+        sendPromise.then(
+            function (data) {
+                console.log(data.MessageId);
+            }).catch(
+                function (err) {
+                    console.error(err, err.stack);
+                });
+    }
+
+
     sendSMS = async (phoneNumber: string, code: any) => {
         try {
             AWS.config.region = "us-east-1";
             const params: any = {
                 Message: "Trasmisora, tu código de verificación es: " + code,
+                PhoneNumber: phoneNumber,
+            };
+
+            return new AWS.SNS({ apiVersion: "2010-03-31" }).publish(params).promise()
+                .then(message => {
+                    console.log("OTP SEND SUCCESS");
+                })
+                .catch(err => {
+                    console.log(err)
+                    return err;
+                });
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
+
+    sendSMS2 = async (phoneNumber: string, code: any) => {
+        try {
+            AWS.config.region = "us-east-1";
+            const params: any = {
+                Message: "Ingresa para realizar el registro: " + code,
                 PhoneNumber: phoneNumber,
             };
 

@@ -771,8 +771,12 @@ class UserController extends BaseController<UserService> {
             const phone = request.body.id;
             // Method responsible for generating the process_url, it creates a new one if the user does not have one
             const crear:boolean = request.body.crear;
-            const nacionalidad:boolean = request.body.nacionalidad;
-            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad);
+            const nacionalidad:string = request.body.nacionalidad;
+            const othernation:string = request.body.othernation;
+            const residenciatemp:boolean = request.body.residenciatemp;
+            const recidenciaperm:boolean = request.body.residenciaperm;
+            const motivo:string = request.body.motivo;
+            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad,othernation,residenciatemp,recidenciaperm,motivo);
 
             // If the user already has a process_url, it creates a response object with the existing process_url
             if (!result.api_key || !result.message) {
