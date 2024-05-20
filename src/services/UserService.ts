@@ -1285,8 +1285,42 @@ class UserService extends BaseService<UserRepository> {
             console.log('data', data);
             const register = await this.registerService.updateStatusByAccountId(userId, data,status);
             if(status.toUpperCase() == "PASO15B" || status.toUpperCase() == "PASO16B"){
-                await this.notificationService.sendEmail2(data.email_proveedor, "trasmisora://register?userid="+userId+"?tipoproveedor="+data.tipo_proveedor);
-                await this.notificationService.sendSMS2(data.celular_proveedor, "trasmisora://register?userid="+userId+"?tipoproveedor="+data.tipo_proveedor);
+
+
+                const telefonoCompleto = data.celular_proveedor;
+                const codigoPais = telefonoCompleto.substring(0, 3); // "+52"
+                const numero = telefonoCompleto.substring(3); // "4431967999"
+
+
+                console.log(codigoPais); // "+52"
+                console.log(numero); // "4431967999"
+                const intialObject = new Preregisters({
+                    phoneCode: codigoPais,
+                    phone: numero,
+                    email: data.email_proveedor
+                });
+
+                const userdata: RecoverPasswordDto = {
+                    phoneCode: codigoPais,
+                    phone: numero,
+                    email: data.email_proveedor
+                };
+                const oldregister = await this.preregisgterService.getByPhoneAndEmail(userdata);
+
+                var _id = "NOID";
+                if (oldregister !== null){
+                    console.log("Has preregister!");
+                    _id = oldregister.id;
+                    // return register;
+                }else{
+                    const register2 = await this.preregisgterService.create(intialObject);
+                    _id = register2.id;
+                }
+
+
+               
+                await this.notificationService.sendEmail2(data.email_proveedor, "trasmisora://register?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor));
+                await this.notificationService.sendSMS2(data.celular_proveedor, "trasmisora://register?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor));
             }
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
