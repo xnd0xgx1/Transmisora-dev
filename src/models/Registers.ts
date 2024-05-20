@@ -9,6 +9,7 @@ const schema = new Schema<IRegisters>({
     flow_id: { type: String, require: false },
     status: { type: String, require: false },
     Truora: { type: Schema.Types.Mixed, required: false },
+    ZapSign: { type: Schema.Types.Mixed, required: false },
     data_obtenida: { type: Schema.Types.Mixed, required: false }
 }, { timestamps: true ,strict:false});
 

@@ -1038,7 +1038,7 @@ class UserService extends BaseService<UserRepository> {
 
         // If the user does not have a process_id, a new process_id is generated
         const data = new URLSearchParams({
-            key_name: 'test-1',
+            key_name: 'FLUJOPF',
             key_type: 'web',
             grant: 'digital-identity',
             api_key_version: '1',
@@ -1076,6 +1076,75 @@ class UserService extends BaseService<UserRepository> {
                 });
                 const register = await this.registerService.create(intialObject);
                 console.log("registroTruora",register);
+            }            
+            return response.data; // Return the response data to be used in the controller
+        } catch (error) {
+            console.error('Error making POST request:', error.message);
+            throw new Error(error.response.data.message); // Rethrow with error message
+        }
+    };
+
+    generateSapSignProcessUrl = async (id: string): Promise<any> => {
+        // try{
+        //     // Check if the user already has a process_id based on the phone number
+        //     const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
+        //     // If the user already has a process_id, the process_id is returned
+        //     if (register !== null && crear == false){
+        //         return register;
+        //     }
+        // }catch (error){
+        //     console.error('Error getting Truora process_id:', error.message);
+        //     throw new Error(error.message);
+        // }        
+
+        const register = await this.registerService.getStatusByAccountId(id);
+
+        // If the user does not have a process_id, a new process_id is generated
+        const data = new URLSearchParams({
+            key_name: 'ZapSign',
+            key_type: 'web',
+            grant: 'digital-identity',
+            api_key_version: '1',
+            country: 'ALL',
+            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            flow_id: 'IPF30fb7783937dd805d6127af8517b74c9',
+            account_id: id
+        });
+    
+        try {
+            const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
+                headers: {
+                    'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            if (response.status === 200){
+                const decodedJwt = jwt.decode(response.data.api_key);
+                var process_id = "";
+                // Decode the JWT
+                if (typeof decodedJwt === 'object' && decodedJwt !== null) {
+                    // Parse the additional_data field to a JSON object
+                    const additionalData = JSON.parse(decodedJwt.additional_data);
+                    // Access the flow_id
+                    process_id = additionalData.process_id;
+                }
+
+                register.process_id = process_id;
+                register.flow_id = data.get('flow_id');
+                register.initialurl = `https://identity.truora.com/?token=${response.data.api_key}`
+                register.status = "PASO19";
+                //if the response is successful, the data is saved in the database
+                // const intialObject = new Registers({
+                //     account_id: data.get('account_id'),
+                //     process_id: process_id,
+                //     flow_id: data.get('flow_id'),
+                //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
+                //     status: "created"
+                // });
+                // const register = await this.registerService.create(intialObject)
+                await this.registerService.update(register);
+                console.log("registroTruora",register);
+
             }            
             return response.data; // Return the response data to be used in the controller
         } catch (error) {
@@ -1169,7 +1238,26 @@ class UserService extends BaseService<UserRepository> {
                     return register;
                 }
             }else{
+
+                if(register.status == 'PASO19' || register.status == 'PASO20 - pending'){
+                    try {
+                        const response = await axios.get(`https://api.identity.truora.com/v1/processes/${process_id}/result?account_id=${userId}`, {
+                            headers: {
+                                'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                                'Accept': 'application/json'
+                            }
+                        });
+            
+                        
+                        const register2 = await this.registerService.updateRegister2(response.data);
+            
+                        return register2; // Return the response data to be used in the controller
+                    } catch (error) {
+                        return register;
+                    }
+                }else{
                 return register;
+                }
             }
         }catch (error){
             console.error('Error getting Truora status', error.message);
