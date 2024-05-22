@@ -776,7 +776,8 @@ class UserController extends BaseController<UserService> {
             const residenciatemp:boolean = request.body.residenciatemp;
             const recidenciaperm:boolean = request.body.residenciaperm;
             const motivo:string = request.body.motivo;
-            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad,othernation,residenciatemp,recidenciaperm,motivo);
+            const residence:string = request.body.residence;
+            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad,othernation,residenciatemp,recidenciaperm,motivo,residence);
 
             // If the user already has a process_url, it creates a response object with the existing process_url
             if (!result.api_key || !result.message) {

@@ -1023,7 +1023,7 @@ class UserService extends BaseService<UserRepository> {
         }
     };
 
-    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string,othernation?:string,residenciatemp?:boolean,recidenciaperm?:boolean,motivo?:string): Promise<any> => {
+    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string,othernation?:string,residenciatemp?:boolean,recidenciaperm?:boolean,motivo?:string,residence?:string): Promise<any> => {
         try{
             // Check if the user already has a process_id based on the phone number
             const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1086,7 +1086,7 @@ class UserService extends BaseService<UserRepository> {
                     flow_id: data.get('flow_id'),
                     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
                     status: "created",
-                    data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo}
+                    data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo,"residence":residence}
                 });
                 const register = await this.registerService.create(intialObject);
                 console.log("registroTruora",register);
@@ -1316,11 +1316,8 @@ class UserService extends BaseService<UserRepository> {
                     const register2 = await this.preregisgterService.create(intialObject);
                     _id = register2.id;
                 }
-
-
-               
-                await this.notificationService.sendEmail2(data.email_proveedor, "trasmisora://register?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor));
-                await this.notificationService.sendSMS2(data.celular_proveedor, "trasmisora://register?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor));
+                await this.notificationService.sendEmail2(data.email_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor));
+                await this.notificationService.sendSMS2(data.celular_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor));
             }
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
