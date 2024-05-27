@@ -20,7 +20,8 @@ export default Registers;
 const preregisterschema = new Schema<IRegisters>({
     phoneCode: { type: String, require: false },
     phone: { type: String, require: false },
-    email: { type: String, require: false }
+    email: { type: String, require: false },
+    tipo: { type: Number, require: false },
 }, { timestamps: true ,strict:false});
 
 export const Preregisters = model<IRegisters>('preregisters', preregisterschema, 'preregisters');

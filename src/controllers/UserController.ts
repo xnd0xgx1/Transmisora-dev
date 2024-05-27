@@ -754,12 +754,17 @@ class UserController extends BaseController<UserService> {
             const process_url = `https://identity.truora.com/?token=${result.api_key}`;
     
             // Construct the final response object
+            // const finalResponse = {
+            //     api_key: result.api_key,
+            //     message: result.message,
+            //     process_url: process_url
+            // };
+
             const finalResponse = {
-                api_key: result.api_key,
-                message: result.message,
-                process_url: process_url
+                api_key: "",
+                message: "API key created successfully",
+                process_url: ""
             };
-    
             response.send(finalResponse);
         } catch (e) {
             next(new HttpException(400, e.message));
@@ -779,6 +784,7 @@ class UserController extends BaseController<UserService> {
             const residence:string = request.body.residence;
             const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad,othernation,residenciatemp,recidenciaperm,motivo,residence);
 
+            console.log("Response demo truora: ",result);
             // If the user already has a process_url, it creates a response object with the existing process_url
             if (!result.api_key || !result.message) {
                 const existingResponse = {
@@ -793,10 +799,16 @@ class UserController extends BaseController<UserService> {
             const process_url = `https://identity.truora.com/?token=${result.api_key}`;
     
             // Construct the final response object
+            // const finalResponse = {
+            //     api_key: result.api_key,
+            //     message: result.message,
+            //     process_url: process_url
+            // };
+
             const finalResponse = {
-                api_key: result.api_key,
-                message: result.message,
-                process_url: process_url
+                api_key: "",
+                message: "API key created successfully",
+                process_url: ""
             };
     
             response.send(finalResponse);
