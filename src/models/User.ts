@@ -35,7 +35,7 @@ const schema = new Schema<IUser>({
     birthdate: { type: Date },
     countryOfBirth: { type: String },
     federalEntityOfBirth: { type: String },
-    occupation: { type: Schema.Types.ObjectId, ref: 'Catalog' },
+    occupation: { type: String},
     curp: { type: String },
     address: [{ type: Schema.Types.ObjectId, ref: 'Address' }],
 
@@ -50,7 +50,7 @@ const schema = new Schema<IUser>({
     identificationType: { type: String },
     identificationNumber: { type: String },
 
-    signature: { type: Schema.Types.ObjectId, ref: 'File' },
+    signature: { type: String },
 
     pinCode: { type: Number },
 
@@ -65,7 +65,7 @@ const schema = new Schema<IUser>({
 
     administrators: [{ type: Schema.Types.ObjectId, ref: 'Administrator' }],
 
-    files: [{ type: Schema.Types.ObjectId, ref: 'File' }],
+    files: [{ type: String }],
 
     emailExtra: { type: String },
     fiel: { type: String },

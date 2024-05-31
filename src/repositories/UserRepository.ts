@@ -15,11 +15,11 @@ export default class UserRepository extends BaseRepository<typeof User> {
     }
 
     getByEmail = async (email: any) => {
-        return await User.findOne({ email: email }).populate('picture administrators devices address businessAddress files language signature cards');
+        return await User.findOne({ email: email }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards');
     }
 
     getByPhone = async (phoneCode: string, phone: string) => {
-        return await User.findOne({ phoneCode: phoneCode, phone: phone }).populate('picture administrators devices address businessAddress files language signature cards');
+        return await User.findOne({ phoneCode: phoneCode, phone: phone }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards');
     }
 
     getByInviteCode = async (invitationCode: any) => {
@@ -63,7 +63,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
     // CMS
 
     getById(id: any): Promise<typeof User> {
-        return this.collection.findOne({ _id: id }).populate('files');
+        return this.collection.findOne({ _id: id });
     }
 
     getAll(): Promise<typeof User[]> {
@@ -75,6 +75,6 @@ export default class UserRepository extends BaseRepository<typeof User> {
             "files.0": {
                 "$exists": true
             }
-        }).populate('administrators files');
+        }).populate('administrators');
     }
 }

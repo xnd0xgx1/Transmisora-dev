@@ -129,7 +129,15 @@ class DeviceService extends BaseService<DeviceRepository> {
         else {
             if (user.roles[0] === Role.PERSONA_FISICA) {
                 // Send to secondary email.
-                await this.notificationService.sendEmail(user.emailSecondary, verificationCode);
+               
+                if (user.emailSecondary !== undefined && user.emailSecondary !== "") {
+                    // Send to email.
+                    await this.notificationService.sendEmail(user.emailSecondary, verificationCode);
+                }
+                else {
+                    // Send to phone.
+                    await this.notificationService.sendSMS(`${user.phoneCode}${user.phone}`, verificationCode)
+                }
             }
             else {
                 // Send to bussiness email.

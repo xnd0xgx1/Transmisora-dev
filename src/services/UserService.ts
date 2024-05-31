@@ -52,6 +52,9 @@ import Registers, { Preregisters } from "../models/Registers";
 import DictService from "./DictService";
 import PreregistersService from "./PreregistersService";
 import VerifyDto from "../dto/VerifyDto";
+import IRegisters from "../interfaces/IRegisters";
+import RegisterDto from "../dto/RegisterDto";
+import UserDto from "../dto/UserDto";
 
 
 class UserService extends BaseService<UserRepository> {
@@ -173,6 +176,7 @@ class UserService extends BaseService<UserRepository> {
         if (!userDb)
             throw new Error(getText(TextType.WRONG_ACCESS_DATA));
 
+        console.log("USER DATA: ",userDb);
         console.log("USER BLOCKED");
         if (userDb.isBlocked)
             throw new Error(getText(TextType.BLOCKED_ACCOUNT));
@@ -1292,248 +1296,232 @@ class UserService extends BaseService<UserRepository> {
                 // }
 
                 const demoresult = {
-                    "process_id": "IDP166daed28d07537959d6cdd9e41686d1",
+                    "process_id": "IDPdd377e2659c344ea28347c478b72ee8d",
                     "account_id": userId,
-                        "client_id": "TCIa3e34137d4944d68c1f80a1d0444b6a0",
-                        "flow_id": "IPF069df03f568653f11b93daea4b69f44d",
-                        "document_number": "AIVR910515HMNVLB08",
-                        "first_name": "ROBERTO AARON",
-                        "last_name": "AVILA VALDES",
-                        "created_via": "web",
-                        "flow_version": 27,
-                        "country": "MX",
-                        "status": "failure",
-                        "failure_status": "declined",
-                        "declined_reason": "geolocation_denied",
-                        "check_id": "CHK6063802e33085fff9b180f037c08453d",
-                        "validations": [
-                            {
-                                "validation_id": "VLD3b984550362f5127defd7124b6ad3f60",
-                                "ip_address": "189.141.241.191",
-                                "account_id": "663eadfc3e15ef2f941d1ade",
-                                "type": "document-validation",
-                                "validation_status": "success",
-                                "creation_date": "2024-05-22T23:31:12.952650107Z",
-                                "details": {
-                                    "background_check": {
-                                        "check_id": "CHK6780c9ba347055e3bf479d2cd42889a2",
-                                        "check_url": "https://api.checks.truora.com/v1/checks/CHK6780c9ba347055e3bf479d2cd42889a2"
-                                    },
-                                    "document_details": {
-                                        "client_id": "TCIa3e34137d4944d68c1f80a1d0444b6a0",
-                                        "country": "MX",
-                                        "doc_id": "DCRf1424a8183b842d7e3d818aecd546419",
-                                        "document_type": "national-id",
-                                        "creation_date": "2024-05-22T23:31:12.849693866Z",
-                                        "date_of_birth": "1991-05-15T00:00:00Z",
-                                        "document_number": "AIVR910515HMNVLB08",
-                                        "expiration_date": "2032-01-01T00:00:00Z",
-                                        "gender": "male",
-                                        "issue_date": "2022-01-01T00:00:00Z",
-                                        "last_name": "AVILA VALDES",
-                                        "first_last_name": "AVHA",
-                                        "second_last_name": "VALDES",
-                                        "machine_readable": "IDMEX2271222981<<10960928827859105159H3212312MEX<01<<05747<3AVILA<VALDES<<ROBERTO<AARON<<<",
-                                        "mexico_document": {
-                                            "cic": "227122298",
-                                            "citizen_id": "092882785",
-                                            "elector_key": "AVVLRB91051516H300",
-                                            "issue_number": "01",
-                                            "neighborhood": "COL LOMAS DE GUAYANGAREO",
-                                            "ocr": "1096092882785",
-                                            "section": 1096
-                                        },
-                                        "mime_type": "image/jpeg",
-                                        "name": "ROBERTO AARON",
-                                        "postal_code": "58240",
-                                        "registration_date": "2012-01-01T00:00:00Z",
-                                        "residence_address": "AV QUINCEO 342 COL LOMAS DE GUAYANGAREO 58240 MORELIA, MICH.",
-                                        "street": "AV QUINCEO 342",
-                                        "update_date": "2024-05-22T23:32:03.443676163Z"
-                                    },
-                                    "document_validations": {
-                                        "data_consistency": [
-                                            {
-                                                "validation_name": "Validation of mrz",
-                                                "result": "valid",
-                                                "validation_type": "mrz-validation",
-                                                "message": "The front side labels and data machine readable zone match",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:03.863995543Z"
-                                            },
-                                            {
-                                                "validation_name": "Validation of expiration date",
-                                                "result": "valid",
-                                                "validation_type": "expiration-date-validation",
-                                                "message": "The document has not expired",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:03.863997742Z"
-                                            }
-                                        ],
-                                        "government_database": [
-                                            {
-                                                "validation_name": "Validation of Government Database - INE",
-                                                "result": "skipped",
-                                                "validation_type": "government-database-digital-validation-ine",
-                                                "message": "Another database confirmed identity",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:06.585600262Z"
-                                            },
-                                            {
-                                                "validation_name": "Validation of Government Database - Renapo",
-                                                "result": "valid",
-                                                "validation_type": "government-database-digital-validation-renapo",
-                                                "message": "Document is current and registered in main identity database",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:06.585953148Z"
-                                            }
-                                        ],
-                                        "image_analysis": [
-                                            {
-                                                "validation_name": "Validation of security elements",
-                                                "result": "valid",
-                                                "validation_type": "security-elements-validation",
-                                                "message": "The security elements are valid",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:18.782220788Z"
-                                            }
-                                        ],
-                                        "photocopy_analysis": [
-                                            {
-                                                "validation_name": "Validation of Photocopy Analysis",
-                                                "result": "valid",
-                                                "validation_type": "photocopy-validation",
-                                                "message": "The document is not a photocopy",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:10.069765585Z"
-                                            }
-                                        ],
-                                        "photo_of_photo": [
-                                            {
-                                                "validation_name": "Validation of photo of photo",
-                                                "result": "valid",
-                                                "validation_type": "photo-of-photo-validation",
-                                                "message": "The document is not a photo of photo",
-                                                "manually_reviewed": false,
-                                                "created_at": "2024-05-22T23:32:10.841613616Z"
-                                            }
-                                        ]
-                                    }
-                                },
-                                "identity_process_id": "IDP3956e93c851daac6012aa3869e974c7f",
-                                "attachment_status": "valid",
-                                "attachment_validations": [
-                                    {
-                                        "validation_name": "Validation of face detection",
-                                        "validation_type": "face-detection-validation",
-                                        "attachment_type": "document-front",
-                                        "result": "valid"
-                                    },
-                                    {
-                                        "validation_name": "Validation of document text legibility",
-                                        "validation_type": "ocr-validation",
-                                        "attachment_type": "document-front",
-                                        "result": "valid"
-                                    },
-                                    {
-                                        "validation_name": "Validation of document text legibility",
-                                        "validation_type": "ocr-validation",
-                                        "attachment_type": "document-reverse",
-                                        "result": "valid"
-                                    }
-                                ],
-                                "front_image": "https://truora-files-production.s3.us-east-1.amazonaws.com/documents-recognition/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663eadfc3e15ef2f941d1ade/MX/national-id/web/VLD3b984550362f5127defd7124b6ad3f60/DCRf1424a8183b842d7e3d818aecd546419_front.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHL2J4NDXM%2F20240522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240522T233234Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEO%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDeYHPXGxDEZp4LPPrUZYLc6TlItRVPd2euY3rCefk%2B5AiAoB4dEKWf58H%2By8xOyd%2BfFvjpl038yUF0MptRwSuHqJSqZAwhnEAMaDDAzMTk3NTcxMjI3MCIM5yirioN7eM%2F%2FRlAvKvYCIcpoNn27m%2BnvSPaZI%2F05P42i8rgTpWN9pPfoR2Dan9GgIyWRF37C9osh3lpMv3AQ1sUq5yJdddpQzri5rsBPg3G%2FJk1SpCSe07fb8uwT%2ByCu4ghtFxzqdJotO7TqKhr5H0DoMHFMeq7SewrgBGKCz%2Fe2Up8FzlIPs5xt3tOIqQtd3ZtnyOer%2FaWrs%2BI3kjmLHChTJSe2vlhgxN0NQWoFBeDyg35nSuTertBx%2FNyEm8cqOLhaJ6ehaRMKlmyqgbqxXXy%2BM7Ny14PmCJPjPz7EaGcyFBEO4LD%2BJ%2BnmJz11Af%2FLOqj7HkW3MsJwO80fzOHm65CaJDXsJ1BKZwqKjRW7VfprqkzuATz9qMN8Xx5CaziR%2B8FBUI%2BPDE5DbPeQfXBRGXqqBkompeDMO0jTUFpuQF31UxjLwWdSWsFoK%2Fv7r9cRmJWYaIJas9Rado8GjjC3JlVPwJYSF0eWU49lYYlJ2NmCVRX8X4Ajeoiplf6jivjcF1CKstsw59q5sgY6ngFIny5nmsf5%2F2o8vEvcXzF47oBsZgQHzcVYAAvLQo2ydwnZAIQZGuRQuKWpRq60%2ByNmy4bSkK3YAfuzAkeG6cCAq7iD3svbfwL%2B8YYHcE6ivL02hsR2YRJLPtWbHJt0VytDzu2hDx7lODrb%2Fq%2BJWqTYiSqVm8SImXHip%2Bir5jDDuK7gk7fU29saJUiVyT00WebNaJiFoyuaKSQT1%2BVxHQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=32de9635fdf3dfa948bb2531235f19f1d7ece26bc408cecf7924113cb16a3ba6",
-                                "reverse_image": "https://truora-files-production.s3.us-east-1.amazonaws.com/documents-recognition/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663eadfc3e15ef2f941d1ade/MX/national-id/web/VLD3b984550362f5127defd7124b6ad3f60/DCRf1424a8183b842d7e3d818aecd546419_reverse.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHL2J4NDXM%2F20240522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240522T233234Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEO%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDeYHPXGxDEZp4LPPrUZYLc6TlItRVPd2euY3rCefk%2B5AiAoB4dEKWf58H%2By8xOyd%2BfFvjpl038yUF0MptRwSuHqJSqZAwhnEAMaDDAzMTk3NTcxMjI3MCIM5yirioN7eM%2F%2FRlAvKvYCIcpoNn27m%2BnvSPaZI%2F05P42i8rgTpWN9pPfoR2Dan9GgIyWRF37C9osh3lpMv3AQ1sUq5yJdddpQzri5rsBPg3G%2FJk1SpCSe07fb8uwT%2ByCu4ghtFxzqdJotO7TqKhr5H0DoMHFMeq7SewrgBGKCz%2Fe2Up8FzlIPs5xt3tOIqQtd3ZtnyOer%2FaWrs%2BI3kjmLHChTJSe2vlhgxN0NQWoFBeDyg35nSuTertBx%2FNyEm8cqOLhaJ6ehaRMKlmyqgbqxXXy%2BM7Ny14PmCJPjPz7EaGcyFBEO4LD%2BJ%2BnmJz11Af%2FLOqj7HkW3MsJwO80fzOHm65CaJDXsJ1BKZwqKjRW7VfprqkzuATz9qMN8Xx5CaziR%2B8FBUI%2BPDE5DbPeQfXBRGXqqBkompeDMO0jTUFpuQF31UxjLwWdSWsFoK%2Fv7r9cRmJWYaIJas9Rado8GjjC3JlVPwJYSF0eWU49lYYlJ2NmCVRX8X4Ajeoiplf6jivjcF1CKstsw59q5sgY6ngFIny5nmsf5%2F2o8vEvcXzF47oBsZgQHzcVYAAvLQo2ydwnZAIQZGuRQuKWpRq60%2ByNmy4bSkK3YAfuzAkeG6cCAq7iD3svbfwL%2B8YYHcE6ivL02hsR2YRJLPtWbHJt0VytDzu2hDx7lODrb%2Fq%2BJWqTYiSqVm8SImXHip%2Bir5jDDuK7gk7fU29saJUiVyT00WebNaJiFoyuaKSQT1%2BVxHQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=319045219ccab328a24ec2d645f220a318136fea5fda2571878d898039a13f2d"
+                    "client_id": "TCIa3e34137d4944d68c1f80a1d0444b6a0",
+                    "flow_id": "IPF069df03f568653f11b93daea4b69f44d",
+                    "document_number": "PILJ941223HMNNNR07",
+                    "first_name": "JORGE LUIS",
+                    "last_name": "PINTOR LEON",
+                    "created_via": "web",
+                    "flow_version": { "$numberInt": "24" },
+                    "country": "MX",
+                    "status": "success",
+                    "check_id": "CHK0ed46b40be95c115c2309b54d2883a1c",
+                    "validations": [
+                      {
+                        "validation_id": "VLDd4de01e31057b52a0cab9ca27e2c173a",
+                        "ip_address": "177.224.182.194",
+                        "account_id": "663bae9b3e15ef2f941cf356",
+                        "type": "document-validation",
+                        "validation_status": "success",
+                        "creation_date": "2024-05-09T18:17:07.286108548Z",
+                        "details": {
+                          "background_check": {
+                            "check_id": "CHK5676af0880b2f9c2f672618c47148657",
+                            "check_url": "https://api.checks.truora.com/v1/checks/CHK5676af0880b2f9c2f672618c47148657"
+                          },
+                          "document_details": {
+                            "client_id": "TCIa3e34137d4944d68c1f80a1d0444b6a0",
+                            "country": "MX",
+                            "doc_id": "DCR4a629035b482eff606a8353931d43429",
+                            "document_type": "national-id",
+                            "creation_date": "2024-05-09T18:17:07.208451259Z",
+                            "date_of_birth": "1994-12-23T00:00:00Z",
+                            "document_number": "PILJ941223HMNNNR07",
+                            "expiration_date": "2029-01-01T00:00:00Z",
+                            "gender": "male",
+                            "issue_date": "2019-01-01T00:00:00Z",
+                            "last_name": "PINTOR LEON",
+                            "first_last_name": "PINTOR",
+                            "second_last_name": "LEON",
+                            "machine_readable": "IDMEX1903856497<<03240941737719412239H2912316MEX<01<<14378<4PINTOR<LEON<<JORGE<LUIS<<<<<<<",
+                            "mexico_document": {
+                              "cic": "190385649",
+                              "citizen_id": "094173771",
+                              "elector_key": "PNLNJR94122316H000",
+                              "issue_number": "01",
+                              "locality": { "$numberInt": "1" },
+                              "municipality": {
+                                "$numberInt": "20"
+                              },
+                              "municipality_name": "CUITZEO",
+                              "neighborhood": "COL LOS GRANADOS",
+                              "ocr": "0324094173771",
+                              "section": { "$numberInt": "324" },
+                              "state": { "$numberInt": "16" },
+                              "state_name": "MICHOACAN"
                             },
-                            {
-                                "validation_id": "VLD1dfeef99752df7eaf971d38c74a9bf82",
-                                "ip_address": "189.141.241.191",
-                                "account_id": "663eadfc3e15ef2f941d1ade",
-                                "type": "face-recognition",
-                                "validation_status": "success",
-                                "threshold": 0.65,
-                                "creation_date": "2024-05-22T23:32:01.272290601Z",
-                                "details": {
-                                    "face_recognition_validations": {
-                                        "enrollment_id": "ENR36f309e57bcf5e67c60225619c7f0c14",
-                                        "similarity_status": "success",
-                                        "age_range": {
-                                            "high": 41,
-                                            "low": 33
-                                        },
-                                        "confidence_score": 1
-                                    }
-                                },
-                                "identity_process_id": "IDP3956e93c851daac6012aa3869e974c7f",
-                                "front_image": "https://truora-files-production.s3.us-east-1.amazonaws.com/face-recognition-validator/enroll/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663eadfc3e15ef2f941d1ade/ENR36f309e57bcf5e67c60225619c7f0c14?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHL2J4NDXM%2F20240522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240522T233234Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEO%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDeYHPXGxDEZp4LPPrUZYLc6TlItRVPd2euY3rCefk%2B5AiAoB4dEKWf58H%2By8xOyd%2BfFvjpl038yUF0MptRwSuHqJSqZAwhnEAMaDDAzMTk3NTcxMjI3MCIM5yirioN7eM%2F%2FRlAvKvYCIcpoNn27m%2BnvSPaZI%2F05P42i8rgTpWN9pPfoR2Dan9GgIyWRF37C9osh3lpMv3AQ1sUq5yJdddpQzri5rsBPg3G%2FJk1SpCSe07fb8uwT%2ByCu4ghtFxzqdJotO7TqKhr5H0DoMHFMeq7SewrgBGKCz%2Fe2Up8FzlIPs5xt3tOIqQtd3ZtnyOer%2FaWrs%2BI3kjmLHChTJSe2vlhgxN0NQWoFBeDyg35nSuTertBx%2FNyEm8cqOLhaJ6ehaRMKlmyqgbqxXXy%2BM7Ny14PmCJPjPz7EaGcyFBEO4LD%2BJ%2BnmJz11Af%2FLOqj7HkW3MsJwO80fzOHm65CaJDXsJ1BKZwqKjRW7VfprqkzuATz9qMN8Xx5CaziR%2B8FBUI%2BPDE5DbPeQfXBRGXqqBkompeDMO0jTUFpuQF31UxjLwWdSWsFoK%2Fv7r9cRmJWYaIJas9Rado8GjjC3JlVPwJYSF0eWU49lYYlJ2NmCVRX8X4Ajeoiplf6jivjcF1CKstsw59q5sgY6ngFIny5nmsf5%2F2o8vEvcXzF47oBsZgQHzcVYAAvLQo2ydwnZAIQZGuRQuKWpRq60%2ByNmy4bSkK3YAfuzAkeG6cCAq7iD3svbfwL%2B8YYHcE6ivL02hsR2YRJLPtWbHJt0VytDzu2hDx7lODrb%2Fq%2BJWqTYiSqVm8SImXHip%2Bir5jDDuK7gk7fU29saJUiVyT00WebNaJiFoyuaKSQT1%2BVxHQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=82d413aba5f95d4f6f7a9668f35df01a04d3628ce3f1b2ba872da5c7aee2376c",
-                                "face_photo": "https://truora-files-production.s3.us-east-1.amazonaws.com/validation-filters/processed/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663eadfc3e15ef2f941d1ade/VLD1dfeef99752df7eaf971d38c74a9bf82/frame_1.jpg_watermark.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHL2J4NDXM%2F20240522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240522T233234Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEO%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDeYHPXGxDEZp4LPPrUZYLc6TlItRVPd2euY3rCefk%2B5AiAoB4dEKWf58H%2By8xOyd%2BfFvjpl038yUF0MptRwSuHqJSqZAwhnEAMaDDAzMTk3NTcxMjI3MCIM5yirioN7eM%2F%2FRlAvKvYCIcpoNn27m%2BnvSPaZI%2F05P42i8rgTpWN9pPfoR2Dan9GgIyWRF37C9osh3lpMv3AQ1sUq5yJdddpQzri5rsBPg3G%2FJk1SpCSe07fb8uwT%2ByCu4ghtFxzqdJotO7TqKhr5H0DoMHFMeq7SewrgBGKCz%2Fe2Up8FzlIPs5xt3tOIqQtd3ZtnyOer%2FaWrs%2BI3kjmLHChTJSe2vlhgxN0NQWoFBeDyg35nSuTertBx%2FNyEm8cqOLhaJ6ehaRMKlmyqgbqxXXy%2BM7Ny14PmCJPjPz7EaGcyFBEO4LD%2BJ%2BnmJz11Af%2FLOqj7HkW3MsJwO80fzOHm65CaJDXsJ1BKZwqKjRW7VfprqkzuATz9qMN8Xx5CaziR%2B8FBUI%2BPDE5DbPeQfXBRGXqqBkompeDMO0jTUFpuQF31UxjLwWdSWsFoK%2Fv7r9cRmJWYaIJas9Rado8GjjC3JlVPwJYSF0eWU49lYYlJ2NmCVRX8X4Ajeoiplf6jivjcF1CKstsw59q5sgY6ngFIny5nmsf5%2F2o8vEvcXzF47oBsZgQHzcVYAAvLQo2ydwnZAIQZGuRQuKWpRq60%2ByNmy4bSkK3YAfuzAkeG6cCAq7iD3svbfwL%2B8YYHcE6ivL02hsR2YRJLPtWbHJt0VytDzu2hDx7lODrb%2Fq%2BJWqTYiSqVm8SImXHip%2Bir5jDDuK7gk7fU29saJUiVyT00WebNaJiFoyuaKSQT1%2BVxHQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=1e90886b318a333602eee4298bd63754bd9eb2b369e596122b4c1f605cbbe7ff",
-                                "face_photo_watermark": "https://truora-files-production.s3.us-east-1.amazonaws.com/validation-filters/processed/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663eadfc3e15ef2f941d1ade/VLD1dfeef99752df7eaf971d38c74a9bf82/frame_1.jpg_watermark.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHL2J4NDXM%2F20240522%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240522T233234Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEO%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDeYHPXGxDEZp4LPPrUZYLc6TlItRVPd2euY3rCefk%2B5AiAoB4dEKWf58H%2By8xOyd%2BfFvjpl038yUF0MptRwSuHqJSqZAwhnEAMaDDAzMTk3NTcxMjI3MCIM5yirioN7eM%2F%2FRlAvKvYCIcpoNn27m%2BnvSPaZI%2F05P42i8rgTpWN9pPfoR2Dan9GgIyWRF37C9osh3lpMv3AQ1sUq5yJdddpQzri5rsBPg3G%2FJk1SpCSe07fb8uwT%2ByCu4ghtFxzqdJotO7TqKhr5H0DoMHFMeq7SewrgBGKCz%2Fe2Up8FzlIPs5xt3tOIqQtd3ZtnyOer%2FaWrs%2BI3kjmLHChTJSe2vlhgxN0NQWoFBeDyg35nSuTertBx%2FNyEm8cqOLhaJ6ehaRMKlmyqgbqxXXy%2BM7Ny14PmCJPjPz7EaGcyFBEO4LD%2BJ%2BnmJz11Af%2FLOqj7HkW3MsJwO80fzOHm65CaJDXsJ1BKZwqKjRW7VfprqkzuATz9qMN8Xx5CaziR%2B8FBUI%2BPDE5DbPeQfXBRGXqqBkompeDMO0jTUFpuQF31UxjLwWdSWsFoK%2Fv7r9cRmJWYaIJas9Rado8GjjC3JlVPwJYSF0eWU49lYYlJ2NmCVRX8X4Ajeoiplf6jivjcF1CKstsw59q5sgY6ngFIny5nmsf5%2F2o8vEvcXzF47oBsZgQHzcVYAAvLQo2ydwnZAIQZGuRQuKWpRq60%2ByNmy4bSkK3YAfuzAkeG6cCAq7iD3svbfwL%2B8YYHcE6ivL02hsR2YRJLPtWbHJt0VytDzu2hDx7lODrb%2Fq%2BJWqTYiSqVm8SImXHip%2Bir5jDDuK7gk7fU29saJUiVyT00WebNaJiFoyuaKSQT1%2BVxHQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=1e90886b318a333602eee4298bd63754bd9eb2b369e596122b4c1f605cbbe7ff"
-                            }
-                        ],
-                        "last_finished_step": {
-                            "step_id": "IPS2418e6ab5630fb77cee0a873d89af0a6",
-                            "type": "get_validations_result",
-                            "verification_output": {
-                                "status": "success",
-                                "media_uploaded": false,
-                                "step_data_received": false
-                            },
-                            "redirect_url": "",
-                            "config": null,
-                            "expected_inputs": null,
-                            "files_upload_urls": null,
-                            "remaining_retries": 0,
-                            "async_step": null,
-                            "verification_id": "get_validations_result",
-                            "start_date": "2024-05-22T23:32:26.291033527Z",
-                            "finish_date": "2024-05-22T23:32:26.29111429Z"
+                            "mime_type": "image/jpeg",
+                            "name": "JORGE LUIS",
+                            "postal_code": "58840",
+                            "registration_date": "2013-01-01T00:00:00Z",
+                            "residence_address": "C NICOLAS REGULES 31 A COL LOS GRANADOS 58840 CUITZEO, MICH.",
+                            "state": "16",
+                            "state_name": "MICHOACAN",
+                            "street": "C NICOLAS REGULES 31 A",
+                            "update_date": "2024-05-09T18:18:05.597368747Z"
+                          },
+                          "document_validations": {
+                            "data_consistency": [
+                              {
+                                "validation_name": "Validation of expiration date",
+                                "result": "valid",
+                                "validation_type": "expiration-date-validation",
+                                "message": "The document has not expired",
+                                "manually_reviewed": false,
+                                "created_at": "2024-05-09T18:18:05.932144402Z"
+                              },
+                              {
+                                "validation_name": "Validation of mrz",
+                                "result": "valid",
+                                "validation_type": "mrz-validation",
+                                "message": "The front side labels and data machine readable zone match",
+                                "manually_reviewed": false,
+                                "created_at": "2024-05-09T18:18:05.932132866Z"
+                              }
+                            ],
+                            "government_database": [
+                              {
+                                "validation_name": "Validation of Government Database - Renapo",
+                                "result": "valid",
+                                "validation_type": "government-database-digital-validation-renapo",
+                                "message": "Document is current and registered in main identity database",
+                                "manually_reviewed": false,
+                                "created_at": "2024-05-09T18:18:08.348122326Z"
+                              },
+                              {
+                                "validation_name": "Validation of Government Database - INE",
+                                "result": "skipped",
+                                "validation_type": "government-database-digital-validation-ine",
+                                "message": "Another database confirmed identity",
+                                "manually_reviewed": false,
+                                "created_at": "2024-05-09T18:18:08.347944996Z"
+                              }
+                            ],
+                            "photocopy_analysis": [
+                              {
+                                "validation_name": "Validation of Photocopy Analysis",
+                                "result": "valid",
+                                "validation_type": "photocopy-validation",
+                                "message": "The document is not a photocopy",
+                                "manually_reviewed": false,
+                                "created_at": "2024-05-09T18:18:07.026412157Z"
+                              }
+                            ],
+                            "photo_of_photo": [
+                              {
+                                "validation_name": "Validation of photo of photo",
+                                "result": "valid",
+                                "validation_type": "photo-of-photo-validation",
+                                "message": "The document is not a photo of photo",
+                                "manually_reviewed": false,
+                                "created_at": "2024-05-09T18:18:06.523284974Z"
+                              }
+                            ]
+                          }
                         },
-                        "creation_date": "2024-05-22T21:58:58.442445975Z",
-                        "update_date": "2024-05-22T23:32:27Z",
-                        "geolocation_ip": "19.6404, -101.1825",
-                        "ip_address": "189.141.241.191",
-                        "city": "Morelia",
-                        "geolocation_device": "denied",
-                        "devices_info": [
-                            {
-                                "model": "SM-A546E",
-                                "type": "mobile",
-                                "os": "Android",
-                                "os_version": "14.0.0",
-                                "browser": "Chrome WebView",
-                                "browser_version": "124.0.6367.179"
-                            },
-                            {
-                                "model": "SM-A546E",
-                                "type": "mobile",
-                                "os": "Android",
-                                "os_version": "14.0.0",
-                                "browser": "Chrome WebView",
-                                "browser_version": "125.0.6422.53"
-                            },
-                            {
-                                "model": "SM-A546E",
-                                "type": "mobile",
-                                "os": "Android",
-                                "os_version": "14.0.0",
-                                "browser": "Chrome WebView",
-                                "browser_version": "125.0.6422.53"
-                            }
+                        "identity_process_id": "IDPdd377e2659c344ea28347c478b72ee8d",
+                        "attachment_status": "valid",
+                        "attachment_validations": [
+                          {
+                            "validation_name": "Validation of face detection",
+                            "validation_type": "face-detection-validation",
+                            "attachment_type": "document-front",
+                            "result": "valid"
+                          },
+                          {
+                            "validation_name": "Validation of document text legibility",
+                            "validation_type": "ocr-validation",
+                            "attachment_type": "document-front",
+                            "result": "valid"
+                          },
+                          {
+                            "validation_name": "Validation of document text legibility",
+                            "validation_type": "ocr-validation",
+                            "attachment_type": "document-reverse",
+                            "result": "valid"
+                          }
                         ],
-                        "trigger_info": {
-                            "channel_name": "web",
-                            "channel_type": "unknown",
-                            "id": "IPF069df03f568653f11b93daea4b69f44d",
-                            "name": "FLUJOPF",
-                            "message": "",
-                            "media_content_path": "",
-                            "trigger_user": "",
-                            "response": "",
-                            "options": null
+                        "front_image": "https://truora-files-production.s3.us-east-1.amazonaws.com/documents-recognition/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663bae9b3e15ef2f941cf356/MX/national-id/web/VLDd4de01e31057b52a0cab9ca27e2c173a/DCR4a629035b482eff606a8353931d43429_front.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHDVYHVOU6%2F20240509%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240509T181848Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCID%2B1u4HIW52b87TlowW1QQ57pUByVEO%2F3zEVZ9ehv02hAiEAlKacVALVCgEsUOgurIC302JyQ%2B0Z7mAFMNUkUnxL1cYqmQMIGxADGgwwMzE5NzU3MTIyNzAiDMljK98Grfgp6t3eCir2AoaiZ3oDSZ9aF%2FaNHqtAArkkpvfxjb%2BS2P3u3MoXSZ5GwgkSx%2BtWji%2Fi3xX1TeU3TdF3Vk%2FWB1beUIELaPgwHsKYq8LzfHfvKPOP2EOsBAFonWfZAVoMxrwk45cA41Wh0PpqX850HEGmrsguPHLHLC1vprbIlBAj3mLqfG3FZpqZ4HaATNVE5FoXoYEb5hJNUUQkjcfKn03lYHiKlbWEhB8YF1uCTnn3pRGkcLc6A8bpUrh3XUCsy6HXEvwiKu4UtuuLe9Zh4tVLvAgCkVI9uJR8%2FgTmPeytWiV7rJrz74xpfw%2F%2FkJRI7QX5xMwBWuGPD6yzV9vF8jQWo3xByz8NUPsT%2BEwwzGxjMJo9YI479i64mPdj1j6P3dBdHZmYTLaMVvEXpoKpo%2FR55d4JyeqBhZoUYT%2F2tdDNtPhTcUNZOu1dN%2BVkG86TZjMriRFKsnIVr9eNvYwpIQ5gihhpDbdGISRo7M%2FmUEz5Lluqh%2Bg5nAclK%2Bs6pzccMOyN9LEGOp0Bas%2BJUibHN7JgwEHld83IM7K4uvcAaBCgGrHe7qrtvTN8s0yAcMIQmsljk%2F1xCjpbmiPa5gxcQHAI0bfX9dF%2Bs0tH7uG6pFpiFcYo6nv4u2e1pyZyz%2B96nCiEhpXN5tZVC1ntC3TyPg3%2B0N2vATcPv%2B1R925WR6uaCWutoLKaSjB3EHA00AF5VCZvJRyyqHYq67xM7WZaYQn%2BcMUfoQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=c7ccae043931d542fe88850f4da428436a66f046aa2ab2db6a62efa53fada946",
+                        "reverse_image": "https://truora-files-production.s3.us-east-1.amazonaws.com/documents-recognition/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663bae9b3e15ef2f941cf356/MX/national-id/web/VLDd4de01e31057b52a0cab9ca27e2c173a/DCR4a629035b482eff606a8353931d43429_reverse.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHDVYHVOU6%2F20240509%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240509T181848Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCID%2B1u4HIW52b87TlowW1QQ57pUByVEO%2F3zEVZ9ehv02hAiEAlKacVALVCgEsUOgurIC302JyQ%2B0Z7mAFMNUkUnxL1cYqmQMIGxADGgwwMzE5NzU3MTIyNzAiDMljK98Grfgp6t3eCir2AoaiZ3oDSZ9aF%2FaNHqtAArkkpvfxjb%2BS2P3u3MoXSZ5GwgkSx%2BtWji%2Fi3xX1TeU3TdF3Vk%2FWB1beUIELaPgwHsKYq8LzfHfvKPOP2EOsBAFonWfZAVoMxrwk45cA41Wh0PpqX850HEGmrsguPHLHLC1vprbIlBAj3mLqfG3FZpqZ4HaATNVE5FoXoYEb5hJNUUQkjcfKn03lYHiKlbWEhB8YF1uCTnn3pRGkcLc6A8bpUrh3XUCsy6HXEvwiKu4UtuuLe9Zh4tVLvAgCkVI9uJR8%2FgTmPeytWiV7rJrz74xpfw%2F%2FkJRI7QX5xMwBWuGPD6yzV9vF8jQWo3xByz8NUPsT%2BEwwzGxjMJo9YI479i64mPdj1j6P3dBdHZmYTLaMVvEXpoKpo%2FR55d4JyeqBhZoUYT%2F2tdDNtPhTcUNZOu1dN%2BVkG86TZjMriRFKsnIVr9eNvYwpIQ5gihhpDbdGISRo7M%2FmUEz5Lluqh%2Bg5nAclK%2Bs6pzccMOyN9LEGOp0Bas%2BJUibHN7JgwEHld83IM7K4uvcAaBCgGrHe7qrtvTN8s0yAcMIQmsljk%2F1xCjpbmiPa5gxcQHAI0bfX9dF%2Bs0tH7uG6pFpiFcYo6nv4u2e1pyZyz%2B96nCiEhpXN5tZVC1ntC3TyPg3%2B0N2vATcPv%2B1R925WR6uaCWutoLKaSjB3EHA00AF5VCZvJRyyqHYq67xM7WZaYQn%2BcMUfoQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=0efc93dec60bf28f4158c75b9c6543fe029a4a800ab3873528312a0b1372dff5"
+                      },
+                      {
+                        "validation_id": "VLDe6b3d760a850af8eb3cd6ae53e65b00a",
+                        "ip_address": "177.224.182.194",
+                        "account_id": "663bae9b3e15ef2f941cf356",
+                        "type": "face-recognition",
+                        "validation_status": "success",
+                        "threshold": { "$numberDouble": "0.65" },
+                        "creation_date": "2024-05-09T18:18:02.908994043Z",
+                        "details": {
+                          "face_recognition_validations": {
+                            "enrollment_id": "ENR7276d03602976b5fd3461d7c927088b2",
+                            "similarity_status": "success",
+                            "age_range": {
+                              "high": { "$numberInt": "32" },
+                              "low": { "$numberInt": "24" }
+                            },
+                            "confidence_score": {
+                              "$numberInt": "1"
+                            }
+                          }
                         },
-                        "time_to_live": 120,
-                        "current_step_index": 9
-                    };
+                        "identity_process_id": "IDPdd377e2659c344ea28347c478b72ee8d",
+                        "front_image": "https://truora-files-production.s3.us-east-1.amazonaws.com/face-recognition-validator/enroll/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663bae9b3e15ef2f941cf356/ENR7276d03602976b5fd3461d7c927088b2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHP6KBCZF4%2F20240509%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240509T181848Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCCDjlKIY%2F33yGLcFGfpzR%2FFjeGb67hD9kbK8DrXnERUAIhAIehwOwxkRapcdG8HyiK56MIQ4YJWUyN5LIfEbi0qDieKpkDCBoQAxoMMDMxOTc1NzEyMjcwIgwlk51EwTbj8Sl%2Bzokq9gKzSRKERQ%2Ff7km%2FroZ4p5qL%2Fh9QVVbqLAcTlaB46SxOmpTA%2FK4QXiMSAn8gyMejybzL8CFSWot6IETZ%2F7IciELmUgoBxx3uGEpgCirk1a9%2FpeX7pI%2BwsjPPMFLCt9M%2FETcMQU%2BLrVMPLoyoFYcOJbI0sMWS51u0E%2F3Wc2IQuvR7xFZUgCvHYY8ktEzCgm3nknfS3OX23QGeKr%2Bt2kiLuFSMKWOPcEpcI2JQyz%2FzTEIfmZoxHrFpk59gPvgPNTp%2F0t%2FUrjJAh14uPCzHgo1FZCWks5Nuo%2FlPzSwogiCuVNzHpLZ%2FhLDTUOppw9GHffjHiJ%2BMbjyU7LtJE5kOJyFChnuuRhycr81gkZMpZsXtWcK0qI6KIZalScCIQgACuL26E1FOV1glWWDvfD6TLYAZrQvY0gBDj5UlPdTXD%2BoSJUW0NSj%2BuplBEM8UfDN78b9RydI7%2Fo0cEu%2FX9SRkxWgu6r%2FXeAT1tc1uKbJUYu%2F0LZjtWQx7vYifCDDjhfSxBjqcAQLeW21xf9W8hQgo5VczykKrqOYsHysmpnPx%2F3id4gsgLseYMhVTJLV9SLpxgdxw%2FzZJLl2Mywt%2FBlsTVYXjTquEHxNSakr8YVF8SD6QRGqAHUHuTmsNc9Zd14M3%2Ffn5y0xdCbaHXetIMIiGkidlIvPGlit4qK1Qutp6aAhSC6%2B1iaYJnDzWMUWuc2JzvfidBO6gNgcc9HFGTjGiJQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=2bec97c10f0051c29d9bb96b8c88f039b7d9cb34d6d105a65218f7327bfef429",
+                        "face_photo": "https://truora-files-production.s3.us-east-1.amazonaws.com/validation-filters/processed/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663bae9b3e15ef2f941cf356/VLDe6b3d760a850af8eb3cd6ae53e65b00a/frame_1.jpg_watermark.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHP6KBCZF4%2F20240509%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240509T181848Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCCDjlKIY%2F33yGLcFGfpzR%2FFjeGb67hD9kbK8DrXnERUAIhAIehwOwxkRapcdG8HyiK56MIQ4YJWUyN5LIfEbi0qDieKpkDCBoQAxoMMDMxOTc1NzEyMjcwIgwlk51EwTbj8Sl%2Bzokq9gKzSRKERQ%2Ff7km%2FroZ4p5qL%2Fh9QVVbqLAcTlaB46SxOmpTA%2FK4QXiMSAn8gyMejybzL8CFSWot6IETZ%2F7IciELmUgoBxx3uGEpgCirk1a9%2FpeX7pI%2BwsjPPMFLCt9M%2FETcMQU%2BLrVMPLoyoFYcOJbI0sMWS51u0E%2F3Wc2IQuvR7xFZUgCvHYY8ktEzCgm3nknfS3OX23QGeKr%2Bt2kiLuFSMKWOPcEpcI2JQyz%2FzTEIfmZoxHrFpk59gPvgPNTp%2F0t%2FUrjJAh14uPCzHgo1FZCWks5Nuo%2FlPzSwogiCuVNzHpLZ%2FhLDTUOppw9GHffjHiJ%2BMbjyU7LtJE5kOJyFChnuuRhycr81gkZMpZsXtWcK0qI6KIZalScCIQgACuL26E1FOV1glWWDvfD6TLYAZrQvY0gBDj5UlPdTXD%2BoSJUW0NSj%2BuplBEM8UfDN78b9RydI7%2Fo0cEu%2FX9SRkxWgu6r%2FXeAT1tc1uKbJUYu%2F0LZjtWQx7vYifCDDjhfSxBjqcAQLeW21xf9W8hQgo5VczykKrqOYsHysmpnPx%2F3id4gsgLseYMhVTJLV9SLpxgdxw%2FzZJLl2Mywt%2FBlsTVYXjTquEHxNSakr8YVF8SD6QRGqAHUHuTmsNc9Zd14M3%2Ffn5y0xdCbaHXetIMIiGkidlIvPGlit4qK1Qutp6aAhSC6%2B1iaYJnDzWMUWuc2JzvfidBO6gNgcc9HFGTjGiJQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=cce6e27cf4e3ac880e4504b0df937e1fe4fb6b595a5e92f726264e4247ae3b29",
+                        "face_photo_watermark": "https://truora-files-production.s3.us-east-1.amazonaws.com/validation-filters/processed/TCIa3e34137d4944d68c1f80a1d0444b6a0/TCIa3e34137d4944d68c1f80a1d0444b6a0-663bae9b3e15ef2f941cf356/VLDe6b3d760a850af8eb3cd6ae53e65b00a/frame_1.jpg_watermark.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAQO4PGUYHP6KBCZF4%2F20240509%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240509T181848Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCCDjlKIY%2F33yGLcFGfpzR%2FFjeGb67hD9kbK8DrXnERUAIhAIehwOwxkRapcdG8HyiK56MIQ4YJWUyN5LIfEbi0qDieKpkDCBoQAxoMMDMxOTc1NzEyMjcwIgwlk51EwTbj8Sl%2Bzokq9gKzSRKERQ%2Ff7km%2FroZ4p5qL%2Fh9QVVbqLAcTlaB46SxOmpTA%2FK4QXiMSAn8gyMejybzL8CFSWot6IETZ%2F7IciELmUgoBxx3uGEpgCirk1a9%2FpeX7pI%2BwsjPPMFLCt9M%2FETcMQU%2BLrVMPLoyoFYcOJbI0sMWS51u0E%2F3Wc2IQuvR7xFZUgCvHYY8ktEzCgm3nknfS3OX23QGeKr%2Bt2kiLuFSMKWOPcEpcI2JQyz%2FzTEIfmZoxHrFpk59gPvgPNTp%2F0t%2FUrjJAh14uPCzHgo1FZCWks5Nuo%2FlPzSwogiCuVNzHpLZ%2FhLDTUOppw9GHffjHiJ%2BMbjyU7LtJE5kOJyFChnuuRhycr81gkZMpZsXtWcK0qI6KIZalScCIQgACuL26E1FOV1glWWDvfD6TLYAZrQvY0gBDj5UlPdTXD%2BoSJUW0NSj%2BuplBEM8UfDN78b9RydI7%2Fo0cEu%2FX9SRkxWgu6r%2FXeAT1tc1uKbJUYu%2F0LZjtWQx7vYifCDDjhfSxBjqcAQLeW21xf9W8hQgo5VczykKrqOYsHysmpnPx%2F3id4gsgLseYMhVTJLV9SLpxgdxw%2FzZJLl2Mywt%2FBlsTVYXjTquEHxNSakr8YVF8SD6QRGqAHUHuTmsNc9Zd14M3%2Ffn5y0xdCbaHXetIMIiGkidlIvPGlit4qK1Qutp6aAhSC6%2B1iaYJnDzWMUWuc2JzvfidBO6gNgcc9HFGTjGiJQ%3D%3D&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=cce6e27cf4e3ac880e4504b0df937e1fe4fb6b595a5e92f726264e4247ae3b29"
+                      }
+                    ],
+                    "last_finished_step": {
+                      "step_id": "IPSf94d22146f76f38578746e161570a870",
+                      "type": "get_validations_result",
+                      "verification_output": {
+                        "status": "success",
+                        "media_uploaded": false,
+                        "step_data_received": false
+                      },
+                      "redirect_url": "",
+                      "config": null,
+                      "expected_inputs": null,
+                      "files_upload_urls": null,
+                      "remaining_retries": { "$numberInt": "0" },
+                      "async_step": null,
+                      "verification_id": "get_validations_result",
+                      "start_date": "2024-05-09T18:18:42.876617065Z",
+                      "finish_date": "2024-05-09T18:18:42.876659403Z"
+                    },
+                    "creation_date": "2024-05-09T18:16:50.115558321Z",
+                    "update_date": "2024-05-09T18:18:45Z",
+                    "geolocation_ip": "19.6647, -101.2791",
+                    "ip_address": "177.224.182.194",
+                    "city": "Morelia",
+                    "geolocation_device": "19.971838648066335, -101.14189434544384",
+                    "devices_info": [
+                      {
+                        "model": "iPhone",
+                        "type": "mobile",
+                        "os": "iOS",
+                        "browser": "WebKit",
+                        "browser_version": "605.1.15"
+                      }
+                    ],
+                    "trigger_info": {
+                      "channel_name": "web",
+                      "channel_type": "unknown",
+                      "id": "IPF069df03f568653f11b93daea4b69f44d",
+                      "name": "Test-1",
+                      "message": "",
+                      "media_content_path": "",
+                      "trigger_user": "",
+                      "response": "",
+                      "options": null
+                    },
+                    "time_to_live": { "$numberInt": "120" },
+                    "current_step_index": { "$numberInt": "9" }
+                  };
+
+
                 const register2 = await this.registerService.updateRegister(demoresult);
                 return register2;
 
@@ -1658,13 +1646,22 @@ class UserService extends BaseService<UserRepository> {
             
                         
                         const register2 = await this.registerService.updateRegister2(demozapsign);
-            
+                        if(register2.status == "PASO20 - success" ){
+                            this.registerToLogin(register2);
+                        }
                         return register2; // Return the response data to be used in the controller
                     } catch (error) {
                         return register;
                     }
                 }else{
+                if(register.status == "PASO20 - success" ){
+                    const logged = await this.registerToLogin(register);
+                    return register;
+                }else{
                 return register;
+                }
+
+
                 }
             }
         }catch (error){
@@ -1672,6 +1669,110 @@ class UserService extends BaseService<UserRepository> {
             throw new Error(error.message);
         }   
     }
+
+    registerToLogin = async (Registerobj: any) => {
+
+
+        let preregister = await this.preregisgterService.getById(Registerobj.account_id);
+        let userDb = await this.repository.getByEmail(preregister.email);
+        // if (userDb !== null)
+        //     throw new Error(MSG_EMAIL_ALREADY_REGISTERED);
+
+        // Verifica si el email o teléfono ha sido verificado.
+        // const verify = await this.verifyService.getById(Registerobj.verify._id);
+        // if (verify === null)
+        //     throw new Error('MSG_EMAIL_ALREADY_REGISTERED');
+
+        // TODO: Validar si existen los catálogos.        
+
+        
+        const hashedPassword = await bcrypt.hash(Registerobj.data_obtenida.pass, 10);
+      
+        const adress:any = {
+            country:Registerobj.data_obtenida.pais,
+            state:Registerobj.data_obtenida.ciudad_poblacion,
+            municipality:Registerobj.data_obtenida.delegacion_municipio,
+            city:Registerobj.data_obtenida.ciudad_poblacion,
+            suburb:Registerobj.data_obtenida.colonia,
+            exteriorNumber:Registerobj.data_obtenida.n_exterior,
+            interiorNumber:Registerobj.data_obtenida.n_interior,
+            cp:Registerobj.data_obtenida.cp,
+            phoneNumber:"",
+            email:"",
+            constitutionDate: new Date()
+        };
+        let useradress = await this.addressRepository.create(adress)
+
+
+        
+        let user = {
+            roles:["PERSONA_FISICA"],
+            "isActive": true,
+            "isComplete": true,
+            "isAdminVerified": true,
+            "isCellPhonVerified": false,
+            "isEmailVerified": true,
+            "RegistrationStage": "STP_REGISTER",
+            "address": [
+                useradress
+            ],
+            "businessAddress": [],
+            "administrators": [],
+            "files": [Registerobj.Truora.validations[0].details.background_check.check_url,Registerobj.Truora.validations[0].front_image,Registerobj.Truora.validations[1].face_photo_watermark],
+            "balance": 0,
+            "balanceUSD": 0,
+            "devices": [
+            ],
+            "cards": [],
+            "domicileAt": Registerobj.data_obtenida.residence,
+            "email": preregister.email,
+            "phoneCode":preregister.phoneCode,
+            "phone":preregister.phone,
+            "language": "63bf7b31867c93050b5f191d"
+            ,
+            "nationality": Registerobj.nacionalidad,
+            "password": hashedPassword,
+            "birthdate": new Date(Registerobj.Truora.validations[0].details.document_details.date_of_birth),
+            "countryOfBirth": Registerobj.Truora.validations[0].details.document_details.country,
+            "curp": "",
+            "emailSecondary": "",
+            "federalEntityOfBirth": "",
+            "firstName": (Registerobj.Truora.validations[0].details.document_details.first_last_name + " " +  Registerobj.Truora.validations[0].details.document_details.second_last_name),
+            "gender": Registerobj.Truora.validations[0].details.document_details.gender,
+            "lastName": Registerobj.Truora.validations[0].details.document_details.last_name,
+            "mothersLastName": "",
+            "occupation":  Registerobj.data_obtenida.ocupacion ,
+            "avatar": Registerobj.data_obtenida.avatar,
+            "color": Registerobj.data_obtenida.fondo_avatar,
+            "userName": Registerobj.data_obtenida.nombre_usuario,
+            "identificationNumber": Registerobj.Truora.validations[0].details.document_details.doc_id,
+            "identificationType": Registerobj.Truora.validations[0].details.document_details.document_type,
+            "signature": Registerobj.ZapSign.validations[0].details.signature_image_url,
+            "pinCode": 111111,
+            "failedLoginAttempts": 0,
+            "isBlocked": false,
+            "status": "PENDING",
+            "isDeleted": false
+        }
+
+        userDb = await this.repository.create({ ...user});
+
+        // TODO: Enviar OTP.
+        // this.optService.request(userDb, OTPType.VERIFY_ACCOUNT);
+
+        const tokenData = this.createToken(userDb);
+        const token = tokenData.token;
+
+        return {
+            ...userDb._doc,
+            token
+        };
+
+        // return ({})
+
+
+    }
+
 
     updateTruoraRegister = async (userId: string, data: any,status:string): Promise<any> => {
         try{
