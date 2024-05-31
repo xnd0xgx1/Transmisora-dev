@@ -1647,21 +1647,17 @@ class UserService extends BaseService<UserRepository> {
                         
                         const register2 = await this.registerService.updateRegister2(demozapsign);
                         if(register2.status == "PASO20 - success" ){
-                            this.registerToLogin(register2);
-                        }
+                            const logged = await this.registerToLogin(register2);
+                            return register;
+                        }else{
                         return register2; // Return the response data to be used in the controller
+                        }
                     } catch (error) {
                         return register;
                     }
                 }else{
-                if(register.status == "PASO20 - success" ){
-                    const logged = await this.registerToLogin(register);
-                    return register;
-                }else{
+                
                 return register;
-                }
-
-
                 }
             }
         }catch (error){
@@ -1690,7 +1686,7 @@ class UserService extends BaseService<UserRepository> {
       
         const adress:any = {
             country:Registerobj.data_obtenida.pais,
-            state:Registerobj.data_obtenida.ciudad_poblacion,
+            state:"",
             municipality:Registerobj.data_obtenida.delegacion_municipio,
             city:Registerobj.data_obtenida.ciudad_poblacion,
             suburb:Registerobj.data_obtenida.colonia,
