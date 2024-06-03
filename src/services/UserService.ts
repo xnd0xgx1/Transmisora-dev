@@ -1648,7 +1648,7 @@ class UserService extends BaseService<UserRepository> {
                         const register2 = await this.registerService.updateRegister2(demozapsign);
                         if(register2.status == "PASO20 - success" ){
                             const logged = await this.registerToLogin(register2);
-                            return logged;
+                            return register2;
                         }else{
                         return register2; // Return the response data to be used in the controller
                         }
