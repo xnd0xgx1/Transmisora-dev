@@ -1760,13 +1760,24 @@ class UserService extends BaseService<UserRepository> {
             
                         
                         const register2 = await this.registerService.updateRegister2(demozapsign);
+                        console.log("STATUS 2: ",register2);
                         if(register2.status == "PASO20 - success" ){
+                            console.log("Register paso 20 success");
                             const logged = await this.registerToLogin(register2);
+                            let preregister = await this.preregisgterService.getById(register2.account_id);
+                            let phone = preregister.phoneCode + preregister.phone;
+                            console.log("SENDING NOTIFICATIONS");
+                            console.log("EMAIL:",preregister.email);
+                            console.log("PHONE:",phone);
+                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola ${register2.Truora.first_name}!, Tu registro en Trasmisora ha sido exitoso, ya puedes ingresar con tus credenciales.`,'Trasmisora, registro exitoso!');
+                            await this.notificationService.sendSMSGeneric(phone, `Hola ${register2.Truora.first_name}!, Tu registro en Trasmisora ha sido exitoso, ya puedes ingresar con tus credenciales.`);
+
                             return register2;
                         }else{
                         return register2; // Return the response data to be used in the controller
                         }
                     } catch (error) {
+                        console.log("ERROR: ",error);
                         return register;
                     }
                 }else{
@@ -1996,6 +2007,12 @@ class UserService extends BaseService<UserRepository> {
                         const register2 = await this.registerService.updateRegister2(demozapsign);
                         if(register2.status == "PASO20 - success" ){
                             const logged = await this.registerToLogin(register2);
+                            let preregister = await this.preregisgterService.getById(register2.account_id);
+                            let phone = preregister.phoneCode + preregister.phone;
+                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, Tu registro en Trasmisora ha sido exitoso, puedes ingresar con tus credenciales`,'Trasmisora, registro exitoso!');
+                            await this.notificationService.sendSMSGeneric(phone, `Hola !, Tu registro en Trasmisora ha sido exitoso, puedes ingresar con tus credenciales`);
+
+
                             return register2;
                         }else{
                         return register2; // Return the response data to be used in the controller
@@ -2019,6 +2036,8 @@ class UserService extends BaseService<UserRepository> {
 
         let preregister = await this.preregisgterService.getById(Registerobj.account_id);
         let userDb = await this.repository.getByEmail(preregister.email);
+
+
         // if (userDb !== null)
         //     throw new Error(MSG_EMAIL_ALREADY_REGISTERED);
 

@@ -37,7 +37,7 @@ class NotificationService {
 
     sendEmail = async (email: string, code: any) => {
         AWS.config.region = "us-east-2";
-        const message = "Transmisora, tu código de verificación es: " + code;
+        const message = "Trasmisora, tu código de verificación es: " + code;
         console.log("EMAIL GENERATION");
         console.log(email,code);
         var params = {
@@ -59,7 +59,7 @@ class NotificationService {
                 },
                 Subject: {
                     Charset: 'UTF-8',
-                    Data: 'Transmisora, tu código de verificación'
+                    Data: 'Trasmisora, tu código de verificación'
                 }
             },
             Source: 'notificaciones@trasmisora.com',
@@ -101,7 +101,7 @@ class NotificationService {
                 },
                 Subject: {
                     Charset: 'UTF-8',
-                    Data: 'Transmisora, ingresa para el registro'
+                    Data: 'Trasmisora, ingresa para el registro'
                 }
             },
             Source: 'notificaciones@trasmisora.com',
@@ -119,6 +119,49 @@ class NotificationService {
     }
 
 
+    sendEmailGeneric = async (email: string, content: any,asunto: string) => {
+        AWS.config.region = "us-east-2";
+        const message = "" + content;
+        console.log("EMAIL GENERATION");
+        console.log(email,content);
+        var params = {
+            Destination: {
+                ToAddresses: [
+                    email
+                ]
+            },
+            Message: {
+                Body: {
+                    Html: {
+                        Charset: "UTF-8",
+                        Data: message
+                    },
+                    Text: {
+                        Charset: "UTF-8",
+                        Data: message
+                    }
+                },
+                Subject: {
+                    Charset: 'UTF-8',
+                    Data: asunto
+                }
+            },
+            Source: 'notificaciones@trasmisora.com',
+        };
+
+        var sendPromise = new AWS.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
+
+        sendPromise.then(
+            function (data) {
+                console.log(data.MessageId);
+            }).catch(
+                function (err) {
+                    console.error(err, err.stack);
+                });
+    }
+
+
+
     sendSMS = async (phoneNumber: string, code: any) => {
         try {
             AWS.config.region = "us-east-1";
@@ -126,7 +169,29 @@ class NotificationService {
                 Message: "Trasmisora, tu código de verificación es: " + code,
                 PhoneNumber: phoneNumber,
             };
+            console.log("PARAMS SMS: ",params);
+            return new AWS.SNS({ apiVersion: "2010-03-31" }).publish(params).promise()
+                .then(message => {
+                    console.log("OTP SEND SUCCESS");
+                })
+                .catch(err => {
+                    console.log(err)
+                    return err;
+                });
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
 
+    sendSMSGeneric = async (phoneNumber: string, content: any) => {
+        try {
+            console.log("TRYING TO SEND SMS");
+            AWS.config.region = "us-east-1";
+            const params: any = {
+                Message: content,
+                PhoneNumber: phoneNumber,
+            };
+        
             return new AWS.SNS({ apiVersion: "2010-03-31" }).publish(params).promise()
                 .then(message => {
                     console.log("OTP SEND SUCCESS");
@@ -147,6 +212,8 @@ class NotificationService {
                 Message: "Ingresa para realizar el registro: " + code,
                 PhoneNumber: phoneNumber,
             };
+
+            console.log("PARAMS SMS: ",params);
 
             return new AWS.SNS({ apiVersion: "2010-03-31" }).publish(params).promise()
                 .then(message => {

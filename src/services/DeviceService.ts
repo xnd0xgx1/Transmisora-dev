@@ -47,7 +47,7 @@ class DeviceService extends BaseService<DeviceRepository> {
 
     verifyDevice = async (user: any, deviceId: any, verifyCode: any) => {
         let deviceDb = await this.repository.getById(deviceId);
-
+        
         // TODO: Validar ya está verificado.
         // TODO: Validar ei el dispositovo es del usuario.
         if (deviceDb.verifyCode !== verifyCode)

@@ -57,7 +57,9 @@ class DeviceController extends BaseController<DeviceService> {
 
     verifyDevice = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
+            
             const user = request.user;
+            
             const deviceId = request.params.deviceId;
             let { verifyCode }: any = request.body;
             let device = await this.service.verifyDevice(user, deviceId, verifyCode);
