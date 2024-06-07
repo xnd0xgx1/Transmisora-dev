@@ -81,6 +81,7 @@ class UserController extends BaseController<UserService> {
         this.router.post(this.path + '/register/startFlow', this.createregisterFlow);
         this.router.get(`${this.path}/register/status/:id`, this.getTruoraStatus);
         this.router.put(`${this.path}/register/update`, this.updateTruoraRegister);
+        this.router.get(`${this.path}/register/randomuser/:id`, this.generateUsername);
 
         this.router.post(this.path + '/register/Sapsign', this.createSapsignFlow);
 
@@ -551,7 +552,8 @@ class UserController extends BaseController<UserService> {
      */
     private generateUsername = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
-            const userName = await this.service.generateUsername();
+            const userId = request.params.id;
+            const userName = await this.service.randomUsername(userId);
             response.send({ "userName": userName });
         } catch (e) {
             // await this.logRepository.create(e);
@@ -664,6 +666,7 @@ class UserController extends BaseController<UserService> {
      */
     private verifyPin = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
+
             const user = request.user;
             const { pinCode } = request.body;
 

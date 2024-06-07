@@ -771,6 +771,19 @@ class UserService extends BaseService<UserRepository> {
         return user;
     }
 
+    randomUsername = async (userid: any) => {
+        let usuarios: any;
+        let random: string;
+        let dbuser = await this.registerService.getByAccountIdAndStatus(userid,"");
+        do {
+            let num = Math.floor(100000 + Math.random() * 900000)
+            random = `${(dbuser.Truora.first_name).replace(/\s/g,'')}${num}`
+            usuarios = await this.repository.getByUserName(random);
+        }
+        while (usuarios != null);
+        return random;
+    }
+
     generateUsername = async () => {
         let usuarios: any;
         let random: string;
