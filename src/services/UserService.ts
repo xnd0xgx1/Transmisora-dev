@@ -1138,7 +1138,88 @@ class UserService extends BaseService<UserRepository> {
                 flow_id: data.get('flow_id'),
                 initialurl: '',
                 status: "created",
-                data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo,"residence":residence}
+                data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo,"residence":residence,"tipopersona":"PERSONA_FISICA"}
+            });
+            const register = await this.registerService.create(intialObject);
+            console.log("registroTruora",register);
+
+            return  {
+                api_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjIiwiYWRkaXRpb25hbF9kYXRhIjoie1wiYWNjb3VudF9pZFwiOlwiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjXCIsXCJjb3VudHJ5XCI6XCJBTExcIixcImZsb3dfaWRcIjpcIklQRjA2OWRmMDNmNTY4NjUzZjExYjkzZGFlYTRiNjlmNDRkXCIsXCJyZWRpcmVjdF91cmxcIjpcImh0dHBzOi8vb3JhbmdlLW11ZC0wMTQwOTc4MGYuNC5henVyZXN0YXRpY2FwcHMubmV0L1wiLFwicHJvY2Vzc19pZFwiOlwiSURQMTBiMTMwNjc3YTA0M2MyZDMxMTE3MDc2NzcxYjViYTVcIn0iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MTcxNjg0NjM4OSwiZ3JhbnQiOiJkaWdpdGFsLWlkZW50aXR5IiwiaWF0IjoxNzE2ODM5MTg5LCJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL3VzLWVhc3QtMV9LM2VERGhMZjYiLCJqdGkiOiI1MWU0MWVlMC1jNzJmLTQ1MGQtOWYwMC01Mzc5NTliNTVmNmQiLCJrZXlfbmFtZSI6InRlc3QtMSIsImtleV90eXBlIjoid2ViIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.v7E6xFEeh8O6aPig0O4VTA9HDJjmmc6GYwLzrRqR9iU',
+                message: 'API key created successfully'
+              }; // Return the response data to be used in the controller
+        } catch (error) {
+            console.error('Error making POST request:', error.message);
+            throw new Error(error.response.data.message); // Rethrow with error message
+        }
+    };
+
+
+
+    generateonlygeolocation = async (phone: string,crear?: boolean): Promise<any> => {
+        try{
+            // Check if the user already has a process_id based on the phone number
+            const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
+            // If the user already has a process_id, the process_id is returned
+            if (register !== null && crear == false){
+                return register;
+            }
+        }catch (error){
+            console.error('Error getting Truora process_id:', error.message);
+            throw new Error(error.message);
+        }       
+        
+        var data = new URLSearchParams({
+            key_name: 'FLUJOPF',
+            key_type: 'web',
+            grant: 'digital-identity',
+            api_key_version: '1',
+            country: 'ALL',
+            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
+            account_id: phone
+        });
+
+       
+    
+        try {
+            // const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
+            //     headers: {
+            //         'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+            //         'Content-Type': 'application/x-www-form-urlencoded'
+            //     }
+            // })
+            // if (response.status === 200){
+            //     const decodedJwt = jwt.decode(response.data.api_key);
+            //     var process_id = "";
+            //     // Decode the JWT
+            //     if (typeof decodedJwt === 'object' && decodedJwt !== null) {
+            //         // Parse the additional_data field to a JSON object
+            //         const additionalData = JSON.parse(decodedJwt.additional_data);
+            //         // Access the flow_id
+            //         process_id = additionalData.process_id;
+            //     }
+            //     //if the response is successful, the data is saved in the database
+            //     const intialObject = new Registers({
+            //         account_id: data.get('account_id'),
+            //         process_id: process_id,
+            //         flow_id: data.get('flow_id'),
+            //         initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
+            //         status: "created",
+            //         data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo,"residence":residence}
+            //     });
+            //     const register = await this.registerService.create(intialObject);
+            //     console.log("registroTruora",register);
+            // }    
+            
+            var process_id = "";
+            //if the response is successful, the data is saved in the database
+            const intialObject = new Registers({
+                account_id: data.get('account_id'),
+                process_id: process_id,
+                flow_id: data.get('flow_id'),
+                initialurl: '',
+                status: "created",
+                data_obtenida:{"tipopersona":"PERSONA_MORAL"}
             });
             const register = await this.registerService.create(intialObject);
             console.log("registroTruora",register);
@@ -1552,6 +1633,240 @@ class UserService extends BaseService<UserRepository> {
                     },
                     "time_to_live": { "$numberInt": "120" },
                     "current_step_index": { "$numberInt": "9" }
+                  };
+
+
+                const register2 = await this.registerService.updateRegister(demoresult);
+                return register2;
+
+
+
+            }else{
+
+                if(register.status == 'PASO19' || register.status == 'PASO20 - pending'){
+                    try {
+                        // const response = await axios.get(`https://api.identity.truora.com/v1/processes/${process_id}/result?account_id=${userId}`, {
+                        //     headers: {
+                        //         'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                        //         'Accept': 'application/json'
+                        //     }
+                        // });
+
+                        const demozapsign = {
+                            "process_id": "IDP3ff48c6cbec05873d5c8326d99b8a826",
+                            "account_id": userId,
+                            "client_id": "TCIa3e34137d4944d68c1f80a1d0444b6a0",
+                            "flow_id": "IPF30fb7783937dd805d6127af8517b74c9",
+                            "created_via": "web",
+                            "flow_version": 1,
+                            "country": "ALL",
+                            "status": "success",
+                            "validations": [
+                                {
+                                    "validation_id": "VLD2d93c711310483df8b3a769897e80b53",
+                                    "ip_address": "177.224.181.74",
+                                    "account_id": "663bae9b3e15ef2f941cf356",
+                                    "type": "electronic-signature",
+                                    "validation_status": "success",
+                                    "creation_date": "2024-05-20T21:17:47.160513797Z",
+                                    "details": {
+                                        "electronic_signature_details": {
+                                            "original_document_url": "https://zapsign.s3.amazonaws.com/2024/4/docs/05bd1edd-cec7-42ff-8987-c62b723fc623/e82ac0a2-9a3b-4559-906a-7eacf1ce903e.pdf?AWSAccessKeyId=AKIASUFZJ7JCTI2ZRGWX&Signature=6SjqMCU1ge%2Fj%2BO5%2Bby86uhbGlP4%3D&Expires=1716243528",
+                                            "signed_document_url": "https://zapsign.s3.amazonaws.com/2024/5/pdf/300f5cfe-3da2-47d6-a91b-00cec55b2d40/fcd9094b-2f79-4d38-8cf1-0133cdb005a9.pdf?AWSAccessKeyId=AKIASUFZJ7JCTI2ZRGWX&Signature=HSxwgjYGAct0%2BWGXyDPV225FyUc%3D&Expires=1716243528",
+                                            "signature_image_url": "https://zapsign.s3.amazonaws.com/2024/5/files/96395551-7372-4659-bc61-8167714a90ce/3c9588e8-3269-4e5d-91e7-d6165f2fb244.png?AWSAccessKeyId=AKIASUFZJ7JCTI2ZRGWX&Signature=e3fDaGOAczDHqN3z7V3pCd0XXS8%3D&Expires=1716243528",
+                                            "document_id": "b6e94e74-6d1f-459f-8208-0c7244c142e4",
+                                            "signer_id": "bc2945d0-4daa-4324-a502-9d2880b85eed",
+                                            "name": "Jorge luis pintor leon",
+                                            "email": "jorgeleon0028@gmail.com"
+                                        }
+                                    },
+                                    "identity_process_id": "IDP3ff48c6cbec05873d5c8326d99b8a826"
+                                }
+                            ],
+                            "last_finished_step": {
+                                "step_id": "IPS5f18f15a74c287b95e00f1077b1ad474",
+                                "type": "get_signature",
+                                "verification_output": {
+                                    "status": "success",
+                                    "outputs": [
+                                        {
+                                            "value": "electronic-signature",
+                                            "name": "validation_type"
+                                        },
+                                        {
+                                            "value": "VLD2d93c711310483df8b3a769897e80b53",
+                                            "name": "validation_id"
+                                        },
+                                        {
+                                            "value": "663bae9b3e15ef2f941cf356",
+                                            "name": "account_id"
+                                        }
+                                    ],
+                                    "media_uploaded": true,
+                                    "step_data_received": true
+                                },
+                                "redirect_url": "",
+                                "description": "Ingrese al siguiente enlace para firmar el documento: https://app.zapsign.co/verificar/bc2945d0-4daa-4324-a502-9d2880b85eed",
+                                "config": {
+                                    "should_update_process_status_on_failure": true,
+                                    "retries": 3,
+                                    "timeout": 0,
+                                    "integration_id": "CIN2196ec41caa1f2721cd317797d760df4",
+                                    "zapsign_id": "7fee8b29-6e88-4161-b9b3-cf5acfe0bfee",
+                                    "zapsign_document_type": "template"
+                                },
+                                "expected_inputs": null,
+                                "files_upload_urls": [
+                                    {
+                                        "name": "electronic_signature",
+                                        "url": "https://app.zapsign.co/verificar/bc2945d0-4daa-4324-a502-9d2880b85eed",
+                                        "description": "Ingrese al siguiente enlace para firmar el documento"
+                                    }
+                                ],
+                                "remaining_retries": 0,
+                                "async_step": null,
+                                "verification_id": "VRF23d35149_5538_4efe_87bb_3871d56a25e3",
+                                "start_date": "2024-05-20T21:17:47.22044084Z",
+                                "finish_date": "2024-05-20T21:18:43.83176284Z"
+                            },
+                            "creation_date": "2024-05-20T21:17:31.999967486Z",
+                            "update_date": "2024-05-20T21:18:45Z",
+                            "geolocation_ip": "19.7132, -101.2165",
+                            "ip_address": "177.224.181.74",
+                            "city": "Morelia",
+                            "devices_info": [
+                                {
+                                    "model": "iPhone",
+                                    "type": "mobile",
+                                    "os": "iOS",
+                                    "browser": "WebKit",
+                                    "browser_version": "605.1.15"
+                                }
+                            ],
+                            "trigger_info": {
+                                "channel_name": "web",
+                                "channel_type": "unknown",
+                                "id": "IPF30fb7783937dd805d6127af8517b74c9",
+                                "name": "ZapSign",
+                                "message": "",
+                                "media_content_path": "",
+                                "trigger_user": "",
+                                "response": "",
+                                "options": null
+                            },
+                            "time_to_live": 120,
+                            "current_step_index": 3
+                        }
+            
+                        
+                        const register2 = await this.registerService.updateRegister2(demozapsign);
+                        if(register2.status == "PASO20 - success" ){
+                            const logged = await this.registerToLogin(register2);
+                            return register2;
+                        }else{
+                        return register2; // Return the response data to be used in the controller
+                        }
+                    } catch (error) {
+                        return register;
+                    }
+                }else{
+                
+                return register;
+                }
+            }
+        }catch (error){
+            console.error('Error getting Truora status', error.message);
+            throw new Error(error.message);
+        }   
+    }
+
+    getTruoraStatusPM = async (userId: string): Promise<any> => {
+        try{
+            const register = await this.registerService.getStatusByAccountId(userId);
+            
+            if (register === null){
+                throw new Error('PROCESS NOT FOUND');
+            }
+            
+            const process_id = register.process_id;
+
+            if(register.status == 'created' || register.status == 'Truora pending'){
+                // try {
+                //     const response = await axios.get(`https://api.identity.truora.com/v1/processes/${process_id}/result?account_id=${"ACC1f1b9597ceb712f66357aa1de2fb0c60"}`, {
+                //         headers: {
+                //             'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                //             'Accept': 'application/json'
+                //         }
+                //     });
+        
+                //     console.log("Return: ", response.data);
+                //     const register2 = await this.registerService.updateRegister(response.data);
+        
+                //     return register2; // Return the response data to be used in the controller
+                // } catch (error) {
+                //     return register;
+                // }
+
+                const demoresult = {
+                    "process_id": "IDPdd377e2659c344ea28347c478b72ee8d",
+                    "account_id": userId,
+                     "client_id": 'TCIa3e34137d4944d68c1f80a1d0444b6a0',
+                        "flow_id": 'IPF82d69731a9307f4b0131820c84138284',
+                        "created_via": 'web',
+                        "flow_version": 12,
+                        "country": 'ALL',
+                        "status": 'success',
+                        "last_finished_step": {
+                          "step_id": 'IPS86937b7df8ab618d508c7aea36996c14',
+                          "type": 'enter_geolocation_permissions',
+                          "verification_output": {
+                            "status": 'success',
+                            "outputs": [Array],
+                            "media_uploaded": false,
+                            "step_data_received": true
+                          },
+                          "redirect_url": '',
+                          "config": {
+                            "should_update_process_status_on_failure": true,
+                            "retries": 3,
+                            "timeout": 0
+                          },
+                          "expected_inputs": [ [Object], [Object] ],
+                          "files_upload_urls": null,
+                          "remaining_retries": 0,
+                          "async_step": null,
+                          "start_date": '2024-06-07T04:18:49.798697515Z',
+                          "finish_date": '2024-06-07T04:18:50.702252323Z'
+                        },
+                        "creation_date": '2024-06-07T04:18:43.325738099Z',
+                        "update_date": '2024-06-07T04:18:52Z',
+                        "geolocation_ip": '19.6404, -101.1825',
+                        "ip_address": '187.195.72.242',
+                        "city": 'Morelia',
+                        "geolocation_device": '19.7197824, -101.203968',
+                        "devices_info": [
+                          {
+                            "type": 'computer',
+                            "os": 'Windows',
+                            "os_version": '15.0.0',
+                            "browser": 'Chrome',
+                            "browser_version": '125.0.0.0'
+                          }
+                        ],
+                        "trigger_info": {
+                          "channel_name": 'web',
+                          "channel_type": 'unknown',
+                          "id": 'IPF82d69731a9307f4b0131820c84138284',
+                          "name": 'PFCMS',
+                          "message": '',
+                          "media_content_path": '',
+                          "trigger_user": 'antonio.ayala@uexchange.money',
+                          "response": '',
+                          "options": null
+                        },
+                        "time_to_live": 120,
+                        "current_step_index": 2
+                      
                   };
 
 

@@ -79,7 +79,9 @@ class UserController extends BaseController<UserService> {
         this.router.post(this.path + '/register/sendemail', this.SendEMAILOTP);
         this.router.post(this.path + '/register/verifyemail', this.verifyemail);
         this.router.post(this.path + '/register/startFlow', this.createregisterFlow);
+        this.router.post(this.path + '/register/startFlow/PM', this.createPMregisterFlow);
         this.router.get(`${this.path}/register/status/:id`, this.getTruoraStatus);
+        this.router.get(`${this.path}/register/status/PM/:id`, this.getTruoraStatusPM);
         this.router.put(`${this.path}/register/update`, this.updateTruoraRegister);
         this.router.get(`${this.path}/register/randomuser/:id`, this.generateUsername);
 
@@ -838,6 +840,52 @@ class UserController extends BaseController<UserService> {
         }
     }
 
+    private createPMregisterFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const phone = request.body.id;
+            // Method responsible for generating the process_url, it creates a new one if the user does not have one
+            const crear:boolean = request.body.crear;
+            // const nacionalidad:string = request.body.nacionalidad;
+            // const othernation:string = request.body.othernation;
+            // const residenciatemp:boolean = request.body.residenciatemp;
+            // const recidenciaperm:boolean = request.body.residenciaperm;
+            // const motivo:string = request.body.motivo;
+            // const residence:string = request.body.residence;
+            const result = await this.service.generateonlygeolocation(phone,crear);
+
+            console.log("Response demo truora: ",result);
+            // If the user already has a process_url, it creates a response object with the existing process_url
+            if (!result.api_key || !result.message) {
+                const existingResponse = {
+                    process_url: `https://identity.truora.com/${result.process_id}`,
+                    initialurl: result.initialurl
+                }
+                response.send(existingResponse);
+                return;
+            }
+            
+            // Assuming result already contains api_key and message
+            const process_url = `https://identity.truora.com/?token=${result.api_key}`;
+    
+            // Construct the final response object
+            // const finalResponse = {
+            //     api_key: result.api_key,
+            //     message: result.message,
+            //     process_url: process_url
+            // };
+
+            const finalResponse = {
+                api_key: "",
+                message: "API key created successfully",
+                process_url: ""
+            };
+    
+            response.send(finalResponse);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
 
     //create an endpoint
     private createTruoraFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
@@ -903,6 +951,18 @@ class UserController extends BaseController<UserService> {
             const userId = request.params.id;
             console.log(userId);
             const status = await this.service.getTruoraStatus(userId);
+            response.send(status);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
+
+    private getTruoraStatusPM = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const userId = request.params.id;
+            console.log(userId);
+            const status = await this.service.getTruoraStatusPM(userId);
             response.send(status);
         } catch (e) {
             next(new HttpException(400, e.message));
