@@ -7,11 +7,11 @@ import Role from '../enums/Role';
 export default class UserRepository extends BaseRepository<typeof User> {
 
     getAllAdmins = async () => {
-        return await User.find({ roles: { "$in": [Role.ADMIN, Role.DOCUMENT_VALIDATOR, Role.EXCHANGE_RATE] } });
+        return await User.find({ roles: { "$in": [Role.ADMIN, Role.DOCUMENT_VALIDATOR, Role.EXCHANGE_RATE] } }).sort({ createdAt: -1 });
     }
 
     getByUserName = async (userName: any) => {
-        return await User.findOne({ userName: userName });
+        return await User.findOne({ userName: userName }).sort({ createdAt: -1 });
     }
 
     getByEmail = async (email: any) => {
@@ -23,11 +23,11 @@ export default class UserRepository extends BaseRepository<typeof User> {
     }
 
     getByInviteCode = async (invitationCode: any) => {
-        return await User.findOne({ invitationCode: invitationCode });
+        return await User.findOne({ invitationCode: invitationCode }).sort({ createdAt: -1 });
     }
 
     passwordResetRequest = async (email: any) => {
-        const userDb = await User.findOne({ email: email });
+        const userDb = await User.findOne({ email: email }).sort({ createdAt: -1 });
         if (userDb !== undefined) {
             let verificationCode = new VerificationCode({
                 code: '123456', // ALL: create a different code.
@@ -42,7 +42,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
     }
 
     passwordReset = async (email: string, password: string, code: string) => {
-        const userDb: any = await User.findOne({ email: email });
+        const userDb: any = await User.findOne({ email: email }).sort({ createdAt: -1 });
         if (userDb !== undefined) {
 
             // ALL: Validate if the code is valid.
@@ -57,17 +57,17 @@ export default class UserRepository extends BaseRepository<typeof User> {
     // USERS APP-CMS
     getUsersForCMS = async () => {
        // return the users with status isDeleted = false, and populate with devices. sessionDate is obtained from the devices.
-       return await User.find({ isDeleted: false }).populate('devices');
+       return await User.find({ isDeleted: false }).sort({ createdAt: -1 }).populate('devices');
     }
 
     // CMS
 
     getById(id: any): Promise<typeof User> {
-        return this.collection.findOne({ _id: id });
+        return this.collection.findOne({ _id: id }).sort({ createdAt: -1 });
     }
 
     getAll(): Promise<typeof User[]> {
-        return this.collection.find();
+        return this.collection.find().sort({ createdAt: -1 });
     }
 
     getAllValidateDocuments(): Promise<typeof User[]> {
@@ -75,6 +75,6 @@ export default class UserRepository extends BaseRepository<typeof User> {
             "files.0": {
                 "$exists": true
             }
-        }).populate('administrators');
+        }).sort({ createdAt: -1 }).populate('administrators');
     }
 }

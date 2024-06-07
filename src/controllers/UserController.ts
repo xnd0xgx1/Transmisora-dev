@@ -89,6 +89,9 @@ class UserController extends BaseController<UserService> {
         // this.router.post(`${this.path}/auth/truora/callback`, validationMiddleware(TruoraDto),this.webhooktruora);
         this.router.post(`${this.path}/truora/webhook`,this.webhooktruora);
         this.router.get(`${this.path}/truora/status/:id`, this.getTruoraStatus);
+        this.router.post(`${this.path}/:id/verifypass`, await authMiddleware(this.usersRols, false), this.verifypass);
+
+
         
         this.router.put(`${this.path}/truora/update`, this.updateTruoraRegister);
         this.router.get(`${this.path}/registerdict`, this.getDictRegisterProcess);
@@ -664,6 +667,21 @@ class UserController extends BaseController<UserService> {
      * @param response 
      * @param next 
      */
+
+    private verifypass = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            const user = request.user;
+            // console.log(user);
+            const { pass } = request.body;
+
+            const isVerify = await this.service.verifypass(user, pass);
+            response.send({ isVerify: isVerify });
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
     private verifyPin = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 

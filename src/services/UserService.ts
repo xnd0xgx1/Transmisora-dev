@@ -180,7 +180,7 @@ class UserService extends BaseService<UserRepository> {
         console.log("USER BLOCKED");
         if (userDb.isBlocked)
             throw new Error(getText(TextType.BLOCKED_ACCOUNT));
-
+        console.log("Userpass: ",loginDto.password);
         const isPasswordMatching = await bcrypt.compare(loginDto.password, userDb.password);
         if (!isPasswordMatching) {
             if (userDb.failedLoginAttempts === undefined)
@@ -938,6 +938,26 @@ class UserService extends BaseService<UserRepository> {
             dataPush
         );
         return user;
+    }
+    verifypass = async (user: any, pass: any) => {
+
+        if (user.isBlocked)
+            throw new Error(getText(TextType.BLOCKED_ACCOUNT));
+        
+        console.log("PASS: ",pass.trim());
+        const isPasswordMatching = await bcrypt.compare(pass.trim(),user.password);
+        if (isPasswordMatching){
+            user.failedLoginAttempts = 0;
+            this.repository.update(user);
+            return true;
+        }
+        else {
+            user.failedLoginAttempts += 1;
+            if (user.failedLoginAttempts >= 3)
+                user.isBlocked = true;
+            this.repository.update(user);
+            return false;
+        }
     }
 
     verifyPin = async (user: any, pinCode: any) => {
