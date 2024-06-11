@@ -67,7 +67,8 @@ class UploadController extends BaseController<FileService> {
     }
 
     private async intializeRoutes() {
-        this.router.post(this.path, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL, Role.ADMIN], false), upload.single('file'), this.create);
+        this.router.post(this.path, upload.single('file'), this.create);
+        this.router.post(`/users/register/:id/upload`, upload.single('file'), this.create);
         this.router.put(`${this.path}/:id/approve`, await authMiddleware([Role.ADMIN], false), this.approve);
         this.router.put(`${this.path}/:id/decline`, await authMiddleware([Role.ADMIN], false), this.decline);
         this.router.put(`${this.path}/:id/comments`, await authMiddleware([Role.ADMIN], false), this.comments);
@@ -79,12 +80,19 @@ class UploadController extends BaseController<FileService> {
                 throw new Error("El archivo es requerido");
 
             const { type } = req.body;
-
             let file = undefined;
-            if (fileName !== '')
-                file = await this.service.createFile(fileName, type);
+            const id = req.params.id;
 
-            response.send(file);
+            let register = undefined;
+            if (fileName !== '')
+                file = await this.service.createFile(fileName, type,id);
+                register = await this.userService.AddFiletoRegister(id,file.id,type);
+
+            if(register != undefined){
+                response.send(register);
+            }else{
+                response.send(file);
+            }
 
         } catch (e) {
             next(new HttpException(500, e.message));

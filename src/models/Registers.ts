@@ -7,6 +7,7 @@ const schema = new Schema<IRegisters>({
     client_id: { type: String, require: false },
     initialurl:{ type: String, require: false },
     flow_id: { type: String, require: false },
+    files: [{ type: Schema.Types.ObjectId, ref: 'File' }],
     status: { type: String, require: false },
     Truora: { type: Schema.Types.Mixed, required: false },
     ZapSign: { type: Schema.Types.Mixed, required: false },

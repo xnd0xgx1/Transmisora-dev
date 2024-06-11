@@ -775,9 +775,14 @@ class UserService extends BaseService<UserRepository> {
         let usuarios: any;
         let random: string;
         let dbuser = await this.registerService.getByAccountIdAndStatus(userid,"");
+        console.log("DBUSER: ",dbuser);
         do {
             let num = Math.floor(100000 + Math.random() * 900000)
-            random = `${(dbuser.Truora.first_name).replace(/\s/g,'')}${num}`
+            if(dbuser.Truora.first_name != undefined){
+                random = `${(dbuser.Truora.first_name).replace(/\s/g,'')}${num}`
+            }else{
+                random = `${(dbuser.data_obtenida.razonsocial ? dbuser.data_obtenida.razonsocial : "").replace(/\s/g,'')}${num}`
+            }
             usuarios = await this.repository.getByUserName(random);
         }
         while (usuarios != null);
@@ -2142,6 +2147,10 @@ class UserService extends BaseService<UserRepository> {
             console.log('userId', userId);
             console.log('data', data);
             const register = await this.registerService.updateStatusByAccountId(userId, data,status);
+            if(register.data_obtenida.tipopersona != "PERSONA_MORAL" ){
+
+
+
             if(status.toUpperCase() == "PASO15B" || status.toUpperCase() == "PASO16B"){
 
 
@@ -2181,6 +2190,9 @@ class UserService extends BaseService<UserRepository> {
                 await this.notificationService.sendEmail2(data.email_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
                 await this.notificationService.sendSMS2(data.celular_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
             }
+
+            }
+
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
             }
@@ -2638,6 +2650,46 @@ class UserService extends BaseService<UserRepository> {
             token: jwt.sign(dataStoredInToken, SECRET, { expiresIn: TOKEN_EXPIRES }),
         };
     }
+
+    AddFiletoRegister = async (userId: string,fileid:string,type:string): Promise<any> => {
+        try{
+            const register = await this.registerService.getStatusByAccountId(userId);
+            
+            if (register === null){
+                throw new Error('PROCESS NOT FOUND');
+            }
+            
+             // Asegurarse de que el array files exista, si no, crearlo
+            if (!register.files) {
+                register.files = [];
+            }
+            
+            const existingFileIndex = register.files.findIndex(file => file.type === type);
+
+            if (existingFileIndex !== -1) {
+                // Si existe un archivo del mismo tipo, sobrescribirlo
+                register.files.splice(existingFileIndex, 1);
+            }
+
+            register.files.push(fileid);
+
+            register.status = "UPLOAD_FILES";
+
+            // Guardar los cambios en la base de datos
+            await register.save();
+            const register2 = await this.registerService.getStatusByAccountId(userId);
+            return register2; 
+           
+
+          
+        }catch (error){
+            console.error('Error register files', error.message);
+            throw new Error(error.message);
+        }   
+    }
+
+
+
 }
 
 export default UserService;

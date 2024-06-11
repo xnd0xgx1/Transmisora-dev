@@ -9,10 +9,12 @@ class FileService extends BaseService<FileRepository> {
         super(new FileRepository(File));
     }
 
-    createFile = async (name: string, type: FileType) => {
+    createFile = async (name: string, type: FileType,registerid:string) => {
         const file = await this.repository.create({
             name,
-            type
+            type,
+            registerid,
+            url:`https://trasmisora-app-files.s3.us-east-2.amazonaws.com/${name}`
         });
 
         return file;

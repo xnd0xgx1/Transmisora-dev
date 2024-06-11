@@ -13,7 +13,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @returns 
      */
     async getByAccountIdAndStatus(account_id: string, status: string): Promise<typeof Registers> {
-    return await this.collection.findOne({ account_id: account_id}).sort({ createdAt: -1 });
+        return await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 }).populate('files');
     }
 
      /**
@@ -23,7 +23,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @returns
      */
     async updateRegister(register: any): Promise<any> {
-        let objectDb = await this.collection.findOne({ account_id: register.account_id}).sort({ createdAt: -1 });
+        let objectDb = await this.collection.findOne({ account_id: register.account_id}).sort({ createdAt: -1 }).populate('files');
         if (objectDb !== undefined) {
             Object.assign(objectDb, {Truora:register,status: `Truora ${register.status}`});
             return objectDb.save();
@@ -33,7 +33,7 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
         }
     }
     async updateRegister2(register: any): Promise<any> {
-        let objectDb = await this.collection.findOne({ account_id: register.account_id}).sort({ createdAt: -1 });
+        let objectDb = await this.collection.findOne({ account_id: register.account_id}).sort({ createdAt: -1 }).populate('files');
         if (objectDb !== undefined) {
             Object.assign(objectDb, {ZapSign:register,status: `PASO20 - ${register.status}`});
             return objectDb.save();
@@ -50,13 +50,13 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
      * @returns 
      */
     async getLastRegisterByAccountId(account_id: string): Promise<typeof Registers> {
-        return await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 });
+        return await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 }).populate('files');
     }
 
     // create a method that receives the account_id and a field named test and updates the register with the account_id adding the test field to it
     async updateStatusByAccountId(account_id: string, data: any,status:any): Promise<any> {
         console.log('Updating register:', account_id, data);
-        let objectDb = await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 });
+        let objectDb = await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 }).populate('files');
         console.log('objectDb:', objectDb);
         if (objectDb !== null) {
             // Añadir o actualizar campos en el documento

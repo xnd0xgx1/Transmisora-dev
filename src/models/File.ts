@@ -6,6 +6,8 @@ const schema = new Schema<IFile>({
     isActive: { type: Boolean, default: false },
     name: { type: String, required: true },
     type: { type: String, required: true },
+    registerid: { type: String, required: true },
+    url: { type: String, required: true },
     status: { type: String, required: true, default: 'PENDING' },
     comments: { type: String },
 }, { timestamps: true });

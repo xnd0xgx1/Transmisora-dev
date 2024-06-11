@@ -166,7 +166,7 @@ class NotificationService {
         try {
             AWS.config.region = "us-east-1";
             const params: any = {
-                Message: "Trasmisora, tu código de verificación es: " + code,
+                Message: `Trasmisora, tu código de verificación es: ${code} @trasmisora #${code} ` ,
                 PhoneNumber: phoneNumber,
             };
             console.log("PARAMS SMS: ",params);
