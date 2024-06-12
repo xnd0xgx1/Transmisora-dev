@@ -85,6 +85,8 @@ class UserController extends BaseController<UserService> {
         this.router.put(`${this.path}/register/update`, this.updateTruoraRegister);
         this.router.get(`${this.path}/register/randomuser/:id`, this.generateUsername);
 
+        this.router.post(this.path + '/register/Sapsign/PM', this.createSapsignFlowPM);
+
         this.router.post(this.path + '/register/Sapsign', this.createSapsignFlow);
 
         this.router.post(this.path + '/truora/createFlow', this.createTruoraFlow);
@@ -755,6 +757,43 @@ class UserController extends BaseController<UserService> {
 
     
   
+
+    private createSapsignFlowPM = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try {
+            const id = request.body.id;
+            // Method responsible for generating the process_url, it creates a new one if the user does not have one
+            const result = await this.service.generateSapSignProcessUrlPM(id);
+
+            // If the user already has a process_url, it creates a response object with the existing process_url
+            if (!result.api_key || !result.message) {
+                const existingResponse = {
+                    process_url: `https://identity.truora.com/${result.process_id}`,
+                    initialurl: result.initialurl
+                }
+                response.send(existingResponse);
+                return;
+            }
+            
+            // Assuming result already contains api_key and message
+            const process_url = `https://identity.truora.com/?token=${result.api_key}`;
+    
+            // Construct the final response object
+            // const finalResponse = {
+            //     api_key: result.api_key,
+            //     message: result.message,
+            //     process_url: process_url
+            // };
+
+            const finalResponse = {
+                api_key: "",
+                message: "API key created successfully",
+                process_url: ""
+            };
+            response.send(finalResponse);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
 
 
     private createSapsignFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {

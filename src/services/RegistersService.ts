@@ -27,6 +27,11 @@ class RegistersService extends BaseService<RegistersRepository> {
         return await this.repository.updateRegister2(register);
     }
 
+    async updateRegister2PM(register: any) {
+        return await this.repository.updateRegister2PM(register);
+    }
+    
+
     async getStatusByAccountId(account_id: string) {
         return await this.repository.getLastRegisterByAccountId(account_id);
     }

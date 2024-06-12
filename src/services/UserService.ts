@@ -1329,6 +1329,97 @@ class UserService extends BaseService<UserRepository> {
         }
     };
 
+    generateSapSignProcessUrlPM = async (id: string): Promise<any> => {
+        // try{
+        //     // Check if the user already has a process_id based on the phone number
+        //     const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
+        //     // If the user already has a process_id, the process_id is returned
+        //     if (register !== null && crear == false){
+        //         return register;
+        //     }
+        // }catch (error){
+        //     console.error('Error getting Truora process_id:', error.message);
+        //     throw new Error(error.message);
+        // }        
+
+        const register = await this.registerService.getStatusByAccountId(id);
+
+        // If the user does not have a process_id, a new process_id is generated
+        const data = new URLSearchParams({
+            key_name: 'ZapSign',
+            key_type: 'web',
+            grant: 'digital-identity',
+            api_key_version: '1',
+            country: 'ALL',
+            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            flow_id: 'IPF30fb7783937dd805d6127af8517b74c9',
+            account_id: id
+        });
+    
+        try {
+            // const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
+            //     headers: {
+            //         'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+            //         'Content-Type': 'application/x-www-form-urlencoded'
+            //     }
+            // })
+            // if (response.status === 200){
+            //     const decodedJwt = jwt.decode(response.data.api_key);
+            //     var process_id = "";
+            //     // Decode the JWT
+            //     if (typeof decodedJwt === 'object' && decodedJwt !== null) {
+            //         // Parse the additional_data field to a JSON object
+            //         const additionalData = JSON.parse(decodedJwt.additional_data);
+            //         // Access the flow_id
+            //         process_id = additionalData.process_id;
+            //     }
+
+            //     register.process_id = process_id;
+            //     register.flow_id = data.get('flow_id');
+            //     register.initialurl = `https://identity.truora.com/?token=${response.data.api_key}`
+            //     register.status = "PASO19";
+            //     //if the response is successful, the data is saved in the database
+            //     // const intialObject = new Registers({
+            //     //     account_id: data.get('account_id'),
+            //     //     process_id: process_id,
+            //     //     flow_id: data.get('flow_id'),
+            //     //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
+            //     //     status: "created"
+            //     // });
+            //     // const register = await this.registerService.create(intialObject)
+            //     await this.registerService.update(register);
+            //     console.log("registroTruora",register);
+
+            // }    
+            
+            register.process_id = "";
+            register.flow_id = data.get('flow_id');
+            register.initialurl = "";
+            register.status = "FIRMA_DECLARACION";
+            //if the response is successful, the data is saved in the database
+            // const intialObject = new Registers({
+            //     account_id: data.get('account_id'),
+            //     process_id: process_id,
+            //     flow_id: data.get('flow_id'),
+            //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
+            //     status: "created"
+            // });
+            // const register = await this.registerService.create(intialObject)
+            await this.registerService.update(register);
+
+            return  {
+                api_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjIiwiYWRkaXRpb25hbF9kYXRhIjoie1wiYWNjb3VudF9pZFwiOlwiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjXCIsXCJjb3VudHJ5XCI6XCJBTExcIixcImZsb3dfaWRcIjpcIklQRjA2OWRmMDNmNTY4NjUzZjExYjkzZGFlYTRiNjlmNDRkXCIsXCJyZWRpcmVjdF91cmxcIjpcImh0dHBzOi8vb3JhbmdlLW11ZC0wMTQwOTc4MGYuNC5henVyZXN0YXRpY2FwcHMubmV0L1wiLFwicHJvY2Vzc19pZFwiOlwiSURQMTBiMTMwNjc3YTA0M2MyZDMxMTE3MDc2NzcxYjViYTVcIn0iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MTcxNjg0NjM4OSwiZ3JhbnQiOiJkaWdpdGFsLWlkZW50aXR5IiwiaWF0IjoxNzE2ODM5MTg5LCJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL3VzLWVhc3QtMV9LM2VERGhMZjYiLCJqdGkiOiI1MWU0MWVlMC1jNzJmLTQ1MGQtOWYwMC01Mzc5NTliNTVmNmQiLCJrZXlfbmFtZSI6InRlc3QtMSIsImtleV90eXBlIjoid2ViIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.v7E6xFEeh8O6aPig0O4VTA9HDJjmmc6GYwLzrRqR9iU',
+                message: 'API key created successfully'
+              };
+            console.log("registroTruora",register);
+            // return response.data; // Return the response data to be used in the controller
+        } catch (error) {
+            console.error('Error making POST request:', error.message);
+            throw new Error(error.response.data.message); // Rethrow with error message
+        }
+    };
+
+
     //create a service that registers the results of the flow in the mongoDB
     registerFlowTruora = async (data: any): Promise<any> => {
         console.log("JWT DECODED: ",data);
@@ -1893,7 +1984,7 @@ class UserService extends BaseService<UserRepository> {
 
             }else{
 
-                if(register.status == 'PASO19' || register.status == 'PASO20 - pending'){
+                if(register.status == 'FIRMA_DECLARACION' || register.status == 'FIRMA_DECLARACION - pending'){
                     try {
                         // const response = await axios.get(`https://api.identity.truora.com/v1/processes/${process_id}/result?account_id=${userId}`, {
                         //     headers: {
@@ -2009,19 +2100,20 @@ class UserService extends BaseService<UserRepository> {
                         }
             
                         
-                        const register2 = await this.registerService.updateRegister2(demozapsign);
-                        if(register2.status == "PASO20 - success" ){
-                            const logged = await this.registerToLogin(register2);
-                            let preregister = await this.preregisgterService.getById(register2.account_id);
-                            let phone = preregister.phoneCode + preregister.phone;
-                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, Tu registro en Trasmisora ha sido exitoso, puedes ingresar con tus credenciales`,'Trasmisora, registro exitoso!');
-                            await this.notificationService.sendSMSGeneric(phone, `Hola !, Tu registro en Trasmisora ha sido exitoso, puedes ingresar con tus credenciales`);
+                        const register2 = await this.registerService.updateRegister2PM(demozapsign);
+                        // if(register2.status == "FIRMA_DECLARACION - success" ){
+                        //     const logged = await this.registerToLogin(register2);
+                        //     let preregister = await this.preregisgterService.getById(register2.account_id);
+                        //     let phone = preregister.phoneCode + preregister.phone;
+                        //     await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, Tu registro en Trasmisora ha sido exitoso, puedes ingresar con tus credenciales`,'Trasmisora, registro exitoso!');
+                        //     await this.notificationService.sendSMSGeneric(phone, `Hola !, Tu registro en Trasmisora ha sido exitoso, puedes ingresar con tus credenciales`);
 
 
-                            return register2;
-                        }else{
-                        return register2; // Return the response data to be used in the controller
-                        }
+                        //     return register2;
+                        // }else{
+                        // return register2; // Return the response data to be used in the controller
+                        // }
+                        return register2;
                     } catch (error) {
                         return register;
                     }
@@ -2148,49 +2240,56 @@ class UserService extends BaseService<UserRepository> {
             console.log('data', data);
             const register = await this.registerService.updateStatusByAccountId(userId, data,status);
             if(register.data_obtenida.tipopersona != "PERSONA_MORAL" ){
+                if(status.toUpperCase() == "PASO15B" || status.toUpperCase() == "PASO16B"){
 
 
+                    const telefonoCompleto = data.celular_proveedor;
+                    const codigoPais = telefonoCompleto.substring(0, 3); // "+52"
+                    const numero = telefonoCompleto.substring(3); // "4431967999"
 
-            if(status.toUpperCase() == "PASO15B" || status.toUpperCase() == "PASO16B"){
+                    let tipo_preregistro = 1;
+                    if(status.toUpperCase() == "PASO16B"){
+                        tipo_preregistro = 2;
+                    }
+                    console.log(codigoPais); // "+52"
+                    console.log(numero); // "4431967999"
+                    const intialObject = new Preregisters({
+                        phoneCode: codigoPais,
+                        phone: numero,
+                        email: data.email_proveedor,
+                        tipo: tipo_preregistro
+                    });
 
+                    const userdata: RecoverPasswordDto = {
+                        phoneCode: codigoPais,
+                        phone: numero,
+                        email: data.email_proveedor
+                    };
+                    const oldregister = await this.preregisgterService.getByPhoneAndEmail(userdata);
 
-                const telefonoCompleto = data.celular_proveedor;
-                const codigoPais = telefonoCompleto.substring(0, 3); // "+52"
-                const numero = telefonoCompleto.substring(3); // "4431967999"
-
-                let tipo_preregistro = 1;
-                if(status.toUpperCase() == "PASO16B"){
-                    tipo_preregistro = 2;
+                    var _id = "NOID";
+                    if (oldregister !== null){
+                        console.log("Has preregister!");
+                        _id = oldregister.id;
+                        // return register;
+                    }else{
+                        const register2 = await this.preregisgterService.create(intialObject);
+                        _id = register2.id;
+                    }
+                    await this.notificationService.sendEmail2(data.email_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
+                    await this.notificationService.sendSMS2(data.celular_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
                 }
-                console.log(codigoPais); // "+52"
-                console.log(numero); // "4431967999"
-                const intialObject = new Preregisters({
-                    phoneCode: codigoPais,
-                    phone: numero,
-                    email: data.email_proveedor,
-                    tipo: tipo_preregistro
-                });
 
-                const userdata: RecoverPasswordDto = {
-                    phoneCode: codigoPais,
-                    phone: numero,
-                    email: data.email_proveedor
-                };
-                const oldregister = await this.preregisgterService.getByPhoneAndEmail(userdata);
+            }else{
+                if(status.toUpperCase() == "PASO12"){
+                            // const logged = await this.registerToLogin(register);
+                            let preregister = await this.preregisgterService.getById(register.account_id);
+                            let phone = preregister.phoneCode + preregister.phone;
+                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, ingresa a para terminar tu registro: "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`,'Trasmisora, registro pendiente!');
+                            await this.notificationService.sendSMSGeneric(phone, `Hola !, ingresa a para terminar tu registro: "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`);
+                            // return register;
 
-                var _id = "NOID";
-                if (oldregister !== null){
-                    console.log("Has preregister!");
-                    _id = oldregister.id;
-                    // return register;
-                }else{
-                    const register2 = await this.preregisgterService.create(intialObject);
-                    _id = register2.id;
                 }
-                await this.notificationService.sendEmail2(data.email_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
-                await this.notificationService.sendSMS2(data.celular_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
-            }
-
             }
 
             if (register === null){

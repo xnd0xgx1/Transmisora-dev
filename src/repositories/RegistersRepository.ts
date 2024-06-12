@@ -43,6 +43,17 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
         }
     }
 
+    async updateRegister2PM(register: any): Promise<any> {
+        let objectDb = await this.collection.findOne({ account_id: register.account_id}).sort({ createdAt: -1 }).populate('files');
+        if (objectDb !== undefined) {
+            Object.assign(objectDb, {ZapSign:register,status: `FIRMA_DECLARACION - ${register.status}`});
+            return objectDb.save();
+        }
+        else{
+            return register;
+        }
+    }
+
     /**
      * Get last register by account_id.
      * 
