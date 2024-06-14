@@ -2281,7 +2281,7 @@ class UserService extends BaseService<UserRepository> {
                 }
 
             }else{
-                if(status.toUpperCase() == "PASO12"){
+                if(status.toUpperCase() == "ORIGEN_FONDOS"){
                             // const logged = await this.registerToLogin(register);
                             let preregister = await this.preregisgterService.getById(register.account_id);
                             let phone = preregister.phoneCode + preregister.phone;
