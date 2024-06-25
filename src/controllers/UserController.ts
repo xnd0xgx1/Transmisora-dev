@@ -816,17 +816,17 @@ class UserController extends BaseController<UserService> {
             const process_url = `https://identity.truora.com/?token=${result.api_key}`;
     
             // Construct the final response object
-            // const finalResponse = {
-            //     api_key: result.api_key,
-            //     message: result.message,
-            //     process_url: process_url
-            // };
-
             const finalResponse = {
-                api_key: "",
-                message: "API key created successfully",
-                process_url: ""
+                api_key: result.api_key,
+                message: result.message,
+                process_url: process_url
             };
+
+            // const finalResponse = {
+            //     api_key: "",
+            //     message: "API key created successfully",
+            //     process_url: ""
+            // };
             response.send(finalResponse);
         } catch (e) {
             next(new HttpException(400, e.message));
@@ -861,17 +861,17 @@ class UserController extends BaseController<UserService> {
             const process_url = `https://identity.truora.com/?token=${result.api_key}`;
     
             // Construct the final response object
-            // const finalResponse = {
-            //     api_key: result.api_key,
-            //     message: result.message,
-            //     process_url: process_url
-            // };
-
             const finalResponse = {
-                api_key: "",
-                message: "API key created successfully",
-                process_url: ""
+                api_key: result.api_key,
+                message: result.message,
+                process_url: process_url
             };
+
+            // const finalResponse = {
+            //     api_key: "",
+            //     message: "API key created successfully",
+            //     process_url: ""
+            // };
     
             response.send(finalResponse);
         } catch (e) {
@@ -907,17 +907,17 @@ class UserController extends BaseController<UserService> {
             const process_url = `https://identity.truora.com/?token=${result.api_key}`;
     
             // Construct the final response object
-            // const finalResponse = {
-            //     api_key: result.api_key,
-            //     message: result.message,
-            //     process_url: process_url
-            // };
-
             const finalResponse = {
-                api_key: "",
-                message: "API key created successfully",
-                process_url: ""
+                api_key: result.api_key,
+                message: result.message,
+                process_url: process_url
             };
+
+            // const finalResponse = {
+            //     api_key: "",
+            //     message: "API key created successfully",
+            //     process_url: ""
+            // };
     
             response.send(finalResponse);
         } catch (e) {
