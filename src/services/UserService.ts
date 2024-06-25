@@ -1215,7 +1215,7 @@ class UserService extends BaseService<UserRepository> {
                 });
                 const register = await this.registerService.create(intialObject);
                 console.log("registroTruora",register);
-                return register.data
+                return response.data
             }    
             
             // var process_id = "";
@@ -1301,7 +1301,7 @@ class UserService extends BaseService<UserRepository> {
                 // const register = await this.registerService.create(intialObject)
                 await this.registerService.update(register);
                 console.log("registroTruora",register);
-                return register.data
+                return response.data
 
             }    
             
@@ -1360,61 +1360,62 @@ class UserService extends BaseService<UserRepository> {
         });
     
         try {
-            // const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
-            //     headers: {
-            //         'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
-            //         'Content-Type': 'application/x-www-form-urlencoded'
-            //     }
-            // })
-            // if (response.status === 200){
-            //     const decodedJwt = jwt.decode(response.data.api_key);
-            //     var process_id = "";
-            //     // Decode the JWT
-            //     if (typeof decodedJwt === 'object' && decodedJwt !== null) {
-            //         // Parse the additional_data field to a JSON object
-            //         const additionalData = JSON.parse(decodedJwt.additional_data);
-            //         // Access the flow_id
-            //         process_id = additionalData.process_id;
-            //     }
+            const response = await axios.post('https://api.account.truora.com/v1/api-keys', data.toString(), {
+                headers: {
+                    'Truora-API-Key': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MzI4NjQxMjkwMywiZ3JhbnQiOiIiLCJpYXQiOjE3MDk2MTI5MDMsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX0szZUREaExmNiIsImp0aSI6Ijc2ZWZhYTA5LTQzZTUtNDBkOS1iYTgwLTYyMjQ1NDlkOWYxNyIsImtleV9uYW1lIjoidGVzdC0xIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.bomFmfqkZMv-qwNBfrGdb6sWlRktmn7-Cn3ZctFhGds",
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            if (response.status === 200){
+                const decodedJwt = jwt.decode(response.data.api_key);
+                var process_id = "";
+                // Decode the JWT
+                if (typeof decodedJwt === 'object' && decodedJwt !== null) {
+                    // Parse the additional_data field to a JSON object
+                    const additionalData = JSON.parse(decodedJwt.additional_data);
+                    // Access the flow_id
+                    process_id = additionalData.process_id;
+                }
 
-            //     register.process_id = process_id;
-            //     register.flow_id = data.get('flow_id');
-            //     register.initialurl = `https://identity.truora.com/?token=${response.data.api_key}`
-            //     register.status = "PASO19";
-            //     //if the response is successful, the data is saved in the database
-            //     // const intialObject = new Registers({
-            //     //     account_id: data.get('account_id'),
-            //     //     process_id: process_id,
-            //     //     flow_id: data.get('flow_id'),
-            //     //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
-            //     //     status: "created"
-            //     // });
-            //     // const register = await this.registerService.create(intialObject)
-            //     await this.registerService.update(register);
-            //     console.log("registroTruora",register);
+                register.process_id = process_id;
+                register.flow_id = data.get('flow_id');
+                register.initialurl = `https://identity.truora.com/?token=${response.data.api_key}`
+                register.status = "FIRMA_DECLARACION";
+                //if the response is successful, the data is saved in the database
+                // const intialObject = new Registers({
+                //     account_id: data.get('account_id'),
+                //     process_id: process_id,
+                //     flow_id: data.get('flow_id'),
+                //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
+                //     status: "created"
+                // });
+                // const register = await this.registerService.create(intialObject)
+                await this.registerService.update(register);
+                console.log("registroTruora",register);
+                return response.data
 
-            // }    
+            }    
             
-            register.process_id = "";
-            register.flow_id = data.get('flow_id');
-            register.initialurl = "";
-            register.status = "FIRMA_DECLARACION";
-            //if the response is successful, the data is saved in the database
-            // const intialObject = new Registers({
-            //     account_id: data.get('account_id'),
-            //     process_id: process_id,
-            //     flow_id: data.get('flow_id'),
-            //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
-            //     status: "created"
-            // });
-            // const register = await this.registerService.create(intialObject)
-            await this.registerService.update(register);
+            // register.process_id = "";
+            // register.flow_id = data.get('flow_id');
+            // register.initialurl = "";
+            // register.status = "FIRMA_DECLARACION";
+            // //if the response is successful, the data is saved in the database
+            // // const intialObject = new Registers({
+            // //     account_id: data.get('account_id'),
+            // //     process_id: process_id,
+            // //     flow_id: data.get('flow_id'),
+            // //     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
+            // //     status: "created"
+            // // });
+            // // const register = await this.registerService.create(intialObject)
+            // await this.registerService.update(register);
 
-            return  {
-                api_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjIiwiYWRkaXRpb25hbF9kYXRhIjoie1wiYWNjb3VudF9pZFwiOlwiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjXCIsXCJjb3VudHJ5XCI6XCJBTExcIixcImZsb3dfaWRcIjpcIklQRjA2OWRmMDNmNTY4NjUzZjExYjkzZGFlYTRiNjlmNDRkXCIsXCJyZWRpcmVjdF91cmxcIjpcImh0dHBzOi8vb3JhbmdlLW11ZC0wMTQwOTc4MGYuNC5henVyZXN0YXRpY2FwcHMubmV0L1wiLFwicHJvY2Vzc19pZFwiOlwiSURQMTBiMTMwNjc3YTA0M2MyZDMxMTE3MDc2NzcxYjViYTVcIn0iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MTcxNjg0NjM4OSwiZ3JhbnQiOiJkaWdpdGFsLWlkZW50aXR5IiwiaWF0IjoxNzE2ODM5MTg5LCJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL3VzLWVhc3QtMV9LM2VERGhMZjYiLCJqdGkiOiI1MWU0MWVlMC1jNzJmLTQ1MGQtOWYwMC01Mzc5NTliNTVmNmQiLCJrZXlfbmFtZSI6InRlc3QtMSIsImtleV90eXBlIjoid2ViIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.v7E6xFEeh8O6aPig0O4VTA9HDJjmmc6GYwLzrRqR9iU',
-                message: 'API key created successfully'
-              };
-            console.log("registroTruora",register);
+            // return  {
+            //     api_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjIiwiYWRkaXRpb25hbF9kYXRhIjoie1wiYWNjb3VudF9pZFwiOlwiNjY0Yjc5ZjZlYjZjM2U0ZWNlODVkYzRjXCIsXCJjb3VudHJ5XCI6XCJBTExcIixcImZsb3dfaWRcIjpcIklQRjA2OWRmMDNmNTY4NjUzZjExYjkzZGFlYTRiNjlmNDRkXCIsXCJyZWRpcmVjdF91cmxcIjpcImh0dHBzOi8vb3JhbmdlLW11ZC0wMTQwOTc4MGYuNC5henVyZXN0YXRpY2FwcHMubmV0L1wiLFwicHJvY2Vzc19pZFwiOlwiSURQMTBiMTMwNjc3YTA0M2MyZDMxMTE3MDc2NzcxYjViYTVcIn0iLCJjbGllbnRfaWQiOiJUQ0lhM2UzNDEzN2Q0OTQ0ZDY4YzFmODBhMWQwNDQ0YjZhMCIsImV4cCI6MTcxNjg0NjM4OSwiZ3JhbnQiOiJkaWdpdGFsLWlkZW50aXR5IiwiaWF0IjoxNzE2ODM5MTg5LCJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL3VzLWVhc3QtMV9LM2VERGhMZjYiLCJqdGkiOiI1MWU0MWVlMC1jNzJmLTQ1MGQtOWYwMC01Mzc5NTliNTVmNmQiLCJrZXlfbmFtZSI6InRlc3QtMSIsImtleV90eXBlIjoid2ViIiwidXNlcm5hbWUiOiJ0cmFzbWlzb3JhLXRlc3QtMSJ9.v7E6xFEeh8O6aPig0O4VTA9HDJjmmc6GYwLzrRqR9iU',
+            //     message: 'API key created successfully'
+            //   };
+            // console.log("registroTruora",register);
             // return response.data; // Return the response data to be used in the controller
         } catch (error) {
             console.error('Error making POST request:', error.message);
