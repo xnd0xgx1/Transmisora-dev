@@ -30,6 +30,12 @@ class RegistersService extends BaseService<RegistersRepository> {
     async updateRegister2PM(register: any) {
         return await this.repository.updateRegister2PM(register);
     }
+
+    async getUsersFilesForCMS() {
+        return await this.repository.getUsersFilesForCMS();
+    }
+
+    
     
 
     async getStatusByAccountId(account_id: string) {

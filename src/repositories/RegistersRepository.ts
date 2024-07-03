@@ -83,6 +83,12 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
             throw new Error('Document not found');
         }
     }
+
+    getUsersFilesForCMS = async () => {
+        console.log("SEARCH");
+        // return the users with status isDeleted = false, and populate with devices. sessionDate is obtained from the devices.
+        return await this.collection.find({ status: { $in: ["UPLOAD_FILES_STARTED", "UPLOAD_FILES_FAILED", "UPLOAD_FILES_APPROVED"] } }).sort({ createdAt: -1 }).populate('files');
+     }
     
     
     

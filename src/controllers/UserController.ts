@@ -124,6 +124,25 @@ class UserController extends BaseController<UserService> {
         this.router.put(`${this.path}/deactivate/:id`, await authMiddleware([Role.ADMIN]), this.deactivate);
         this.router.get(`${this.path}/cms`, await authMiddleware([Role.ADMIN]), this.getAll);
         this.router.get(`${this.path}/cms/validateDocuments`, await authMiddleware([Role.ADMIN]), this.getAllValidateDocuments);
+
+
+        //STP AND FIST LOGIN
+        this.router.put(`${this.path}/register/update`, await authMiddleware(this.usersRols, false),this.updateTruoraRegister);
+        this.router.post(`${this.path}/:id/bankdata`, await authMiddleware(this.usersRols, false), this.bankdata);
+        this.router.post(`${this.path}/:id/beneficiarios`, await authMiddleware(this.usersRols, false), this.beneficiarios);
+        this.router.post(`${this.path}/:id/CLABE`, await authMiddleware(this.usersRols, false), this.CLABE);
+        this.router.put(`${this.path}/:id/retiro`, await authMiddleware(this.usersRols, false), this.retiro);
+        this.router.post(`${this.path}/StatusSTP`, this.StatusSTP);
+        this.router.post(`${this.path}/AbonoSTP`, this.AbonoSTP);
+        
+
+        //CMS VALIDATION PROCESS
+        this.router.get(`${this.path}/filesvalidationusers`,await authMiddlewareCMS([Role.ADMIN]),this.getAllUsersfilesCMS);
+
+
+        
+        
+        
     }
 
     /**
@@ -686,6 +705,83 @@ class UserController extends BaseController<UserService> {
         }
     }
 
+    private bankdata = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+            const { accountnumber,clabe } = request.body;
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+            response.send({ status: 200,message:"OK", accountnumber:accountnumber,clabe:clabe});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+    private CLABE = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+            response.send({ status: 200,message:"OK", id:user.id,CLABE:"646180557140946700"});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+    
+    private AbonoSTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+            response.send({ status: 200,mensaje:"confirmar"});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private StatusSTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+            response.send({ status: 200,mensaje:"recibido"});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+    private retiro = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+            response.send({ status: 200,message:"OK",rastreo:"123456789"});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+    private beneficiarios = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+            const { beneficiarios } = request.body;
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+            response.send({ status: 200,message:"OK", beneficiarios:beneficiarios});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
     private verifyPin = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 
@@ -714,6 +810,14 @@ class UserController extends BaseController<UserService> {
         }
     }
 
+    private getAllUsersfilesCMS = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        try{
+            const users = await this.service.getAllUsersfilesForCMS();
+            response.send(users);
+        } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
     // USERS APP-CMS
     private getAllUsersCMS = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try{
@@ -761,8 +865,9 @@ class UserController extends BaseController<UserService> {
     private createSapsignFlowPM = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
             const id = request.body.id;
+            const url = request.body.url;
             // Method responsible for generating the process_url, it creates a new one if the user does not have one
-            const result = await this.service.generateSapSignProcessUrlPM(id);
+            const result = await this.service.generateSapSignProcessUrlPM(id,url);
 
             // If the user already has a process_url, it creates a response object with the existing process_url
             if (!result.api_key || !result.message) {
@@ -884,13 +989,14 @@ class UserController extends BaseController<UserService> {
             const phone = request.body.id;
             // Method responsible for generating the process_url, it creates a new one if the user does not have one
             const crear:boolean = request.body.crear;
+            const url = request.body.url;
             // const nacionalidad:string = request.body.nacionalidad;
             // const othernation:string = request.body.othernation;
             // const residenciatemp:boolean = request.body.residenciatemp;
             // const recidenciaperm:boolean = request.body.residenciaperm;
             // const motivo:string = request.body.motivo;
             // const residence:string = request.body.residence;
-            const result = await this.service.generateonlygeolocation(phone,crear);
+            const result = await this.service.generateonlygeolocation(phone,crear,url);
 
             console.log("Response demo truora: ",result);
             // If the user already has a process_url, it creates a response object with the existing process_url

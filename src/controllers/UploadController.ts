@@ -69,6 +69,7 @@ class UploadController extends BaseController<FileService> {
     private async intializeRoutes() {
         this.router.post(this.path, upload.single('file'), this.create);
         this.router.post(`/users/register/:id/upload`, upload.single('file'), this.create);
+        this.router.post(`/users/:id/uploadfile`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false),upload.single('file'), this.createnewfile);
         this.router.put(`${this.path}/:id/approve`, await authMiddleware([Role.ADMIN], false), this.approve);
         this.router.put(`${this.path}/:id/decline`, await authMiddleware([Role.ADMIN], false), this.decline);
         this.router.put(`${this.path}/:id/comments`, await authMiddleware([Role.ADMIN], false), this.comments);
@@ -87,6 +88,32 @@ class UploadController extends BaseController<FileService> {
             if (fileName !== '')
                 file = await this.service.createFile(fileName, type,id);
                 register = await this.userService.AddFiletoRegister(id,file.id,type);
+
+            if(register != undefined){
+                response.send(register);
+            }else{
+                response.send(file);
+            }
+
+        } catch (e) {
+            next(new HttpException(500, e.message));
+        }
+    }
+
+    createnewfile = async (req: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            if (!req.file)
+                throw new Error("El archivo es requerido");
+
+            const type= "INE_BENEFICIARIO";
+            let file = undefined;
+            const id = req.params.id;
+
+            let register = undefined;
+            if (fileName !== '')
+                file = await this.service.createFile(fileName, type,id);
+                register = file;
+                // register = await this.userService.AddFiletoRegister(id,file.id,type);
 
             if(register != undefined){
                 response.send(register);

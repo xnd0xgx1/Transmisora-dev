@@ -981,6 +981,30 @@ class UserService extends BaseService<UserRepository> {
         }
     }
 
+    getAllUsersfilesForCMS = async () => {
+        let users = await this.registerService.getUsersFilesForCMS();
+        if (users === null){
+            throw new Error('USUARIOS NO ENCONTRADOS');
+        }
+        // A new users array is created, with only the properties that will be shown in the CMS
+        let newuserobj = [];
+        for (const element of users) {
+            const preregistro = await this.preregisgterService.getById(element.account_id);
+            console.log("Preregister!!", preregistro);
+            const usr = {
+                account_id: element.account_id,
+                files: element.files,
+                date: element.files[0].updatedAt ?? element.updatedAt,
+                status: element.status,
+                nombre: element.data_obtenida.razonsocial,
+                email: preregistro.email
+            };
+            newuserobj.push(usr);
+        }
+        console.log("Return object");
+        return newuserobj;
+    }
+
     // USERS APP-CMS
     getAllUsersForCMS = async () => {
         let users = await this.repository.getUsersForCMS();
@@ -1161,7 +1185,7 @@ class UserService extends BaseService<UserRepository> {
 
 
 
-    generateonlygeolocation = async (phone: string,crear?: boolean): Promise<any> => {
+    generateonlygeolocation = async (phone: string,crear?: boolean,url?:string): Promise<any> => {
         try{
             // Check if the user already has a process_id based on the phone number
             const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1180,7 +1204,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            redirect_url: url ? url : 'https://orange-mud-01409780f.4.azurestaticapps.net/',
             flow_id: 'IPF82d69731a9307f4b0131820c84138284',
             account_id: phone
         });
@@ -1332,7 +1356,7 @@ class UserService extends BaseService<UserRepository> {
         }
     };
 
-    generateSapSignProcessUrlPM = async (id: string): Promise<any> => {
+    generateSapSignProcessUrlPM = async (id: string,url?:string): Promise<any> => {
         // try{
         //     // Check if the user already has a process_id based on the phone number
         //     const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1354,7 +1378,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            redirect_url: url ? url : 'https://orange-mud-01409780f.4.azurestaticapps.net/',
             flow_id: 'IPF30fb7783937dd805d6127af8517b74c9',
             account_id: id
         });

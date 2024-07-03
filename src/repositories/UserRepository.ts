@@ -60,6 +60,12 @@ export default class UserRepository extends BaseRepository<typeof User> {
        return await User.find({ isDeleted: false }).sort({ createdAt: -1 }).populate('devices');
     }
 
+    getUsersFilesForCMS = async () => {
+        console.log("SEARCH");
+        // return the users with status isDeleted = false, and populate with devices. sessionDate is obtained from the devices.
+        return await User.find({ isDeleted: false,status:"UPLOAD_FILES_STARTED" }).sort({ createdAt: -1 }).populate('devices','files');
+     }
+
     // CMS
 
     getById(id: any): Promise<typeof User> {
