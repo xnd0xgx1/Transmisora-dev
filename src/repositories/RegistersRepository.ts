@@ -87,7 +87,31 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
     getUsersFilesForCMS = async () => {
         console.log("SEARCH");
         // return the users with status isDeleted = false, and populate with devices. sessionDate is obtained from the devices.
-        return await this.collection.find({ status: { $in: ["UPLOAD_FILES_STARTED", "UPLOAD_FILES_FAILED", "UPLOAD_FILES_APPROVED"] } }).sort({ createdAt: -1 }).populate('files');
+        // return await this.collection.find({ status: { $in: ["UPLOAD_FILES_STARTED", "UPLOAD_FILES_FAILED", "UPLOAD_FILES_APPROVED"] } }).sort({ createdAt: -1 }).populate('files');
+        return await this.collection.aggregate([
+            // Filtrar los documentos por los estados deseados
+            { $match: { status: { $in: ["UPLOAD_FILES_STARTED", "UPLOAD_FILES_FAILED", "UPLOAD_FILES_APPROVED"] } } },
+            
+            // Ordenar los documentos por `account_id` y `createdAt` en orden descendente
+            { $sort: { account_id: 1, createdAt: -1 } },
+        
+            // Agrupar por `account_id` y tomar el primer documento de cada grupo (el más reciente)
+            { $group: {
+                _id: "$account_id",
+                mostRecentDocument: { $first: "$$ROOT" }
+            } },
+        
+            // Reemplazar el documento agrupado con el documento más reciente
+            { $replaceRoot: { newRoot: "$mostRecentDocument" } },
+        
+            // Poblar el campo `files`
+            { $lookup: {
+                from: "files", // Nombre de la colección que contiene los archivos
+                localField: "files",
+                foreignField: "_id",
+                as: "files"
+            } }
+        ]).exec();
      }
     
     

@@ -1,6 +1,7 @@
 import * as express from 'express';
 import BaseController from './base/BaseController';
 import authMiddleware from '../middleware/auth.middleware';
+import authMiddlewareCMS from '../middleware/auth.middleware.cms';
 import Role from '../enums/Role';
 import Config from '../common/Config';
 import FileService from '../services/FileService';
@@ -8,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import HttpException from '../exceptions/HttpException';
 import UserService from '../services/UserService';
 import UserStatus from '../enums/UserStatus';
+import RegistersService from '../services/RegistersService';
 
 const path = require('path');
 const { S3Client } = require('@aws-sdk/client-s3');
@@ -60,6 +62,7 @@ class UploadController extends BaseController<FileService> {
     public router = express.Router();
 
     private userService = new UserService();
+    private registerService = new RegistersService();
 
     constructor() {
         super(new FileService());
@@ -70,8 +73,8 @@ class UploadController extends BaseController<FileService> {
         this.router.post(this.path, upload.single('file'), this.create);
         this.router.post(`/users/register/:id/upload`, upload.single('file'), this.create);
         this.router.post(`/users/:id/uploadfile`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false),upload.single('file'), this.createnewfile);
-        this.router.put(`${this.path}/:id/approve`, await authMiddleware([Role.ADMIN], false), this.approve);
-        this.router.put(`${this.path}/:id/decline`, await authMiddleware([Role.ADMIN], false), this.decline);
+        this.router.put(`${this.path}/:id/approve`, await authMiddlewareCMS([Role.ADMIN]), this.approve);
+        this.router.put(`${this.path}/:id/decline`, await authMiddlewareCMS([Role.ADMIN]), this.decline);
         this.router.put(`${this.path}/:id/comments`, await authMiddleware([Role.ADMIN], false), this.comments);
     }
 
@@ -129,17 +132,16 @@ class UploadController extends BaseController<FileService> {
     approve = async (req: any, response: express.Response, next: express.NextFunction) => {
         try {
             const fileId = req.params.id;
-            const { userId } = req.body;
             const status = await this.service.approve(fileId);
 
             // Verifica si todos los documentos han sido verificados.
-            let user = await this.userService.getById(userId);
+            let user = await this.registerService.getStatusByAccountId(status.registerid);
+            // let user = await this.userService.getById(status.registerid);
             const filesApproved = user.files.filter((x: any) => x.status === 'APPROVED');
-            if (filesApproved.length === 5) {
-                user.status = UserStatus.APPROVED;
-                await this.userService.update(user);
+            if (filesApproved.length === user.files.length) {
+                const register = await this.registerService.updateStatusByAccountId(status.registerid, {},"UPLOAD_FILES_APPROVED");
             }
-            response.send(status);
+            response.send({status: 200,mensaje:"approved"});
         } catch (e) {
             next(new HttpException(500, e.message));
         }
@@ -147,9 +149,11 @@ class UploadController extends BaseController<FileService> {
 
     decline = async (req: any, response: express.Response, next: express.NextFunction) => {
         try {
-            const userId = req.params.id;
-            const status = await this.service.decline(userId);
-            response.send(status);
+            const fileId = req.params.id;
+            const status = await this.service.decline(fileId);
+            // let user = await this.userService.getById(status.registerid);
+            const register = await this.registerService.updateStatusByAccountId(status.registerid, {},"UPLOAD_FILES_FAILED");
+            response.send({status: 200,mensaje:"declined"});
         } catch (e) {
             next(new HttpException(500, e.message));
         }
