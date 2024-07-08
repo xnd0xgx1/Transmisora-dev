@@ -70,6 +70,7 @@ const schema = new Schema<IUser>({
     emailExtra: { type: String },
     fiel: { type: String },
     clabe: { type: String },
+    registerid: [{ type: Schema.Types.ObjectId, ref: 'registers' }],
 
     balance: { type: Double, default: 0 },
     balanceUSD: { type: Double, default: 0 },

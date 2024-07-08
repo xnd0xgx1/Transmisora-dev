@@ -2194,7 +2194,7 @@ class UserService extends BaseService<UserRepository> {
 
         
         let user = {
-            roles:["PERSONA_FISICA"],
+            roles:[Registerobj.data_obtenida.tipopersona ? Registerobj.data_obtenida.tipopersona : "PERSONA_FISICA"],
             "isActive": true,
             "isComplete": true,
             "isAdminVerified": true,
@@ -2206,7 +2206,7 @@ class UserService extends BaseService<UserRepository> {
             ],
             "businessAddress": [],
             "administrators": [],
-            "files": [Registerobj.Truora.validations[0].details.background_check.check_url,Registerobj.Truora.validations[0].front_image,Registerobj.Truora.validations[1].face_photo_watermark],
+            "files": Registerobj.files,
             "balance": 0,
             "balanceUSD": 0,
             "devices": [
@@ -2240,8 +2240,11 @@ class UserService extends BaseService<UserRepository> {
             "failedLoginAttempts": 0,
             "isBlocked": false,
             "status": "PENDING",
-            "isDeleted": false
+            "isDeleted": false,
+            "registerid": Registerobj._id
         }
+
+
 
         userDb = await this.repository.create({ ...user});
 
@@ -2429,6 +2432,17 @@ class UserService extends BaseService<UserRepository> {
     getAllValidateDocuments = async () => {
         let users = await this.repository.getAllValidateDocuments();
         return users;
+    }
+
+
+
+    activatestatus = async (id:string) => {
+        let user = await this.repository.getById(id);
+        user.isActive = true;
+        user.status = "ACTIVE";
+        user.RegistrationStage = "FINISHED";
+        user.clabe = "646180557140946700";
+        return await this.repository.update(user);
     }
 
     // UPDATE

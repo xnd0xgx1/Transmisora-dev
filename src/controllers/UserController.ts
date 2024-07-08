@@ -722,9 +722,9 @@ class UserController extends BaseController<UserService> {
         try {
 
             const user = request.user;
-
+            const register = await this.service.activatestatus(user)
             // const isVerify = await this.service.verifyPin(user, pinCode);
-            response.send({ status: 200,message:"OK", id:user.id,CLABE:"646180557140946700"});
+            response.send({ status: 200,message:"OK", id:user.id,CLABE:register.clabe});
         } catch (e) {
             // await this.logRepository.create(e);
             next(new HttpException(400, e.message));
