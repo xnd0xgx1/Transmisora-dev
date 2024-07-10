@@ -1109,7 +1109,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            redirect_url: 'https://www.cms.trasmisora.com/',
             flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
             account_id: phone
         });
@@ -1121,7 +1121,7 @@ class UserService extends BaseService<UserRepository> {
                 grant: 'digital-identity',
                 api_key_version: '1',
                 country: 'ALL',
-                redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+                redirect_url: 'https://www.cms.trasmisora.com/',
                 flow_id: 'IPF74c1bcd19b1bc15921f12609973748a0',
                 account_id: phone
             });
@@ -1204,7 +1204,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: url ? url : 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            redirect_url: url ? url : 'https://www.cms.trasmisora.com/',
             flow_id: 'IPF82d69731a9307f4b0131820c84138284',
             account_id: phone
         });
@@ -1287,7 +1287,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            redirect_url: 'https://www.cms.trasmisora.com/',
             flow_id: 'IPF30fb7783937dd805d6127af8517b74c9',
             account_id: id
         });
@@ -1378,7 +1378,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: url ? url : 'https://orange-mud-01409780f.4.azurestaticapps.net/',
+            redirect_url: url ? url : 'https://www.cms.trasmisora.com/',
             flow_id: 'IPF30fb7783937dd805d6127af8517b74c9',
             account_id: id
         });
@@ -2307,8 +2307,8 @@ class UserService extends BaseService<UserRepository> {
                         const register2 = await this.preregisgterService.create(intialObject);
                         _id = register2.id;
                     }
-                    await this.notificationService.sendEmail2(data.email_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
-                    await this.notificationService.sendSMS2(data.celular_proveedor, "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
+                    await this.notificationService.sendEmail2(data.email_proveedor, "https://www.cms.trasmisora.com/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
+                    await this.notificationService.sendSMS2(data.celular_proveedor, "https://www.cms.trasmisora.com/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
                 }
 
             }else{
@@ -2316,8 +2316,8 @@ class UserService extends BaseService<UserRepository> {
                             // const logged = await this.registerToLogin(register);
                             let preregister = await this.preregisgterService.getById(register.account_id);
                             let phone = preregister.phoneCode + preregister.phone;
-                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, ingresa a para terminar tu registro: "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`,'Trasmisora, registro pendiente!');
-                            await this.notificationService.sendSMSGeneric(phone, `Hola !, ingresa a para terminar tu registro: "https://orange-mud-01409780f.4.azurestaticapps.net/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`);
+                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, ingresa a para terminar tu registro: "https://www.cms.trasmisora.com/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`,'Trasmisora, registro pendiente!');
+                            await this.notificationService.sendSMSGeneric(phone, `Hola !, ingresa a para terminar tu registro: "https://www.cms.trasmisora.com/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`);
                             // return register;
 
                 }
