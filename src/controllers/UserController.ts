@@ -23,6 +23,9 @@ import jwt from 'jsonwebtoken';
 import VerifyDto from '../dto/VerifyDto';
 import StpProvider from '../providers/STPProvider';
 import authMiddlewareSTP from '../middleware/auth.middleware.stp';
+import NotificationService from '../services/NotificationService';
+import OtpService from '../services/OtpService';
+import OtpType from '../enums/OtpType';
 
 class UserController extends BaseController<UserService> {
 
@@ -33,6 +36,8 @@ class UserController extends BaseController<UserService> {
     private invoiceService = new InvoiceService();
     private transactionService = new TransactionService();
     private stpprovider = new StpProvider();
+    private notificationService = new NotificationService();
+    private otpservice = new OtpService();
 
     constructor() {
         super(new UserService());
@@ -139,6 +144,10 @@ class UserController extends BaseController<UserService> {
         this.router.post(`${this.path}/AccountStatusSTP`,await authMiddlewareSTP([Role.ADMIN]), this.AccountStatusSTP);
         this.router.post(`${this.path}/AbonoSTP`,await authMiddlewareSTP([Role.ADMIN]), this.AbonoSTP);
         this.router.post(`${this.path}/CEPSTP`,await authMiddlewareSTP([Role.ADMIN]), this.CEP);
+
+        this.router.post(`${this.path}/:id/sendPassOTP`, await authMiddleware(this.usersRols, false), this.sendOTP);
+        
+        this.router.post(`${this.path}/:id/changepassword`, await authMiddleware(this.usersRols, false), this.changepasswordOTP);
         
 
         //CMS VALIDATION PROCESS
@@ -308,6 +317,7 @@ class UserController extends BaseController<UserService> {
         try {
             const setPasswordDto = request.body;
             const resp = await this.service.setPassword(setPasswordDto);
+
             response.send(resp);
         } catch (e) {
             next(new HttpException(400, e.message));
@@ -695,6 +705,49 @@ class UserController extends BaseController<UserService> {
      * @param response 
      * @param next 
      */
+
+
+    private sendOTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const user = request.user;
+            if (request.body.sendVerificationCodeToPrimary) {
+                if (user.email !== undefined) {
+                    // Send to email.
+                    await this.notificationService.sendEmail(user.email, verificationCode);
+                }
+                else {
+                    // Send to phone.
+                    await this.notificationService.sendSMS(`${user.phoneCode}${user.phone}`, verificationCode)
+                }
+            }
+            const otpresource = await this.otpservice.createOTP(user,OtpType.RECOVER_PASSWORD,verificationCode);
+            response.send({ status: 200,message:"OK"});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private changepasswordOTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            let user = request.user;
+            const resultOTP = await this.otpservice.verifyOTPType(user,OtpType.RECOVER_PASSWORD,request.body.code);
+            if(resultOTP){
+                const resultadoChangepass = await this.service.setPasswordOTP(request.body.newPassword,user);
+                if(resultadoChangepass){
+                    response.send({ status: 200,message:"OK"});
+                }
+            }else{
+                response.status(400).send({ status: 400,message:"Error verificando OTP"});
+            }
+            
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
 
     private verifypass = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {

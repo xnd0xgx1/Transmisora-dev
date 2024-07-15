@@ -15,6 +15,16 @@ class OtpService extends BaseService<OtpRepository> {
         super(new OtpRepository(OTP));
     }
 
+    createOTP = async (user: any = null, otpType: OTPType, value: string) => {
+        const otp = await this.repository.create({
+            user,
+            otpType,
+            code: value // TODO: Generar.
+        });
+
+        return otp;
+    }
+
     request = async (user: any = null, otpType: OTPType, value: string) => {
 
         //const code = Math.floor(100000 + Math.random() * 900000);
@@ -69,6 +79,27 @@ class OtpService extends BaseService<OtpRepository> {
         await this.repository.update(code);
 
         return true;
+    }
+
+
+    verifyOTPType = async (user: any = null, otpType: OTPType, value: string) => {
+        // TODO: Verificar e incrementar numerador de intentos.
+        let code = await this.repository.getByCodeandType(value,otpType);
+        if (code === null){
+            return false;
+        }
+        else{
+            
+            if(code.code == value && code.isUsed == false){
+                code.isUsed = true;
+                await this.repository.update(code);
+                return true;
+
+            }else
+            {
+                return false;
+            }
+        }
     }
 
     verifyOTP = async (verifyDto: VerifyDto) => {

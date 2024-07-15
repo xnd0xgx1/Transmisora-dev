@@ -4,11 +4,7 @@ import Verify from '../models/Verify';
 class VerifyRepository extends BaseRepository<typeof Verify> {
     getByValue = async (value: string) => {
         return await Verify.findOne({ value: value }).sort({ $natural: -1 }).populate({
-            path: 'otp',
-            populate: {
-                path: 'user',
-                select: { '_id': 1, 'password': 1, 'email': 1, 'phoneCode': 1, 'phone': 1 },
-            }
+            path: 'otp'
         });
     }
     getByValueAndCode = async (value: string, code: string) => {

@@ -365,9 +365,31 @@ class UserService extends BaseService<UserRepository> {
         return { "status": "ok" }
     }
 
+    setPasswordOTP = async (newpassword: any,user:any) => {
+
+        let newuser = await this.repository.getById(user);
+        if (newuser.isBlocked)
+            throw new Error(getText(TextType.BLOCKED_ACCOUNT));
+
+        
+        const isPasswordMatching = await bcrypt.compare(newpassword, newuser.password );
+        if (isPasswordMatching)
+            throw new Error(getText(TextType.SAME_PASS));
+        
+        const hashedPassword = await bcrypt.hash(newpassword, 10);
+        user.password = hashedPassword;
+        await this.update(user);
+        return true;
+    }
+
+
+
     setPassword = async (setPasswordDto: any) => {
 
-        let verify = await this.verifyService.getByValue(setPasswordDto.value);
+
+        let value = setPasswordDto.value ? setPasswordDto.value :  setPasswordDto.phoneCode + setPasswordDto.phone;
+        let verify = await this.verifyService.getByValue(value);
+        console.log("verify item",verify);
         if (verify === null)
             throw new Error("El código ingresado es incorrecto 1");
 
@@ -380,17 +402,15 @@ class UserService extends BaseService<UserRepository> {
         // TODO: Verificar el tiempo de validez del código.
 
         // TODO: Verificar intentos de uso.
-
-        if (setPasswordDto.value.includes('@')) {
-            if (setPasswordDto.value !== verify.otp.user.email)
-                throw new Error("El código ingresado es incorrecto 4");
+        let user = null;
+        if (setPasswordDto.value != null) {
+            user = await this.repository.getByEmail(value)
         }
         else {
-            if (setPasswordDto.value !== `${verify.otp.user.phoneCode}${verify.otp.user.phone}`)
-                throw new Error("El código ingresado es incorrecto 5");
+            user = await this.repository.getByPhone(setPasswordDto.phoneCode, setPasswordDto.phone)
         }
 
-        let user = verify.otp.user;
+    
 
         if (user.isBlocked)
             throw new Error(getText(TextType.BLOCKED_ACCOUNT));
