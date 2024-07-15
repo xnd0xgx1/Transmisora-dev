@@ -77,6 +77,12 @@ export default class UserRepository extends BaseRepository<typeof User> {
     }
 
 
+    getallWClabe(): Promise<typeof User[]> {
+        return this.collection.find({RegistrationStage : "FINISHED" }).sort({ createdAt: -1 });
+    }
+
+
+
     getbyCLABE(clabe:any): Promise<typeof User[]> {
         return this.collection.findOne({ clabe: clabe }).sort({ createdAt: -1 });
     }

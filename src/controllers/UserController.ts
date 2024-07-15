@@ -725,24 +725,38 @@ class UserController extends BaseController<UserService> {
             next(new HttpException(400, e.message));
         }
     }
+    private formatDate =  (dateString) => {
+        // Crear un objeto Date a partir de la cadena de fecha
+        const date = new Date(dateString);
     
+        // Obtener el año, mes y día
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Los meses en JavaScript son 0-indexed
+        const day = String(date.getUTCDate()).padStart(2, '0');
+    
+        // Formatear la fecha en AAAAMMDD
+        const formattedDate = `${year}${month}${day}`;
+    
+        return formattedDate;
+    }
 
     private CLABE = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 
             const user = request.user;
 
-            const numerocuenta = 1;
+            const numerocuenta = await this.service.getaccountnumber();
             const userdb = await this.service.getById(user)
             const clabe = await this.stpprovider.calcularDigitoVerificador("6461805571" + numerocuenta.toString().padStart(7, '0'))
+            const birthdate = this.formatDate(user.birthdate);
             let ordenPagoWs = {
                 "cuenta":clabe,
                 "empresa":"TIM2",
                 "nombre":userdb.firstName,
                 "apellidoPaterno":userdb.lastName,
                 "apellidoMaterno":userdb.mothersLastName,
-                "rfcCurp":"OOMG971116ES3",
-                "fechaNacimiento":"19971116",
+                "rfcCurp":user.curp,
+                "fechaNacimiento":birthdate,
                 "paisNacimiento":"187"
                }
             ordenPagoWs['firma'] = await this.stpprovider.getSignRegistroFisica(ordenPagoWs);

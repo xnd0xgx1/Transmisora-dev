@@ -2438,6 +2438,12 @@ class UserService extends BaseService<UserRepository> {
         return user;
     }
 
+    getaccountnumber = async (clabe:string,status:string) => {
+        let user = await this.repository.getallWClabe();
+        return user.length + 1;
+    }
+  
+
 
 
     changestatuscuenta = async (clabe:string,status:string) => {
