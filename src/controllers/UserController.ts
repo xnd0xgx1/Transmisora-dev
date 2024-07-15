@@ -21,6 +21,8 @@ import AdministratorDto from '../dto/AdministratorDto';
 import RecoverPasswordDto from '../dto/RecoverPasswordDto';
 import jwt from 'jsonwebtoken';
 import VerifyDto from '../dto/VerifyDto';
+import StpProvider from '../providers/STPProvider';
+import authMiddlewareSTP from '../middleware/auth.middleware.stp';
 
 class UserController extends BaseController<UserService> {
 
@@ -30,6 +32,7 @@ class UserController extends BaseController<UserService> {
 
     private invoiceService = new InvoiceService();
     private transactionService = new TransactionService();
+    private stpprovider = new StpProvider();
 
     constructor() {
         super(new UserService());
@@ -132,8 +135,10 @@ class UserController extends BaseController<UserService> {
         this.router.post(`${this.path}/:id/beneficiarios`, await authMiddleware(this.usersRols, false), this.beneficiarios);
         this.router.post(`${this.path}/:id/CLABE`, await authMiddleware(this.usersRols, false), this.CLABE);
         this.router.put(`${this.path}/:id/retiro`, await authMiddleware(this.usersRols, false), this.retiro);
-        this.router.post(`${this.path}/StatusSTP`, this.StatusSTP);
-        this.router.post(`${this.path}/AbonoSTP`, this.AbonoSTP);
+        this.router.post(`${this.path}/StatusSTP`,await authMiddlewareSTP([Role.ADMIN]), this.StatusSTP);
+        this.router.post(`${this.path}/AccountStatusSTP`,await authMiddlewareSTP([Role.ADMIN]), this.AccountStatusSTP);
+        this.router.post(`${this.path}/AbonoSTP`,await authMiddlewareSTP([Role.ADMIN]), this.AbonoSTP);
+        this.router.post(`${this.path}/CEPSTP`,await authMiddlewareSTP([Role.ADMIN]), this.CEP);
         
 
         //CMS VALIDATION PROCESS
@@ -710,47 +715,150 @@ class UserController extends BaseController<UserService> {
 
             const user = request.user;
             const { accountnumber,clabe } = request.body;
-
-            // const isVerify = await this.service.verifyPin(user, pinCode);
+            user.clabedepositos = clabe;
+            user.accountdepositos = accountnumber;
+            const newuser = await this.service.update(user);
+            
             response.send({ status: 200,message:"OK", accountnumber:accountnumber,clabe:clabe});
         } catch (e) {
             // await this.logRepository.create(e);
             next(new HttpException(400, e.message));
         }
     }
+    
+
     private CLABE = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 
             const user = request.user;
-            const register = await this.service.activatestatus(user)
-            // const isVerify = await this.service.verifyPin(user, pinCode);
-            response.send({ status: 200,message:"OK", id:user.id,CLABE:register.clabe});
+
+            const numerocuenta = 1;
+            const userdb = await this.service.getById(user)
+            const clabe = await this.stpprovider.calcularDigitoVerificador("6461805571" + numerocuenta.toString().padStart(7, '0'))
+            let ordenPagoWs = {
+                "cuenta":clabe,
+                "empresa":"TIM2",
+                "nombre":userdb.firstName,
+                "apellidoPaterno":userdb.lastName,
+                "apellidoMaterno":userdb.mothersLastName,
+                "rfcCurp":"OOMG971116ES3",
+                "fechaNacimiento":"19971116",
+                "paisNacimiento":"187"
+               }
+            ordenPagoWs['firma'] = await this.stpprovider.getSignRegistroFisica(ordenPagoWs);
+
+            console.log("Registro:", ordenPagoWs);
+            const result = await this.stpprovider.registroPFStp(ordenPagoWs);
+            console.log("Result STP: ",result);
+            if(result.id == 0){
+                const register = await this.service.activatestatus(user,clabe)
+                response.send({ status: 200,message:"OK", id:user.id,CLABE:clabe});
+            }else{
+                response.status(400).send({ status: 400,message:result.descripcion, id:user.id,CLABE:clabe});
+            }
+            
         } catch (e) {
             // await this.logRepository.create(e);
             next(new HttpException(400, e.message));
         }
     }
+
+    private CEP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const {empresa} = request.body;
+            if(empresa == "TIM2"){
+                
+                const result = await this.transactionService.updatecep(request.body);
+                response.send({ status: 200,mensaje:"recibido"});
+            }else{
+                response.status(400).send({ status: 400,message:"Error, empresa incorrecta"});
+            }
+
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+           
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
     
     private AbonoSTP = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 
-            const user = request.user;
-
-            // const isVerify = await this.service.verifyPin(user, pinCode);
-            response.send({ status: 200,mensaje:"confirmar"});
+            const body = request.body;
+            if(body.empresa == "TIM2"){
+                let user = await this.service.getbyCLABE(body.cuentaBeneficiario);
+                if(user != null){
+                    if(user.clabeactive && user.isActive && user.isBlocked == false){
+                        console.log("USER DB: ",user);
+                        body["type"] = TransactionType.DEPOSIT;
+                        body["user"] = user;
+                        body["currency"] = "MXN";
+                        body["cost"] = 0;
+                        body["status"] = "LQ";
+                        body["idSTP"] = body.id;
+                        const result = await this.transactionService.abonoSTP(body);
+                        result.user.balance += result.monto;
+                        let newuser = await this.service.update(result.user);
+                        response.send({ status: 200,mensaje:"confirmar"});
+                    }else{
+                        response.status(400).send({ status: 400,mensaje:"devolver",id:2});
+                    }
+                }else{
+                    response.status(400).send({ status: 400,mensaje:"devolver",id:1});
+                }
+               
+                
+            }else{
+                response.status(400).send({ status: 400,mensaje:"devolver",id:1});
+            }
         } catch (e) {
             // await this.logRepository.create(e);
-            next(new HttpException(400, e.message));
+            response.status(400).send({ status: 400,mensaje:"devolver",id:1,causa:e.message});
+        }
+    }
+
+    private AccountStatusSTP = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+            
+            const {cuenta, estado,empresa} = request.body;
+            console.log("Status de la cuenta: ",cuenta);
+            console.log("Estado: ",estado);
+            if(empresa == "TIM2"){
+            const changestatus = await this.service.changestatuscuenta(cuenta,estado);
+            response.send({ status: 200,mensaje:"recibido"});
+            }else{
+                response.status(400).send({ status: 400, mensaje: "Empresa no reconocida" });
+            }
+        } catch (e) {
+            // await this.logRepository.create(e);
+            response.status(400).send({ status: 400, mensaje: e.message });
         }
     }
 
     private StatusSTP = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 
-            const user = request.user;
+            const {id,empresa,claveRastreo,estado,causaDevolucion} = request.body;
+            if(empresa == "TIM2"){
+                
+                const result = await this.transactionService.changeStatus(id,estado,causaDevolucion);
+                if(estado != "LQ"){
+                    result.user.balance -= result.monto;
+                    let newuser = await this.service.update(result.user);
+                    response.send({ status: 200,mensaje:"recibido"});
+                }else{
+                    response.send({ status: 200,mensaje:"recibido"});
+                }
+                
+            }else{
+                response.status(400).send({ status: 400,message:"Error, empresa incorrecta"});
+            }
 
             // const isVerify = await this.service.verifyPin(user, pinCode);
-            response.send({ status: 200,mensaje:"recibido"});
+           
         } catch (e) {
             // await this.logRepository.create(e);
             next(new HttpException(400, e.message));
@@ -760,9 +868,57 @@ class UserController extends BaseController<UserService> {
         try {
 
             const user = request.user;
+            console.log("USER: ",user);
 
-            // const isVerify = await this.service.verifyPin(user, pinCode);
-            response.send({ status: 200,message:"OK",rastreo:"123456789"});
+            if(user.clabeactive){
+                let numerotransaccion =  await this.transactionService.gettransactionNumber();
+                console.log("transactions: ", numerotransaccion);
+                numerotransaccion  += 1;
+                const claveRastreo = "5571" + numerotransaccion.toString().padStart(4, '0');
+                const retirobody = {
+                    claveRastreo: claveRastreo,
+                    conceptoPago: "Prueba REST",
+                    cuentaOrdenante: user.clabe,
+                    cuentaBeneficiario: user.clabedepositos, //Cuenta demo stp
+                    empresa: "TIM2",
+                    institucionContraparte: "846",
+                    institucionOperante: "90646",
+                    monto: request.body.monto,
+                    nombreBeneficiario: user.firstName +  " " + user.lastName +  " " + user.mothersLastName, 
+                    nombreOrdenante: user.firstName +  " " + user.lastName +  " " + user.mothersLastName,
+                    referenciaNumerica: "123456",
+                    rfcCurpBeneficiario: user.curp,
+                    rfcCurpOrdenante: user.curp,
+                    tipoCuentaBeneficiario: "40",
+                    tipoCuentaOrdenante: "40",
+                    tipoPago: "30",
+                    latitud: request.body.latitud,
+                    longitud: request.body.longitud,
+                    nombreParticipanteIndirecto:user.firstName +  " " + user.lastName +  " " + user.mothersLastName,
+                    cuentaParticipanteIndirecto:"646180557100000000",
+                    rfcParticipanteIndirecto:"OOMG971116ES3"
+                }
+                retirobody['firma'] = await this.stpprovider.getSignRegistroFisica(retirobody);
+                console.log("Retirobody: ",retirobody);
+
+                const result = await this.stpprovider.registroOrdenIndirecto(retirobody);
+                console.log("Result STP: ",result);
+                if(result.resultado.id.toString().length > 3){
+                    retirobody["type"] = TransactionType.WITHDRAWAL;
+                    retirobody["user"] = user;
+                    retirobody["currency"] = "MXN";
+                    retirobody["cost"] = 0;
+                    retirobody["idSTP"] = result.resultado.id;
+                    const transaccion = await this.transactionService.createTransactionSTP(retirobody);
+                    user.balance -= request.body.monto;
+                    let newuser = await this.service.update(user);
+                    response.send({ status: 200,message:"OK",clave:claveRastreo});
+                }else{
+                    response.status(400).send({ status: 400,message:result.resultado.descripcionError});
+                }
+            }else{
+            response.status(400).send({ status: 400,message:"Cuenta clabe no activada por STP"});
+            }
         } catch (e) {
             // await this.logRepository.create(e);
             next(new HttpException(400, e.message));
@@ -773,7 +929,8 @@ class UserController extends BaseController<UserService> {
 
             const user = request.user;
             const { beneficiarios } = request.body;
-
+            user.beneficiarios = beneficiarios;
+            const newuser = await this.service.update(user);
             // const isVerify = await this.service.verifyPin(user, pinCode);
             response.send({ status: 200,message:"OK", beneficiarios:beneficiarios});
         } catch (e) {

@@ -3,6 +3,7 @@ import TransactionRepository from "../repositories/TransactionRepository";
 import Transaction from "../models/Transaction";
 import TransactionType from "../enums/TransactionType";
 import CurrencyType from "../enums/CurrencyType";
+import UserService from "./UserService";
 
 class TransactionService extends BaseService<TransactionRepository> {
 
@@ -26,6 +27,56 @@ class TransactionService extends BaseService<TransactionRepository> {
         }
         transaction = await this.repository.create(transaction);
         return transaction;
+    }
+
+    createTransactionSTP = async (transactionobj:any) => {
+        console.log("Creating transaction: ",transactionobj)
+        const transaction = await this.repository.create(transactionobj);
+        return transaction;
+    }
+
+
+
+    abonoSTP = async (transactionobj:any) => {
+        console.log("Creating transaction: ",transactionobj)
+        const transaction = await this.repository.create(transactionobj);
+        return transaction;
+    }
+
+    updatecep = async (cep) => {
+        let transaction = await this.repository.getbyclabeandrastreo(cep.cuentaBeneficiario,cep.claveRastreo);
+        if(transaction != null){
+            transaction.cep = cep;
+            let retunresult = await this.repository.update(transaction);
+            return retunresult;
+        }else{
+            throw new Error("Transaccion no localizada");
+        }
+       
+    }
+       
+
+    changeStatus = async (id,estado,causaDevolucion) => {
+        let transaction = await this.repository.getbySTPID(id);
+        if(transaction != null){
+            transaction.status = estado;
+            let retunresult = await this.repository.update(transaction);
+            return retunresult;
+        }else{
+            throw new Error("Transaccion no localizada");
+        }
+       
+    }
+
+
+    gettransactionNumber = async () => {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0); // Establece la hora a medianoche
+    
+        const end = new Date();
+        end.setHours(23, 59, 59, 999);
+        let transaction = await this.repository.getallbyday(start,end);
+        return transaction.length;
     }
 
     // CMS

@@ -76,6 +76,11 @@ export default class UserRepository extends BaseRepository<typeof User> {
         return this.collection.find().sort({ createdAt: -1 });
     }
 
+
+    getbyCLABE(clabe:any): Promise<typeof User[]> {
+        return this.collection.findOne({ clabe: clabe }).sort({ createdAt: -1 });
+    }
+
     getAllValidateDocuments(): Promise<typeof User[]> {
         return this.collection.find({
             "files.0": {

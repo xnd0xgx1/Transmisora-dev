@@ -70,6 +70,10 @@ const schema = new Schema<IUser>({
     emailExtra: { type: String },
     fiel: { type: String },
     clabe: { type: String },
+    clabeactive: { type: Boolean,default:false},
+    clabedepositos: { type: String },
+    accountdepositos: { type: String },
+
     registerid: [{ type: Schema.Types.ObjectId, ref: 'registers' }],
 
     balance: { type: Double, default: 0 },
@@ -81,6 +85,7 @@ const schema = new Schema<IUser>({
     pomeloUserId: { type: String },
     pomeloClientId: { type: String },
     cards: [{ type: Schema.Types.ObjectId, ref: 'Card' }],
+    beneficiarios: { type: Schema.Types.Mixed, required: false }
 }, { timestamps: true });
 
 const User = model<IUser>('User', schema, 'users');

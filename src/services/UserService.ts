@@ -2433,15 +2433,36 @@ class UserService extends BaseService<UserRepository> {
         let users = await this.repository.getAllValidateDocuments();
         return users;
     }
+    getbyCLABE = async (clabe:string,status:string) => {
+        let user = await this.repository.getbyCLABE(clabe);
+        return user;
+    }
 
 
 
-    activatestatus = async (id:string) => {
+    changestatuscuenta = async (clabe:string,status:string) => {
+        let user = await this.repository.getbyCLABE(clabe);
+        if(user != null){
+            if(status == "A"){
+            user.clabeactive = true;
+            }else{
+            user.clabeactive = false;
+            }
+            
+            return await this.repository.update(user);
+        }else{
+            throw new Error('Error al encontrar la cuenta');
+        }
+    }
+
+
+    activatestatus = async (id:string,clabe) => {
         let user = await this.repository.getById(id);
         user.isActive = true;
+        user.clabeactive = false;
         user.status = "ACTIVE";
         user.RegistrationStage = "FINISHED";
-        user.clabe = "646180557140946700";
+        user.clabe = clabe;
         return await this.repository.update(user);
     }
 
