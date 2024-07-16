@@ -5,11 +5,13 @@
   "private": true,
   "main": "dist/server.js",
   "scripts": {
-    "compile": "tsc && node ./dist/server.js",
+    "compile": "tsc && npm run copy-files && node ./dist/server.js",
     "start": "node ./server.js",
     "start:dev": "node ./node_modules/nodemon/bin/nodemon.js -e ts --exec \"npm run compile\"",
     "dispatch": "gcloud config set project uexchange-366915 && gcloud app deploy dispatch.yaml",
-    "build": "tsc"
+    "build": "tsc && npm run copy-files",
+    "copy-files": "cp src/providers/llavePrivadatim2.pem dist/providers/"
+
   },
   "engines": {
     "node": "14.21.3"

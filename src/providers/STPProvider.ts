@@ -1,7 +1,8 @@
 const fs = require('fs');
 const crypto = require('crypto');
 var request = require('request');
-
+const path = require('path');
+const filePath = path.join(__dirname, 'llavePrivadatim2.pem');
 const axios = require('axios');
 
 class StpProvider {
@@ -16,7 +17,8 @@ class StpProvider {
         var sign = crypto.createSign('RSA-SHA256');
         sign.update(cadenaOriginal);
         sign.end();
-        const key = fs.readFileSync('src/providers/ssl/llavePrivadatim2.pem');
+
+        const key = fs.readFileSync(filePath);
         let signature_b64 = sign.sign(key, 'base64');
         return signature_b64;
     }
@@ -27,7 +29,7 @@ class StpProvider {
         var sign = crypto.createSign('RSA-SHA256');
         sign.update(cadenaOriginal);
         sign.end();
-        const key = fs.readFileSync('src/providers/ssl/llavePrivadatim2.pem');
+        const key = fs.readFileSync(filePath);
         let signature_b64 = sign.sign(key, 'base64');
         return signature_b64;
     }
@@ -38,7 +40,7 @@ class StpProvider {
         var sign = crypto.createSign('RSA-SHA256');
         sign.update(cadenaOriginal);
         sign.end();
-        const key = fs.readFileSync('src/providers/ssl/llavePrivadatim2.pem');
+        const key = fs.readFileSync(filePath);
         let signature_b64 = sign.sign(key, 'base64');
         return signature_b64;
     }
@@ -54,7 +56,7 @@ class StpProvider {
         var sign = crypto.createSign('RSA-SHA256');
         sign.update(cadenaOriginal);
         sign.end();
-        const key = fs.readFileSync('src/providers/ssl/llavePrivadatim2.pem');
+        const key = fs.readFileSync(filePath);
         let signature_b64 = sign.sign(key, 'base64');
         return signature_b64;
     }
