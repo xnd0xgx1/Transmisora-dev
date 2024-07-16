@@ -155,6 +155,8 @@ class UserController extends BaseController<UserService> {
 
         //CMS VALIDATION PROCESS
         this.router.get(`${this.path}/filesvalidationusers`,await authMiddlewareCMS([Role.ADMIN]),this.getAllUsersfilesCMS);
+        this.router.get(`${this.path}/transactions`,await authMiddlewareCMS([Role.ADMIN]),this.getAllTransactionsCMS);
+        this.router.post(`${this.path}/saldocuenta`,await authMiddlewareCMS([Role.ADMIN]), this.consultaSaldoConcentradora);
 
 
         
@@ -911,6 +913,21 @@ class UserController extends BaseController<UserService> {
         } catch (e) {
             // await this.logRepository.create(e);
             response.status(400).send({ status: 400, mensaje: e.message });
+        }
+    }
+    
+
+    private getAllTransactionsCMS = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const transacciones = await this.transactionService.getAll();
+            response.send({ status: 200,transacciones:transacciones});
+          
+            // const isVerify = await this.service.verifyPin(user, pinCode);
+           
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
         }
     }
 
