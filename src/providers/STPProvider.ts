@@ -14,12 +14,12 @@ class StpProvider {
         let cadenaOriginal = "";
         cadenaOriginal = "||" +
         ordenPagoWs['institucionContraparte'] + "|" + //a
-        ordenPagoWs['empresa'] + "|||" + //cd
+        ordenPagoWs['empresa'] + "|" + //b
+        "||" + //cd
         ordenPagoWs['claveRastreo'] + "|" + //e
         ordenPagoWs['institucionOperante'] + "|" + //f
         (ordenPagoWs['monto']).toFixed(2) + "|" + //g
-        ordenPagoWs['tipoPago'] + "|" +
-        ordenPagoWs['tipoCuentaOrdenante'] + "|"; //h
+        ordenPagoWs['tipoPago'] + "|||"; //h
         if (ordenPagoWs['nombreOrdenante']) {
             cadenaOriginal = cadenaOriginal + ordenPagoWs['nombreOrdenante'] + "|"; //j
         }
@@ -27,19 +27,18 @@ class StpProvider {
             cadenaOriginal = cadenaOriginal + ordenPagoWs['cuentaOrdenante'] + "|"; //k
         }
         if (ordenPagoWs['rfcCurpOrdenante']) {
-           cadenaOriginal = cadenaOriginal + ordenPagoWs['rfcCurpOrdenante'] + "|"; //l
+            cadenaOriginal = cadenaOriginal + ordenPagoWs['rfcCurpOrdenante'] + "|"; //l
         }
-        cadenaOriginal = cadenaOriginal  +
+        cadenaOriginal = cadenaOriginal + "|" +
                 ordenPagoWs['tipoCuentaBeneficiario'] + "|" + //m
                 ordenPagoWs['nombreBeneficiario'] + "|" + //n
                 ordenPagoWs['cuentaBeneficiario'] + "|" + //o
                 ordenPagoWs['rfcCurpBeneficiario'] + "||||||" + //pqrstu
                 ordenPagoWs['conceptoPago'] + "||||||" + //vwxyzaa
-                ordenPagoWs['referenciaNumerica'] + "|||||||" + //bbcc
-                ordenPagoWs['nombreParticipanteIndirecto'] + "|" +
-                ordenPagoWs['cuentaParticipanteIndirecto'] + "|" +
-                ordenPagoWs['rfcParticipanteIndirecto'] + "||"; //ddeeffgghh
+                ordenPagoWs['referenciaNumerica'] + "||" + //bbcc
+                 "||||||"; //ddeeffgghh
 
+        console.log("cadenaOriginal: ",cadenaOriginal);
         var sign = crypto.createSign('RSA-SHA256');
         sign.update(cadenaOriginal);
         sign.end();

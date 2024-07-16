@@ -945,31 +945,30 @@ class UserController extends BaseController<UserService> {
                 const retirobody = {
                     claveRastreo: claveRastreo,
                     conceptoPago: "Prueba REST",
-                    cuentaOrdenante: user.clabe,
+                    cuentaOrdenante: "646180557100000009",
                     cuentaBeneficiario: user.clabedepositos, //Cuenta demo stp
                     empresa: "TIM2",
-                    institucionContraparte: "846",
+                    institucionContraparte: "90646",
                     institucionOperante: "90646",
                     monto: request.body.monto,
                     nombreBeneficiario: user.firstName +  " " + user.lastName +  " " + user.mothersLastName, 
-                    nombreOrdenante: user.firstName +  " " + user.lastName +  " " + user.mothersLastName,
+                    nombreOrdenante: user.firstName +  " " + user.lastName +  " " + user.mothersLastName, 
                     referenciaNumerica: "123456",
-                    rfcCurpBeneficiario: user.curp,
-                    rfcCurpOrdenante: user.curp,
+                    rfcCurpBeneficiario: "ND",
+                    rfcCurpOrdenante: "ND",
                     tipoCuentaBeneficiario: "40",
                     tipoCuentaOrdenante: "40",
-                    tipoPago: "30",
+                    tipoPago: "1",
                     latitud: request.body.latitud,
-                    longitud: request.body.longitud,
-                    nombreParticipanteIndirecto:user.firstName +  " " + user.lastName +  " " + user.mothersLastName,
-                    cuentaParticipanteIndirecto:"646180557100000000",
-                    rfcParticipanteIndirecto:"OOMG971116ES3"
+                    longitud: request.body.longitud
                 }
-                retirobody['firma'] = await this.stpprovider.getSignRegistroFisica(retirobody);
+                retirobody['firma'] = await this.stpprovider.getSignAltaOrden(retirobody);
+                retirobody['monto'] =  retirobody['monto'].toFixed(2);
                 console.log("Retirobody: ",retirobody);
 
                 const result = await this.stpprovider.registroOrdenIndirecto(retirobody);
                 console.log("Result STP: ",result);
+                
                 if(result.resultado.id.toString().length > 3){
                     retirobody["type"] = TransactionType.WITHDRAWAL;
                     retirobody["user"] = user;
