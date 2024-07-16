@@ -11,33 +11,29 @@ class StpProvider {
     }
 
     getSignAltaOrden = async (ordenPagoWs) => {
-        let cadenaOriginal = "";
-        cadenaOriginal = "||" +
-        ordenPagoWs['institucionContraparte'] + "|" + //a
-        ordenPagoWs['empresa'] + "|" + //b
-        "||" + //cd
-        ordenPagoWs['claveRastreo'] + "|" + //e
-        ordenPagoWs['institucionOperante'] + "|" + //f
-        (ordenPagoWs['monto']).toFixed(2) + "|" + //g
-        ordenPagoWs['tipoPago'] + "|||"; //h
-        if (ordenPagoWs['nombreOrdenante']) {
-            cadenaOriginal = cadenaOriginal + ordenPagoWs['nombreOrdenante'] + "|"; //j
-        }
-        if (ordenPagoWs['cuentaOrdenante']) {
-            cadenaOriginal = cadenaOriginal + ordenPagoWs['cuentaOrdenante'] + "|"; //k
-        }
-        if (ordenPagoWs['rfcCurpOrdenante']) {
-            cadenaOriginal = cadenaOriginal + ordenPagoWs['rfcCurpOrdenante'] + "|"; //l
-        }
-        cadenaOriginal = cadenaOriginal + "|" +
-                ordenPagoWs['tipoCuentaBeneficiario'] + "|" + //m
-                ordenPagoWs['nombreBeneficiario'] + "|" + //n
-                ordenPagoWs['cuentaBeneficiario'] + "|" + //o
-                ordenPagoWs['rfcCurpBeneficiario'] + "||||||" + //pqrstu
-                ordenPagoWs['conceptoPago'] + "||||||" + //vwxyzaa
-                ordenPagoWs['referenciaNumerica'] + "||" + //bbcc
-                 "||||||"; //ddeeffgghh
+        let cadenaOriginal = `||${ordenPagoWs['institucionContraparte']}|TIM2|||${ordenPagoWs['claveRastreo']}|${ordenPagoWs['institucionOperante']}|${(ordenPagoWs['monto']).toFixed(2)}|${ordenPagoWs['tipoPago']}|${ordenPagoWs['tipoCuentaOrdenante']}|${ordenPagoWs['nombreOrdenante']}|${ordenPagoWs['cuentaOrdenante']}|${ordenPagoWs['rfcCurpOrdenante']}|${ordenPagoWs['tipoCuentaBeneficiario']}|${ordenPagoWs['nombreBeneficiario']}|${ordenPagoWs['cuentaBeneficiario']}|${ordenPagoWs['rfcCurpBeneficiario']}||||||${ordenPagoWs['conceptoPago']}||||||${ordenPagoWs['referenciaNumerica']}||||||||`;
+        console.log("cadenaOriginal: ",cadenaOriginal);
+        var sign = crypto.createSign('RSA-SHA256');
+        sign.update(cadenaOriginal);
+        sign.end();
+        const key = fs.readFileSync('src/providers/ssl/llavePrivadatim2.pem');
+        let signature_b64 = sign.sign(key, 'base64');
+        return signature_b64;
+    }
 
+    getcadenaConciliacion= async (tipo) => {
+        let cadenaOriginal = `||TIM2|${tipo}|||`;
+        console.log("cadenaOriginal: ",cadenaOriginal);
+        var sign = crypto.createSign('RSA-SHA256');
+        sign.update(cadenaOriginal);
+        sign.end();
+        const key = fs.readFileSync('src/providers/ssl/llavePrivadatim2.pem');
+        let signature_b64 = sign.sign(key, 'base64');
+        return signature_b64;
+    }
+
+    getcadenaConsultaSaldo = async (cuenta) => {
+        let cadenaOriginal = `||TIM2|${cuenta}|||`;
         console.log("cadenaOriginal: ",cadenaOriginal);
         var sign = crypto.createSign('RSA-SHA256');
         sign.update(cadenaOriginal);
@@ -118,6 +114,38 @@ class StpProvider {
       const result = await axios.request(config);
       return result.data;
   }
+
+  getSaldoCuenta = async (bodydata) => {
+
+            
+    let config = {
+      method: 'post',
+      url: 'https://efws-dev.stpmex.com/efws/API/consultaSaldoCuenta',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      data : JSON.stringify(bodydata)
+    };
+    
+  const result = await axios.request(config);
+  return result.data;
+}
+
+    getConciliacion = async (bodydata) => {
+
+                
+        let config = {
+        method: 'post',
+        url: 'https://efws-dev.stpmex.com/efws/API/V2/conciliacion',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        data : JSON.stringify(bodydata)
+        };
+        let result = {data:""};
+        await axios.request(config).then((r) => {result = r.data}).catch(e => {result = e.response.data});
+        return result;
+    }
   
     
   

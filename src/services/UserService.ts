@@ -2460,6 +2460,7 @@ class UserService extends BaseService<UserRepository> {
 
     getaccountnumber = async (clabe:string,status:string) => {
         let user = await this.repository.getallWClabe();
+        console.log("Users w Clabe: ",user);
         return user.length + 1;
     }
   
@@ -2485,7 +2486,7 @@ class UserService extends BaseService<UserRepository> {
     activatestatus = async (id:string,clabe) => {
         let user = await this.repository.getById(id);
         user.isActive = true;
-        user.clabeactive = false;
+        user.clabeactive = true;
         user.status = "ACTIVE";
         user.RegistrationStage = "FINISHED";
         user.clabe = clabe;

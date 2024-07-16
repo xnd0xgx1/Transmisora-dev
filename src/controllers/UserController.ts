@@ -145,6 +145,9 @@ class UserController extends BaseController<UserService> {
         this.router.post(`${this.path}/AbonoSTP`,await authMiddlewareSTP([Role.ADMIN]), this.AbonoSTP);
         this.router.post(`${this.path}/CEPSTP`,await authMiddlewareSTP([Role.ADMIN]), this.CEP);
 
+        
+        this.router.post(`${this.path}/consultaCuenta`,await authMiddlewareSTP([Role.ADMIN]), this.consultaSaldoConcentradora);
+        this.router.post(`${this.path}/conciliacion`,await authMiddlewareSTP([Role.ADMIN]), this.consultaConciliacion);
         this.router.post(`${this.path}/:id/sendPassOTP`, await authMiddleware(this.usersRols, false), this.sendOTP);
         
         this.router.post(`${this.path}/:id/changepassword`, await authMiddleware(this.usersRols, false), this.changepasswordOTP);
@@ -801,28 +804,33 @@ class UserController extends BaseController<UserService> {
             const numerocuenta = await this.service.getaccountnumber();
             const userdb = await this.service.getById(user)
             const clabe = await this.stpprovider.calcularDigitoVerificador("6461805571" + numerocuenta.toString().padStart(7, '0'))
-            const birthdate = this.formatDate(user.birthdate);
-            let ordenPagoWs = {
-                "cuenta":clabe,
-                "empresa":"TIM2",
-                "nombre":userdb.firstName,
-                "apellidoPaterno":userdb.lastName,
-                "apellidoMaterno":userdb.mothersLastName,
-                "rfcCurp":user.curp,
-                "fechaNacimiento":birthdate,
-                "paisNacimiento":"187"
-               }
-            ordenPagoWs['firma'] = await this.stpprovider.getSignRegistroFisica(ordenPagoWs);
 
-            console.log("Registro:", ordenPagoWs);
-            const result = await this.stpprovider.registroPFStp(ordenPagoWs);
-            console.log("Result STP: ",result);
-            if(result.id == 0){
-                const register = await this.service.activatestatus(user,clabe)
-                response.send({ status: 200,message:"OK", id:user.id,CLABE:clabe});
-            }else{
-                response.status(400).send({ status: 400,message:result.descripcion, id:user.id,CLABE:clabe});
-            }
+            const register = await this.service.activatestatus(user,clabe)
+            response.send({ status: 200,message:"OK", id:user.id,CLABE:clabe});
+
+
+            // const birthdate = this.formatDate(user.birthdate);
+            // let ordenPagoWs = {
+            //     "cuenta":clabe,
+            //     "empresa":"TIM2",
+            //     "nombre":userdb.firstName,
+            //     "apellidoPaterno":userdb.lastName,
+            //     "apellidoMaterno":userdb.mothersLastName,
+            //     "rfcCurp":user.curp,
+            //     "fechaNacimiento":birthdate,
+            //     "paisNacimiento":"187"
+            //    }
+            // ordenPagoWs['firma'] = await this.stpprovider.getSignRegistroFisica(ordenPagoWs);
+
+            // console.log("Registro:", ordenPagoWs);
+            // const result = await this.stpprovider.registroPFStp(ordenPagoWs);
+            // console.log("Result STP: ",result);
+            // if(result.id == 0){
+            //     const register = await this.service.activatestatus(user,clabe)
+            //     response.send({ status: 200,message:"OK", id:user.id,CLABE:clabe});
+            // }else{
+            //     response.status(400).send({ status: 400,message:result.descripcion, id:user.id,CLABE:clabe});
+            // }
             
         } catch (e) {
             // await this.logRepository.create(e);
@@ -858,8 +866,9 @@ class UserController extends BaseController<UserService> {
             if(body.empresa == "TIM2"){
                 let user = await this.service.getbyCLABE(body.cuentaBeneficiario);
                 if(user != null){
+                    console.log("USER DB: ",user);
                     if(user.clabeactive && user.isActive && user.isBlocked == false){
-                        console.log("USER DB: ",user);
+                        
                         body["type"] = TransactionType.DEPOSIT;
                         body["user"] = user;
                         body["currency"] = "MXN";
@@ -931,6 +940,51 @@ class UserController extends BaseController<UserService> {
             next(new HttpException(400, e.message));
         }
     }
+
+    private consultaSaldoConcentradora = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+            const cuenta = request.body.cuenta;
+
+            let consultabody = {
+                    cuentaOrdenante: cuenta,
+                    empresa: "TIM2",
+            };
+            consultabody['firma'] = await this.stpprovider.getcadenaConsultaSaldo(cuenta);
+            console.log("consultabody: ",consultabody);
+
+            const result = await this.stpprovider.getSaldoCuenta(consultabody);
+            console.log("Result STP: ",result);
+            response.send({ status: 200,message:"OK",respuesta:result});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private consultaConciliacion = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            const user = request.user;
+            const {tipoorden,page} = request.body;
+
+            let consultabody = {
+                empresa: "TIM2",
+                page: page,
+                tipoOrden: tipoorden
+              };
+            consultabody['firma'] = await this.stpprovider.getcadenaConciliacion(tipoorden);
+            console.log("consultabody: ",consultabody);
+
+            const result = await this.stpprovider.getConciliacion(consultabody);
+            console.log("Result STP: ",result);
+            response.send({ status: 200,message:"OK",respuesta:result});
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
     private retiro = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
 
@@ -944,16 +998,16 @@ class UserController extends BaseController<UserService> {
                 const claveRastreo = "5571" + numerotransaccion.toString().padStart(4, '0');
                 const retirobody = {
                     claveRastreo: claveRastreo,
-                    conceptoPago: "Prueba REST",
-                    cuentaOrdenante: "646180557100000009",
+                    conceptoPago: "Retiro Trasmisora",
+                    cuentaOrdenante: "646180557100000025",
                     cuentaBeneficiario: user.clabedepositos, //Cuenta demo stp
                     empresa: "TIM2",
                     institucionContraparte: "90646",
                     institucionOperante: "90646",
                     monto: request.body.monto,
-                    nombreBeneficiario: user.firstName +  " " + user.lastName +  " " + user.mothersLastName, 
-                    nombreOrdenante: user.firstName +  " " + user.lastName +  " " + user.mothersLastName, 
-                    referenciaNumerica: "123456",
+                    nombreBeneficiario: "ND", 
+                    nombreOrdenante: "ND", 
+                    referenciaNumerica: "1234567",
                     rfcCurpBeneficiario: "ND",
                     rfcCurpOrdenante: "ND",
                     tipoCuentaBeneficiario: "40",
@@ -963,13 +1017,13 @@ class UserController extends BaseController<UserService> {
                     longitud: request.body.longitud
                 }
                 retirobody['firma'] = await this.stpprovider.getSignAltaOrden(retirobody);
-                retirobody['monto'] =  retirobody['monto'].toFixed(2);
+                // retirobody['monto'] =  retirobody['monto'].toFixed(2);
                 console.log("Retirobody: ",retirobody);
 
                 const result = await this.stpprovider.registroOrdenIndirecto(retirobody);
                 console.log("Result STP: ",result);
                 
-                if(result.resultado.id.toString().length > 3){
+                if(result.resultado.id.toString().length > 3 && result.resultado.id > 0){
                     retirobody["type"] = TransactionType.WITHDRAWAL;
                     retirobody["user"] = user;
                     retirobody["currency"] = "MXN";
