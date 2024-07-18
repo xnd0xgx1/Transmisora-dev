@@ -11,7 +11,13 @@ const schema = new Schema<ICard>({
     affinityGroupName: { type: String },
     lastFour: { type: String },
     provider: { type: String },
-    productType: { type: String }
+    productType: { type: String },
+    type: { type: String },
+    blocked: { type: Boolean },
+    cuenta: { type: String },
+    nombrebanco: { type: String },
+    nombre: { type: String },
+    direccion: { type: String },
 }, { timestamps: true });
 
 const Card = model<ICard>('Card', schema, 'cards');

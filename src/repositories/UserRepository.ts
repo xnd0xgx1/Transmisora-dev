@@ -11,23 +11,23 @@ export default class UserRepository extends BaseRepository<typeof User> {
     }
 
     getByUserName = async (userName: any) => {
-        return await User.findOne({ userName: userName }).sort({ createdAt: -1 });
+        return await User.findOne({ userName: userName }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
     getByEmail = async (email: any) => {
-        return await User.findOne({ email: email }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards');
+        return await User.findOne({ email: email }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
     getByPhone = async (phoneCode: string, phone: string) => {
-        return await User.findOne({ phoneCode: phoneCode, phone: phone }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards');
+        return await User.findOne({ phoneCode: phoneCode, phone: phone }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
     getByInviteCode = async (invitationCode: any) => {
-        return await User.findOne({ invitationCode: invitationCode }).sort({ createdAt: -1 });
+        return await User.findOne({ invitationCode: invitationCode }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
     passwordResetRequest = async (email: any) => {
-        const userDb = await User.findOne({ email: email }).sort({ createdAt: -1 });
+        const userDb = await User.findOne({ email: email }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
         if (userDb !== undefined) {
             let verificationCode = new VerificationCode({
                 code: '123456', // ALL: create a different code.
@@ -42,7 +42,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
     }
 
     passwordReset = async (email: string, password: string, code: string) => {
-        const userDb: any = await User.findOne({ email: email }).sort({ createdAt: -1 });
+        const userDb: any = await User.findOne({ email: email }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
         if (userDb !== undefined) {
 
             // ALL: Validate if the code is valid.
@@ -69,7 +69,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
     // CMS
 
     getById(id: any): Promise<typeof User> {
-        return this.collection.findOne({ _id: id }).sort({ createdAt: -1 });
+        return this.collection.findOne({ _id: id }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
     getAll(): Promise<typeof User[]> {
@@ -78,13 +78,13 @@ export default class UserRepository extends BaseRepository<typeof User> {
 
 
     getallWClabe(): Promise<typeof User[]> {
-        return this.collection.find({RegistrationStage : "FINISHED" }).sort({ createdAt: -1 });
+        return this.collection.find({RegistrationStage : "FINISHED" }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
 
 
     getbyCLABE(clabe:any): Promise<typeof User[]> {
-        return this.collection.findOne({ clabe: clabe }).sort({ createdAt: -1 });
+        return this.collection.findOne({ clabe: clabe }).sort({ createdAt: -1 }).populate('picture administrators devices address businessAddress language cards accounts');
     }
 
     getAllValidateDocuments(): Promise<typeof User[]> {

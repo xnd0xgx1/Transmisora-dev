@@ -26,6 +26,7 @@ import authMiddlewareSTP from '../middleware/auth.middleware.stp';
 import NotificationService from '../services/NotificationService';
 import OtpService from '../services/OtpService';
 import OtpType from '../enums/OtpType';
+import CardService from '../services/CardService';
 
 class UserController extends BaseController<UserService> {
 
@@ -38,6 +39,7 @@ class UserController extends BaseController<UserService> {
     private stpprovider = new StpProvider();
     private notificationService = new NotificationService();
     private otpservice = new OtpService();
+    private cardservice = new CardService();
 
     constructor() {
         super(new UserService());
@@ -157,11 +159,14 @@ class UserController extends BaseController<UserService> {
         this.router.get(`${this.path}/filesvalidationusers`,await authMiddlewareCMS([Role.ADMIN]),this.getAllUsersfilesCMS);
         this.router.get(`${this.path}/transactions`,await authMiddlewareCMS([Role.ADMIN]),this.getAllTransactionsCMS);
         this.router.post(`${this.path}/saldocuenta`,await authMiddlewareCMS([Role.ADMIN]), this.consultaSaldoConcentradora);
+        
 
+         //Creación de cuentsas
+         this.router.post(`${this.path}/:id/useraccount`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.crearcuentadepositos);
+         this.router.put(`${this.path}/:id/useraccount`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.editarcuentadepositos);
+         this.router.delete(`${this.path}/:id/useraccount`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.eliminarcuentadepositos);
+         this.router.get(`${this.path}/:id/useraccount`, await authMiddleware([Role.PERSONA_FISICA, Role.PERSONA_MORAL], false), this.getcuentasusuarios);
 
-        
-        
-        
     }
 
     /**
@@ -775,6 +780,18 @@ class UserController extends BaseController<UserService> {
             const { accountnumber,clabe } = request.body;
             user.clabedepositos = clabe;
             user.accountdepositos = accountnumber;
+            const bodycard = {
+                cuenta: clabe,
+                nombrebanco: "",
+                nombre : user.first_name + " " + user.lastName + " " + user.mothersLastName,
+                direccion : user.adress[0].suburb
+            };
+            const card = await this.cardservice.create(bodycard);
+            if(user.accounts != null){
+                user.accounts.push(card);
+            }else{
+                user.accounts = [card];
+            }
             const newuser = await this.service.update(user);
             
             response.send({ status: 200,message:"OK", accountnumber:accountnumber,clabe:clabe});
@@ -1514,6 +1531,67 @@ class UserController extends BaseController<UserService> {
             const users = await this.service.getAll();
             response.send(users);
         } catch (e) {
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private editarcuentadepositos = async (request: any, response: any, next: express.NextFunction) => {
+        try {
+            const user = request.user;
+            let bodycard = request.body;
+            let card = await this.cardservice.getById(bodycard.id);
+            card.cuenta = bodycard.cuenta;
+            card.nombrebanco = bodycard.nombrebanco;
+            card.nombre = bodycard.nombre;
+            card.direccion = bodycard.direccion;
+            const newcard = await this.cardservice.update(card);
+            response.send({ status: 200,message:"OK",newcard: newcard});
+        } catch (e) {
+            console.log(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+    
+    private getcuentasusuarios = async (request: any, response: any, next: express.NextFunction) => {
+        try {
+            const user = request.user;
+            response.send({ status: 200,message:"OK",accounts: user.accounts});
+        } catch (e) {
+            console.log(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+    private eliminarcuentadepositos = async (request: any, response: any, next: express.NextFunction) => {
+        try {
+            const user = request.user;
+            let bodycardid = request.body.id;
+            user.accounts = user.accounts.filter(account => account._id != bodycardid);
+            console.log("Useraccounts: ",user.accounts);
+            const newuser = await this.service.update(user);
+            response.send({ status: 200,message:"OK",accounts: newuser.accounts});
+        } catch (e) {
+            console.log(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private crearcuentadepositos = async (request: any, response: any, next: express.NextFunction) => {
+        try {
+            const user = request.user;
+            let bodycard = request.body;
+            bodycard["type"] = "Account";
+            bodycard["blocked"] = false;
+
+            const card = await this.cardservice.create(bodycard);
+            if(user.accounts != null){
+                user.accounts.push(card);
+            }else{
+                user.accounts = [card];
+            }
+            const newuser = await this.service.update(user);
+            response.send({ status: 200,message:"OK",accounts: newuser.accounts});
+        } catch (e) {
+            console.log(e);
             next(new HttpException(400, e.message));
         }
     }
