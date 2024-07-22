@@ -18,6 +18,7 @@ const schema = new Schema<ICard>({
     nombrebanco: { type: String },
     nombre: { type: String },
     direccion: { type: String },
+    currency : { type: String }
 }, { timestamps: true });
 
 const Card = model<ICard>('Card', schema, 'cards');
