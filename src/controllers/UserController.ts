@@ -780,11 +780,16 @@ class UserController extends BaseController<UserService> {
             const { accountnumber,clabe } = request.body;
             user.clabedepositos = clabe;
             user.accountdepositos = accountnumber;
+            console.log("USER:",user);
+            console.log("ADDRESS: ",user.address[0]);
+            let address = user.address[0].suburb;
+
+            console.log("STP ADDRESS: ",address);
             const bodycard = {
                 cuenta: clabe,
-                nombrebanco: "",
-                nombre : user.first_name + " " + user.lastName + " " + user.mothersLastName,
-                direccion : user.adress[0].suburb
+                nombrebanco: "STP",
+                nombre : (user.first_name ? user.first_name : "") + " " + (user.lastName ? user.lastName : "") + " " + (user.mothersLastName ? user.mothersLastName : ""),
+                direccion : address
             };
             const card = await this.cardservice.create(bodycard);
             if(user.accounts != null){
