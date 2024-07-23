@@ -789,7 +789,8 @@ class UserController extends BaseController<UserService> {
                 cuenta: clabe,
                 nombrebanco: "STP",
                 nombre : (user.first_name ? user.first_name : "") + " " + (user.lastName ? user.lastName : "") + " " + (user.mothersLastName ? user.mothersLastName : ""),
-                direccion : address
+                direccion : address,
+                currency:"MXN"
             };
             const card = await this.cardservice.create(bodycard);
             if(user.accounts != null){
