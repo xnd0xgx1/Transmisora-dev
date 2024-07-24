@@ -1040,7 +1040,7 @@ class UserController extends BaseController<UserService> {
                     claveRastreo: claveRastreo,
                     conceptoPago: "Retiro Trasmisora",
                     cuentaOrdenante: "646180557100000025",
-                    cuentaBeneficiario: user.clabedepositos, //Cuenta demo stp
+                    cuentaBeneficiario: "846180000400000001", //Cuenta demo stp
                     empresa: "TIM2",
                     institucionContraparte: "90646",
                     institucionOperante: "90646",
