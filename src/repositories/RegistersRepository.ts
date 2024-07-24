@@ -2,7 +2,8 @@
 
 import { BaseRepository } from './base/BaseRepository';
 import Registers from '../models/Registers';
-import { AnyArray, Schema, model } from 'mongoose';
+import { AnyArray, Schema, model,Types} from 'mongoose';
+
 
 class RegistersRepository extends BaseRepository<typeof Registers> {
     /**
@@ -90,28 +91,49 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
         // return await this.collection.find({ status: { $in: ["UPLOAD_FILES_STARTED", "UPLOAD_FILES_FAILED", "UPLOAD_FILES_APPROVED"] } }).sort({ createdAt: -1 }).populate('files');
         return await this.collection.aggregate([
             // Filtrar los documentos por los estados deseados
-            { $match: { status: { $in: ["UPLOAD_FILES_STARTED", "UPLOAD_FILES_FAILED", "UPLOAD_FILES_APPROVED"] } } },
             
+            { 
+                $match: { 
+                    createdAt: { $ne: null },
+                    updatedAt: { $ne: null },
+                    account_id: { $regex: /^[0-9a-fA-F]{24}$/ }
+                }
+            }
+            ,
+            { $addFields: { accountObjectId: { $toObjectId: "$account_id" }}},
             // Ordenar los documentos por `account_id` y `createdAt` en orden descendente
             { $sort: { account_id: 1, createdAt: -1 } },
-        
+
             // Agrupar por `account_id` y tomar el primer documento de cada grupo (el más reciente)
             { $group: {
                 _id: "$account_id",
                 mostRecentDocument: { $first: "$$ROOT" }
             } },
-        
+
             // Reemplazar el documento agrupado con el documento más reciente
             { $replaceRoot: { newRoot: "$mostRecentDocument" } },
-        
+
             // Poblar el campo `files`
             { $lookup: {
                 from: "files", // Nombre de la colección que contiene los archivos
                 localField: "files",
                 foreignField: "_id",
                 as: "files"
-            } }
-        ]).exec();
+            }
+            },
+            {
+            $lookup: {
+                from: "preregisters", // Nombre de la colección que contiene los archivos
+                localField: "accountObjectId",
+                foreignField: "_id",
+                as: "accountDetails"
+            }
+            },
+            { $unwind: {
+                    path: "$accountDetails",
+                    preserveNullAndEmptyArrays: true
+                }}
+            ]).exec();
      }
     
     

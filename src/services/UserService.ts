@@ -1009,17 +1009,28 @@ class UserService extends BaseService<UserRepository> {
         // A new users array is created, with only the properties that will be shown in the CMS
         let newuserobj = [];
         for (const element of users) {
-            const preregistro = await this.preregisgterService.getById(element.account_id);
-            console.log("Preregister!!", preregistro);
+            try{
+            // const preregistro = await this.preregisgterService.getById(element.account_id);
+            // console.log("Preregister!!", preregistro);
+            let date = "";
+            if(element.files.length == 0){
+                date = element.createdAt;
+            }else{
+                date = element.files[0].updatedAt ?? element.updatedAt;
+            }
             const usr = {
                 account_id: element.account_id,
                 files: element.files,
-                date: element.files[0].updatedAt ?? element.updatedAt,
+                date: date,
                 status: element.status,
                 nombre: element.data_obtenida.razonsocial,
-                email: preregistro.email
+                email: (element.accountDetails.email ? element.accountDetails.email : "No hay preregistro")
             };
             newuserobj.push(usr);
+            }
+            catch(e){
+                continue;
+            }
         }
         console.log("Return object");
         return newuserobj;
