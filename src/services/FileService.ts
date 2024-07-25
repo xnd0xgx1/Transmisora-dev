@@ -27,9 +27,10 @@ class FileService extends BaseService<FileRepository> {
         return file;
     }
 
-    decline = async (userId: any) => {
+    decline = async (userId: any,comments:string) => {
         let file = await this.repository.getById(userId);
         file.status = 'REJECTED';
+        file.comments = comments;
         file = await this.repository.update(file);
         return file;
     }

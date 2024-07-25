@@ -150,7 +150,11 @@ class UploadController extends BaseController<FileService> {
     decline = async (req: any, response: express.Response, next: express.NextFunction) => {
         try {
             const fileId = req.params.id;
-            const status = await this.service.decline(fileId);
+            let comments = req.body.motivoRechazo;
+            if(comments == null){
+                comments = "";
+            }
+            const status = await this.service.decline(fileId,comments);
             // let user = await this.userService.getById(status.registerid);
             const register = await this.registerService.updateStatusByAccountId(status.registerid, {},"UPLOAD_FILES_FAILED");
             response.send({status: 200,mensaje:"declined"});
