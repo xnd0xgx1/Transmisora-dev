@@ -72,10 +72,14 @@ class TransactionService extends BaseService<TransactionRepository> {
     gettransactionNumber = async () => {
         const start = new Date();
         start.setHours(0, 0, 0, 0); // Establece la hora a medianoche
+        start.setDate(start.getDate() - Math.abs(7));
     
         const end = new Date();
         end.setHours(23, 59, 59, 999);
+        console.log("Date start: ",start);
+        console.log("Date end: ",end);
         let transaction = await this.repository.getallbyday(start,end);
+        console.log("Transaction number: ",transaction.length);
         return transaction.length;
     }
 

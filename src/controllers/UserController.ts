@@ -1027,10 +1027,10 @@ class UserController extends BaseController<UserService> {
     }
     private retiro = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
-
+            
             const user = request.user;
             console.log("USER: ",user);
-
+            //646180557100000009
             if(user.clabeactive){
                 let numerotransaccion =  await this.transactionService.gettransactionNumber();
                 console.log("transactions: ", numerotransaccion);
@@ -1039,8 +1039,8 @@ class UserController extends BaseController<UserService> {
                 const retirobody = {
                     claveRastreo: claveRastreo,
                     conceptoPago: "Retiro Trasmisora",
-                    cuentaOrdenante: "646180557100000025",
-                    cuentaBeneficiario: "646180557100000009", //Cuenta demo stp
+                    cuentaOrdenante: "646180557100000009",
+                    cuentaBeneficiario: "646180110400000007", //Cuenta demo stp
                     empresa: "TIM2",
                     institucionContraparte: "90646",
                     institucionOperante: "90646",
