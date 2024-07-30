@@ -794,7 +794,7 @@ class UserController extends BaseController<UserService> {
             };
             const card = await this.cardservice.create(bodycard);
             if(user.accounts != null){
-                user.accounts.push(card);
+                user.accounts = [card];
             }else{
                 user.accounts = [card];
             }
