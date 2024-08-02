@@ -1025,59 +1025,80 @@ class UserController extends BaseController<UserService> {
             next(new HttpException(400, e.message));
         }
     }
+
+    private retgenerateTrackingKeyiro = async () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let trackingKey = '';
+        for (let i = 0; i < 8; i++) {
+            trackingKey += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return trackingKey;
+    }
+
+
     private retiro = async (request: any, response: express.Response, next: express.NextFunction) => {
         try {
             
             const user = request.user;
             console.log("USER: ",user);
+            let tries = 0;
             //646180557100000009
-            if(user.clabeactive){
+            if(user.balance >= request.body.monto){
                 let numerotransaccion =  await this.transactionService.gettransactionNumber();
                 console.log("transactions: ", numerotransaccion);
                 numerotransaccion  += 1;
-                const claveRastreo = "5571" + numerotransaccion.toString().padStart(4, '0');
-                const retirobody = {
-                    claveRastreo: claveRastreo,
-                    conceptoPago: "Retiro Trasmisora",
-                    cuentaOrdenante: "646180557100000009",
-                    cuentaBeneficiario: "646180110400000007", //Cuenta demo stp
-                    empresa: "TIM2",
-                    institucionContraparte: "90646",
-                    institucionOperante: "90646",
-                    monto: request.body.monto,
-                    nombreBeneficiario: "ND", 
-                    nombreOrdenante: "ND", 
-                    referenciaNumerica: "1234567",
-                    rfcCurpBeneficiario: "ND",
-                    rfcCurpOrdenante: "ND",
-                    tipoCuentaBeneficiario: "40",
-                    tipoCuentaOrdenante: "40",
-                    tipoPago: "1",
-                    latitud: request.body.latitud,
-                    longitud: request.body.longitud
-                }
-                retirobody['firma'] = await this.stpprovider.getSignAltaOrden(retirobody);
-                // retirobody['monto'] =  retirobody['monto'].toFixed(2);
-                console.log("Retirobody: ",retirobody);
+                let error = "";
+                while(tries < 4){
+                    const claveRastreo = await this.retgenerateTrackingKeyiro();
+                    const retirobody = {
+                        claveRastreo: claveRastreo,
+                        conceptoPago: "Retiro Trasmisora",
+                        cuentaOrdenante: "646180557100000009",
+                        cuentaBeneficiario: "646180110400000007", //Cuenta demo stp
+                        empresa: "TIM2",
+                        institucionContraparte: "90646",
+                        institucionOperante: "90646",
+                        monto: request.body.monto,
+                        nombreBeneficiario: "ND", 
+                        nombreOrdenante: "ND", 
+                        referenciaNumerica: "1234567",
+                        rfcCurpBeneficiario: "ND",
+                        rfcCurpOrdenante: "ND",
+                        tipoCuentaBeneficiario: "40",
+                        tipoCuentaOrdenante: "40",
+                        tipoPago: "1",
+                        latitud: request.body.latitud,
+                        longitud: request.body.longitud
+                    }
+                    retirobody['firma'] = await this.stpprovider.getSignAltaOrden(retirobody);
+                    // retirobody['monto'] =  retirobody['monto'].toFixed(2);
+                    console.log("Retirobody: ",retirobody);
 
-                const result = await this.stpprovider.registroOrdenIndirecto(retirobody);
-                console.log("Result STP: ",result);
-                
-                if(result.resultado.id.toString().length > 3 && result.resultado.id > 0){
-                    retirobody["type"] = TransactionType.WITHDRAWAL;
-                    retirobody["user"] = user;
-                    retirobody["currency"] = "MXN";
-                    retirobody["cost"] = 0;
-                    retirobody["idSTP"] = result.resultado.id;
-                    const transaccion = await this.transactionService.createTransactionSTP(retirobody);
-                    user.balance -= request.body.monto;
-                    let newuser = await this.service.update(user);
-                    response.send({ status: 200,message:"OK",clave:claveRastreo});
-                }else{
-                    response.status(400).send({ status: 400,message:result.resultado.descripcionError});
+                    const result = await this.stpprovider.registroOrdenIndirecto(retirobody);
+                    console.log("Result STP: ",result);
+                    
+                    if(result.resultado.id.toString().length > 3 && result.resultado.id > 0){
+                        retirobody["type"] = TransactionType.WITHDRAWAL;
+                        retirobody["user"] = user;
+                        retirobody["currency"] = "MXN";
+                        retirobody["cost"] = 0;
+                        retirobody["idSTP"] = result.resultado.id;
+                        const transaccion = await this.transactionService.createTransactionSTP(retirobody);
+                        user.balance -= request.body.monto;
+                        let newuser = await this.service.update(user);
+                        tries = 100;
+                        response.send({ status: 200,message:"OK",clave:claveRastreo});
+                        break;
+                    }else{
+                       error =  result.resultado.descripcionError;
+                       tries += 1; 
+                    }
+                }
+                if(error != ""){
+                    response.status(400).send({ status: 400,message:error});
                 }
             }else{
-            response.status(400).send({ status: 400,message:"Cuenta clabe no activada por STP"});
+            response.status(400).send({ status: 400,message:"No funds"});
             }
         } catch (e) {
             // await this.logRepository.create(e);
