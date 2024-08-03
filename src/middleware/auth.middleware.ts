@@ -18,7 +18,7 @@ async function authMiddleware(Role: string[], validateDevice: boolean = true) {
             try {
                 const verificationResponse = jwt.verify(token, SECRET) as DataStoredInToken;
                 const id = verificationResponse.id;
-                const user: any = await userModel.findById(id).populate('picture administrators devices address businessAddress language signature cards accounts registerid');                
+                const user: any = await userModel.findById(id).populate('picture administrators devices address businessAddress language cards accounts registerid');                
                 if (user) {
                     let hasRol = false;
                     user.roles.forEach((rol: any) => {

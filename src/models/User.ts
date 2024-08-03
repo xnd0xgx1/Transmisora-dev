@@ -86,7 +86,8 @@ const schema = new Schema<IUser>({
     pomeloClientId: { type: String },
     cards: [{ type: Schema.Types.ObjectId, ref: 'Card' }],
     accounts: [{ type: Schema.Types.ObjectId, ref: 'Card' }],
-    beneficiarios: { type: Schema.Types.Mixed, required: false }
+    beneficiarios: { type: Schema.Types.Mixed, required: false },
+    nivel: { type: Number, require: false }
 }, { timestamps: true });
 
 const User = model<IUser>('User', schema, 'users');

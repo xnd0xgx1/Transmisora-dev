@@ -788,7 +788,7 @@ class UserController extends BaseController<UserService> {
             const bodycard = {
                 cuenta: clabe,
                 nombrebanco: "STP",
-                nombre : (user.first_name ? user.first_name : "") + " " + (user.lastName ? user.lastName : "") + " " + (user.mothersLastName ? user.mothersLastName : ""),
+                nombre : (user.firstName) + " " + (user.lastName) + " " + (user.mothersLastName ? user.mothersLastName : ""),
                 direccion : address,
                 currency:"MXN"
             };
@@ -1242,8 +1242,9 @@ class UserController extends BaseController<UserService> {
     private createSapsignFlow = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         try {
             const id = request.body.id;
+            const url = request.body.url;
             // Method responsible for generating the process_url, it creates a new one if the user does not have one
-            const result = await this.service.generateSapSignProcessUrl(id);
+            const result = await this.service.generateSapSignProcessUrl(id,url);
 
             // If the user already has a process_url, it creates a response object with the existing process_url
             if (!result.api_key || !result.message) {
@@ -1287,7 +1288,9 @@ class UserController extends BaseController<UserService> {
             const recidenciaperm:boolean = request.body.residenciaperm;
             const motivo:string = request.body.motivo;
             const residence:string = request.body.residence;
-            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad,othernation,residenciatemp,recidenciaperm,motivo,residence);
+            const url = request.body.url;
+            const id_prev = request.body.id_prev;
+            const result = await this.service.generateTruoraProcessUrl(phone,crear,nacionalidad,othernation,residenciatemp,recidenciaperm,motivo,residence,url,id_prev);
 
             console.log("Response demo truora: ",result);
             // If the user already has a process_url, it creates a response object with the existing process_url
@@ -1334,7 +1337,8 @@ class UserController extends BaseController<UserService> {
             // const recidenciaperm:boolean = request.body.residenciaperm;
             // const motivo:string = request.body.motivo;
             // const residence:string = request.body.residence;
-            const result = await this.service.generateonlygeolocation(phone,crear,url);
+            const id_prev = request.body.id_prev;
+            const result = await this.service.generateonlygeolocation(phone,crear,url,id_prev);
 
             console.log("Response demo truora: ",result);
             // If the user already has a process_url, it creates a response object with the existing process_url

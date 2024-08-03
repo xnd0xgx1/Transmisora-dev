@@ -4,6 +4,7 @@ import IRegisters from '../interfaces/IRegisters';
 const schema = new Schema<IRegisters>({
     process_id: { type: String, require: false },
     account_id: { type: String, require: false },
+    prev_register: [{ type: Schema.Types.ObjectId, ref: 'registers' }],
     client_id: { type: String, require: false },
     initialurl:{ type: String, require: false },
     flow_id: { type: String, require: false },

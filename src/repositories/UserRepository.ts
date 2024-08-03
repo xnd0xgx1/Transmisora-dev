@@ -3,8 +3,11 @@ import VerificationCode from "../models/VerificationCode";
 import User from "../models/User";
 import { BaseRepository } from './base/BaseRepository';
 import Role from '../enums/Role';
+import { ObjectId } from 'mongoose';
+
 
 export default class UserRepository extends BaseRepository<typeof User> {
+    
 
     getAllAdmins = async () => {
         return await User.find({ roles: { "$in": [Role.ADMIN, Role.DOCUMENT_VALIDATOR, Role.EXCHANGE_RATE] } }).sort({ createdAt: -1 });
@@ -93,5 +96,10 @@ export default class UserRepository extends BaseRepository<typeof User> {
                 "$exists": true
             }
         }).sort({ createdAt: -1 }).populate('administrators');
+    }
+
+
+    getByemailandphone = async (userdata: any) => {
+        return await this.collection.findOne({ phoneCode: userdata.phoneCode,phone:userdata.phone,email:userdata.email});
     }
 }

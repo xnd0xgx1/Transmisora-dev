@@ -1121,7 +1121,7 @@ class UserService extends BaseService<UserRepository> {
         }
     };
 
-    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string,othernation?:string,residenciatemp?:boolean,recidenciaperm?:boolean,motivo?:string,residence?:string): Promise<any> => {
+    generateTruoraProcessUrl = async (phone: string,crear?: boolean,nacionalidad?:string,othernation?:string,residenciatemp?:boolean,recidenciaperm?:boolean,motivo?:string,residence?:string, url?:string,id_prev?:string): Promise<any> => {
         try{
             // Check if the user already has a process_id based on the phone number
             const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1129,6 +1129,16 @@ class UserService extends BaseService<UserRepository> {
             if (register !== null && crear == false){
                 return register;
             }
+
+            const preregister = await this.preregisgterService.getById(register.account_id);
+
+            const hasauser = await this.repository.getByemailandphone(preregister);
+            console.log("Has preregister?? ",hasauser);
+            if(hasauser != null && crear == true){
+                throw new Error("El usuario ya existe!");
+            }
+
+
         }catch (error){
             console.error('Error getting Truora process_id:', error.message);
             throw new Error(error.message);
@@ -1140,7 +1150,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: 'https://www.cms.trasmisora.com/',
+            redirect_url:  url ? url : 'https://www.cms.trasmisora.com/',
             flow_id: 'IPF069df03f568653f11b93daea4b69f44d',
             account_id: phone
         });
@@ -1152,7 +1162,7 @@ class UserService extends BaseService<UserRepository> {
                 grant: 'digital-identity',
                 api_key_version: '1',
                 country: 'ALL',
-                redirect_url: 'https://www.cms.trasmisora.com/',
+                redirect_url:  url ? url : 'https://www.cms.trasmisora.com/',
                 flow_id: 'IPF74c1bcd19b1bc15921f12609973748a0',
                 account_id: phone
             });
@@ -1182,6 +1192,7 @@ class UserService extends BaseService<UserRepository> {
                     account_id: data.get('account_id'),
                     process_id: process_id,
                     flow_id: data.get('flow_id'),
+                    prev_register: id_prev ? [id_prev] : [],
                     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
                     status: "created",
                     data_obtenida:{"nacionalidad":nacionalidad,"othernation":othernation,"residenciatemp":residenciatemp,"recidenciaperm":recidenciaperm,"motivo":motivo,"residence":residence,"tipopersona":"PERSONA_FISICA"}
@@ -1216,7 +1227,7 @@ class UserService extends BaseService<UserRepository> {
 
 
 
-    generateonlygeolocation = async (phone: string,crear?: boolean,url?:string): Promise<any> => {
+    generateonlygeolocation = async (phone: string,crear?: boolean,url?:string,id_prev?:string): Promise<any> => {
         try{
             // Check if the user already has a process_id based on the phone number
             const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1224,6 +1235,14 @@ class UserService extends BaseService<UserRepository> {
             if (register !== null && crear == false){
                 return register;
             }
+            const preregister = await this.preregisgterService.getById(register.account_id);
+
+            const hasauser = await this.repository.getByemailandphone(preregister);
+            console.log("Has preregister?? ",hasauser);
+            if(hasauser != null && crear == true){
+                throw new Error("El usuario ya existe!");
+            }
+
         }catch (error){
             console.error('Error getting Truora process_id:', error.message);
             throw new Error(error.message);
@@ -1264,6 +1283,7 @@ class UserService extends BaseService<UserRepository> {
                     account_id: data.get('account_id'),
                     process_id: process_id,
                     flow_id: data.get('flow_id'),
+                    prev_register: id_prev ? [id_prev] : [],
                     initialurl: `https://identity.truora.com/?token=${response.data.api_key}`,
                     status: "created",
                     data_obtenida:{"tipopersona":"PERSONA_MORAL"}
@@ -1296,7 +1316,7 @@ class UserService extends BaseService<UserRepository> {
         }
     };
 
-    generateSapSignProcessUrl = async (id: string): Promise<any> => {
+    generateSapSignProcessUrl = async (id: string,url?:string): Promise<any> => {
         // try{
         //     // Check if the user already has a process_id based on the phone number
         //     const register = await this.registerService.getByAccountIdAndStatus(phone, "created");
@@ -1318,7 +1338,7 @@ class UserService extends BaseService<UserRepository> {
             grant: 'digital-identity',
             api_key_version: '1',
             country: 'ALL',
-            redirect_url: 'https://www.cms.trasmisora.com/',
+            redirect_url: url ? url : 'https://www.cms.trasmisora.com/',
             flow_id: 'IPF30fb7783937dd805d6127af8517b74c9',
             account_id: id
         });
@@ -2209,23 +2229,30 @@ class UserService extends BaseService<UserRepository> {
       
         const adress:any = {
             country:Registerobj.data_obtenida.pais,
-            state:"",
-            municipality:Registerobj.data_obtenida.delegacion_municipio,
+            state:Registerobj.data_obtenida.endidad_mx,
+            municipality:Registerobj.data_obtenida.municipio_mx,
             city:Registerobj.data_obtenida.ciudad_poblacion,
-            suburb:Registerobj.data_obtenida.colonia,
-            exteriorNumber:Registerobj.data_obtenida.n_exterior,
-            interiorNumber:Registerobj.data_obtenida.n_interior,
-            cp:Registerobj.data_obtenida.cp,
-            phoneNumber:"",
-            email:"",
+            suburb:Registerobj.data_obtenida.colonia_mx,
+            street:Registerobj.data_obtenida.calle_mx,
+            cp:Registerobj.data_obtenida.cp_mx,
+            phoneNumber:preregister.phoneCode + preregister.phone,
+            email:preregister.email,
             constitutionDate: new Date()
         };
         let useradress = await this.addressRepository.create(adress)
 
 
+        let rol = Registerobj.data_obtenida.tipopersona ? Registerobj.data_obtenida.tipopersona : "PERSONA_FISICA";
+
+        if(Registerobj.prev_register.length > 0){
+            console.log("Prev register: ",Registerobj.prev_register[0]);
+            let prev_register = await this.registerService.getById(Registerobj.prev_register[0]);
+            console.log("Prev object: ",prev_register);
+            rol = prev_register.data_obtenida.tipopersona;
+        }
         
         let user = {
-            roles:[Registerobj.data_obtenida.tipopersona ? Registerobj.data_obtenida.tipopersona : "PERSONA_FISICA"],
+            roles:[rol],
             "isActive": true,
             "isComplete": true,
             "isAdminVerified": true,
@@ -2249,30 +2276,31 @@ class UserService extends BaseService<UserRepository> {
             "phone":preregister.phone,
             "language": "63bf7b31867c93050b5f191d"
             ,
-            "nationality": Registerobj.nacionalidad,
+            "nationality": Registerobj.data_obtenida.nacionalidad,
             "password": hashedPassword,
             "birthdate": new Date(Registerobj.Truora.validations[0].details.document_details.date_of_birth),
             "countryOfBirth": Registerobj.Truora.validations[0].details.document_details.country,
-            "curp": "",
+            "curp": Registerobj.Truora.validations[0].details.document_details.document_number,
             "emailSecondary": "",
             "federalEntityOfBirth": "",
-            "firstName": (Registerobj.Truora.validations[0].details.document_details.first_last_name + " " +  Registerobj.Truora.validations[0].details.document_details.second_last_name),
+            "firstName": (Registerobj.Truora.validations[0].details.document_details.name ),
             "gender": Registerobj.Truora.validations[0].details.document_details.gender,
-            "lastName": Registerobj.Truora.validations[0].details.document_details.last_name,
-            "mothersLastName": "",
+            "lastName": Registerobj.Truora.validations[0].details.document_details.first_last_name,
+            "mothersLastName": Registerobj.Truora.validations[0].details.document_details.second_last_name,
             "occupation":  Registerobj.data_obtenida.ocupacion ,
             "avatar": Registerobj.data_obtenida.avatar,
             "color": Registerobj.data_obtenida.fondo_avatar,
             "userName": Registerobj.data_obtenida.nombre_usuario,
-            "identificationNumber": Registerobj.Truora.validations[0].details.document_details.doc_id,
+            "identificationNumber": Registerobj.Truora.validations[0].details.document_details.machine_readable,
             "identificationType": Registerobj.Truora.validations[0].details.document_details.document_type,
-            "signature": Registerobj.ZapSign.validations[0].details.signature_image_url,
+            "signature": Registerobj.ZapSign.validations[0].details.electronic_signature_details.signed_document_url,
             "pinCode": 111111,
             "failedLoginAttempts": 0,
             "isBlocked": false,
             "status": "PENDING",
             "isDeleted": false,
-            "registerid": Registerobj._id
+            "registerid": Registerobj._id,
+            "nivel": Registerobj.data_obtenida.monto_vol > 2 ? 3 : 2
         }
 
 
@@ -2338,8 +2366,8 @@ class UserService extends BaseService<UserRepository> {
                         const register2 = await this.preregisgterService.create(intialObject);
                         _id = register2.id;
                     }
-                    await this.notificationService.sendEmail2(data.email_proveedor, "https://www.cms.trasmisora.com/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
-                    await this.notificationService.sendSMS2(data.celular_proveedor, "https://www.cms.trasmisora.com/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro);
+                    await this.notificationService.sendEmail2(data.email_proveedor, "https://www.cms.trasmisora.com/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro+"?registroprev="+register._id);
+                    await this.notificationService.sendSMS2(data.celular_proveedor, "https://www.cms.trasmisora.com/deeplink?userid="+_id+"?tipoproveedor="+data.tipo_proveedor+"?email="+encodeURIComponent(data.email_proveedor)+"?phone="+encodeURIComponent(data.celular_proveedor)+"?tipo="+tipo_preregistro+"?registroprev="+register._id);
                 }
 
             }else{
@@ -2347,8 +2375,8 @@ class UserService extends BaseService<UserRepository> {
                             // const logged = await this.registerToLogin(register);
                             let preregister = await this.preregisgterService.getById(register.account_id);
                             let phone = preregister.phoneCode + preregister.phone;
-                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, ingresa a para terminar tu registro: "https://www.cms.trasmisora.com/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`,'Trasmisora, registro pendiente!');
-                            await this.notificationService.sendSMSGeneric(phone, `Hola !, ingresa a para terminar tu registro: "https://www.cms.trasmisora.com/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0)`);
+                            await this.notificationService.sendEmailGeneric(preregister.email, `Hola !, ingresa a para terminar tu registro: "https://www.cms.trasmisora.com/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0?registroprev=${register._id})`,'Trasmisora, registro pendiente!');
+                            await this.notificationService.sendSMSGeneric(phone, `Hola !, ingresa a para terminar tu registro: "https://www.cms.trasmisora.com/deeplink?userid=${preregister.id}?tipoproveedor=${0}?email=${encodeURIComponent(preregister.email)}?phone=${encodeURIComponent(phone)}?tipo=0?registroprev=${register._id})`);
                             // return register;
 
                 }
