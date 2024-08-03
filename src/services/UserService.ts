@@ -1130,7 +1130,7 @@ class UserService extends BaseService<UserRepository> {
                 return register;
             }
 
-            const preregister = await this.preregisgterService.getById(register.account_id);
+            const preregister = await this.preregisgterService.getById(phone);
 
             const hasauser = await this.repository.getByemailandphone(preregister);
             console.log("Has preregister?? ",hasauser);
@@ -1235,8 +1235,8 @@ class UserService extends BaseService<UserRepository> {
             if (register !== null && crear == false){
                 return register;
             }
-            const preregister = await this.preregisgterService.getById(register.account_id);
 
+            const preregister = await this.preregisgterService.getById(phone);
             const hasauser = await this.repository.getByemailandphone(preregister);
             console.log("Has preregister?? ",hasauser);
             if(hasauser != null && crear == true){
