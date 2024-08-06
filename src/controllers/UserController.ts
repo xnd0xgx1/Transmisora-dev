@@ -990,7 +990,7 @@ class UserController extends BaseController<UserService> {
             const id = request.params.id;
             let user = await this.service.getById(id);
             console.log("user: ",user);
-            let {firstName,lastName,mothersLastName,status,password} = request.body;
+            let {firstName,lastName,mothersLastName,status,password,email} = request.body;
             if(user != null){
             
             if(user.roles[0] == "PERSONA_MORAL"){
@@ -1000,6 +1000,8 @@ class UserController extends BaseController<UserService> {
                 user["lastName"] = lastName;
                 user["mothersLastName"] = mothersLastName;
             }
+
+            user["email"] = email;
 
             switch(status){
                 case 0:
