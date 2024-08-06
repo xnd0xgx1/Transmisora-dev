@@ -988,50 +988,13 @@ class UserController extends BaseController<UserService> {
 
             
             const id = request.params.id;
-            let user = await this.service.getById(id);
-            console.log("user: ",user);
             let {firstName,lastName,mothersLastName,status,password,email} = request.body;
-            if(user != null){
-            
-            if(user.roles[0] == "PERSONA_MORAL"){
-                user.datosempresa.razonsocial = firstName;
-            }else{
-                user["firstName"] = firstName;
-                user["lastName"] = lastName;
-                user["mothersLastName"] = mothersLastName;
-            }
-
-            user["email"] = email;
-
-            switch(status){
-                case 0:
-                    user["isActive"] = true;
-                    user["isBlocked"] = false;
-                    break;
-                case 1:
-                    user["isActive"] = false;
-                    user["isBlocked"] = false;
-                    break;
-                case 2:
-                    user["isActive"] = false;
-                    user["isBlocked"] = true;
-                    break;
-                default:
-                    break;
-            }
-            if(password != null && password != ""){
-                const hashedPassword = await bcrypt.hash(password, 10);
-                user["password"] = hashedPassword;
-            }
-            const updateduser = await this.service.update(user);
+            const updateduser = await this.service.updateByAccountId(id,firstName,lastName,mothersLastName,status,password,email);
             response.send({ status: 200,message:"OK",respuesta:"Usuario actualizado",user:updateduser});
-            }
-            else{
-                response.status(400).send({ status: 400,message:"Error al encontrar usuario"});
-            }
+            
         } catch (e) {
             // await this.logRepository.create(e);
-            next(new HttpException(400, e.message));
+            response.status(400).send({ status: 400,message:e.message});
         }
     }
 

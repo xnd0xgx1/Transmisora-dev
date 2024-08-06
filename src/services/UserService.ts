@@ -2922,6 +2922,10 @@ class UserService extends BaseService<UserRepository> {
         }   
     }
 
+    updateByAccountId = async (id: string, firstName:string,lastName:string,mothersLastName:string,status:number,password:string,email:string) =>
+    {
+        return await this.repository.updateByAccountId(id,firstName,lastName,mothersLastName,status,password,email);
+    }
 
 
 }

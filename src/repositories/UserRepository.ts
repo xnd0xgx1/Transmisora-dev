@@ -102,4 +102,59 @@ export default class UserRepository extends BaseRepository<typeof User> {
     getByemailandphone = async (userdata: any) => {
         return await this.collection.findOne({ phoneCode: userdata.phoneCode,phone:userdata.phone,email:userdata.email});
     }
+
+
+
+    updateByAccountId =  async (id: string, firstName:string,lastName:string,mothersLastName:string,status:number,password:string,email:string) => {
+
+        console.log('Updating user:', id);
+        let user = await this.collection.findOne({ _id: id }).sort({ createdAt: -1 });
+        console.log('objectDb:', user);
+        if (user !== null) {
+
+
+            if(user.roles[0] == "PERSONA_MORAL"){
+                user.set(`datosempresa.razonsocial`, firstName);
+            }else{
+                user["firstName"] = firstName;
+                user["lastName"] = lastName;
+                user["mothersLastName"] = mothersLastName;
+            }
+
+            user["email"] = email;
+
+            switch(status){
+                case 0:
+                    user["isActive"] = true;
+                    user["isBlocked"] = false;
+                    break;
+                case 1:
+                    user["isActive"] = false;
+                    user["isBlocked"] = false;
+                    break;
+                case 2:
+                    user["isActive"] = false;
+                    user["isBlocked"] = true;
+                    break;
+                default:
+                    break;
+            }
+            if(password != null && password != ""){
+                const hashedPassword = await bcrypt.hash(password, 10);
+                user["password"] = hashedPassword;
+            }
+        
+
+
+
+            // Añadir o actualizar campos en el documento
+          
+            await user.save(); // Intenta guardar los cambios en la base de datos
+            console.log('Updated register:', user);
+            return user;
+        } else {
+            // Manejo del caso en que el documento no se encuentra
+            throw new Error('Document not found');
+        }
+    }
 }
