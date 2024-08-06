@@ -1331,12 +1331,6 @@ class UserController extends BaseController<UserService> {
             // Method responsible for generating the process_url, it creates a new one if the user does not have one
             const crear:boolean = request.body.crear;
             const url = request.body.url;
-            // const nacionalidad:string = request.body.nacionalidad;
-            // const othernation:string = request.body.othernation;
-            // const residenciatemp:boolean = request.body.residenciatemp;
-            // const recidenciaperm:boolean = request.body.residenciaperm;
-            // const motivo:string = request.body.motivo;
-            // const residence:string = request.body.residence;
             const id_prev = request.body.id_prev;
             const result = await this.service.generateonlygeolocation(phone,crear,url,id_prev);
 

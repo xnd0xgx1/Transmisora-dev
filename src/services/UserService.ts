@@ -1053,7 +1053,7 @@ class UserService extends BaseService<UserRepository> {
                 //the businessName is only for the persona moral users, so if user.roles is not persona moral, it will be empty
                 businessName: user.roles.includes(Role.PERSONA_MORAL) ? user.businessName : '',
                 //the firstName is only for the persona fisica users, so if user.roles is not persona fisica, it will be empty
-                firstName: user.roles.includes(Role.PERSONA_FISICA) ? user.firstName : '',
+                firstName: user.roles.includes(Role.PERSONA_FISICA) ? user.firstName : user.datosempresa.razonsocial,
                 //the lastName is only for the persona fisica users, so if user.roles is not persona fisica, it will be empty
                 lastName: user.roles.includes(Role.PERSONA_FISICA) ? user.lastName : '',
                 //the mothersLastName is only for the persona fisica users, so if user.roles is not persona fisica, it will be empty
@@ -2243,12 +2243,17 @@ class UserService extends BaseService<UserRepository> {
 
 
         let rol = Registerobj.data_obtenida.tipopersona ? Registerobj.data_obtenida.tipopersona : "PERSONA_FISICA";
-
+        let datosempresa = null;
         if(Registerobj.prev_register.length > 0){
             console.log("Prev register: ",Registerobj.prev_register[0]);
-            let prev_register = await this.registerService.getById(Registerobj.prev_register[0]);
+            let prev_register = await this.registerService.getByIdfull(Registerobj.prev_register[0]);
             console.log("Prev object: ",prev_register);
             rol = prev_register.data_obtenida.tipopersona;
+            datosempresa = prev_register.data_obtenida;
+            datosempresa["files"] = prev_register.files;
+            datosempresa["truora"] = prev_register.Truora;
+            datosempresa["ZapSign"] = prev_register.ZapSign;
+            
         }
         
         let user = {
@@ -2300,7 +2305,8 @@ class UserService extends BaseService<UserRepository> {
             "status": "PENDING",
             "isDeleted": false,
             "registerid": Registerobj._id,
-            "nivel": Registerobj.data_obtenida.monto_vol > 2 ? 3 : 2
+            "nivel": Registerobj.data_obtenida.monto_vol > 2 ? 3 : 2,
+            "datosempresa":datosempresa
         }
 
 

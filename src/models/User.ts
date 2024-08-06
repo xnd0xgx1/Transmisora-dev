@@ -87,7 +87,9 @@ const schema = new Schema<IUser>({
     cards: [{ type: Schema.Types.ObjectId, ref: 'Card' }],
     accounts: [{ type: Schema.Types.ObjectId, ref: 'Card' }],
     beneficiarios: { type: Schema.Types.Mixed, required: false },
-    nivel: { type: Number, require: false }
+    nivel: { type: Number, require: false },
+    datosempresa:{ type: Schema.Types.Mixed, required: false },
+
 }, { timestamps: true });
 
 const User = model<IUser>('User', schema, 'users');

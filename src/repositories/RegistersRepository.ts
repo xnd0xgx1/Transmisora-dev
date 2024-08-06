@@ -17,6 +17,10 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
         return await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 }).populate('files prev_register');
     }
 
+    async getByIdfull(id: string): Promise<typeof Registers> {
+        return await this.collection.findOne({ _id: id }).sort({ createdAt: -1 }).populate('files prev_register');
+    }
+    
      /**
      * Update entire register object.
      * 
