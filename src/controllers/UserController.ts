@@ -26,6 +26,7 @@ import authMiddlewareSTP from '../middleware/auth.middleware.stp';
 import NotificationService from '../services/NotificationService';
 import OtpService from '../services/OtpService';
 import OtpType from '../enums/OtpType';
+import * as bcrypt from 'bcrypt';
 import CardService from '../services/CardService';
 
 class UserController extends BaseController<UserService> {
@@ -159,6 +160,7 @@ class UserController extends BaseController<UserService> {
         this.router.get(`${this.path}/filesvalidationusers`,await authMiddlewareCMS([Role.ADMIN]),this.getAllUsersfilesCMS);
         this.router.get(`${this.path}/transactions`,await authMiddlewareCMS([Role.ADMIN]),this.getAllTransactionsCMS);
         this.router.post(`${this.path}/saldocuenta`,await authMiddlewareCMS([Role.ADMIN]), this.consultaSaldoConcentradora);
+        this.router.put(`${this.path}/trasmisorauser/:id`,await authMiddlewareCMS([Role.ADMIN]), this.updateUser);
         
 
          //Creación de cuentsas
@@ -975,6 +977,56 @@ class UserController extends BaseController<UserService> {
 
             // const isVerify = await this.service.verifyPin(user, pinCode);
            
+        } catch (e) {
+            // await this.logRepository.create(e);
+            next(new HttpException(400, e.message));
+        }
+    }
+
+    private updateUser = async (request: any, response: express.Response, next: express.NextFunction) => {
+        try {
+
+            
+            const id = request.params.id;
+            let user = await this.service.getById(id);
+            console.log("user: ",user);
+            let {firstName,lastName,mothersLastName,status,password} = request.body;
+            if(user != null){
+            
+            if(user.roles[0] == "PERSONA_MORAL"){
+                user.datosempresa.razonsocial = firstName;
+            }else{
+                user["firstName"] = firstName;
+                user["lastName"] = lastName;
+                user["mothersLastName"] = mothersLastName;
+            }
+
+            switch(status){
+                case 0:
+                    user["isActive"] = true;
+                    user["isBlocked"] = false;
+                    break;
+                case 1:
+                    user["isActive"] = false;
+                    user["isBlocked"] = false;
+                    break;
+                case 2:
+                    user["isActive"] = false;
+                    user["isBlocked"] = true;
+                    break;
+                default:
+                    break;
+            }
+            if(password != null && password != ""){
+                const hashedPassword = await bcrypt.hash(password, 10);
+                user["password"] = hashedPassword;
+            }
+            const updateduser = await this.service.update(user);
+            response.send({ status: 200,message:"OK",respuesta:"Usuario actualizado",user:updateduser});
+            }
+            else{
+                response.status(400).send({ status: 400,message:"Error al encontrar usuario"});
+            }
         } catch (e) {
             // await this.logRepository.create(e);
             next(new HttpException(400, e.message));
