@@ -117,33 +117,12 @@ class DeviceService extends BaseService<DeviceRepository> {
 
     private sendVerificationCode = async (user: any, device: any, verificationCode: any) => {
         if (device.sendVerificationCodeToPrimary) {
-            if (user.email !== undefined) {
-                // Send to email.
-                await this.notificationService.sendEmail(user.email, verificationCode);
-            }
-            else {
-                // Send to phone.
-                await this.notificationService.sendSMS(`${user.phoneCode}${user.phone}`, verificationCode)
-            }
+            
+            await this.notificationService.sendEmail(user.email, verificationCode);
         }
         else {
-            if (user.roles[0] === Role.PERSONA_FISICA) {
-                // Send to secondary email.
-               
-                if (user.emailSecondary !== undefined && user.emailSecondary !== "") {
-                    // Send to email.
-                    await this.notificationService.sendEmail(user.emailSecondary, verificationCode);
-                }
-                else {
-                    // Send to phone.
+          
                     await this.notificationService.sendSMS(`${user.phoneCode}${user.phone}`, verificationCode)
-                }
-            }
-            else {
-                // Send to bussiness email.
-                const email = user.businessAddress[0].email;
-                await this.notificationService.sendEmail(email, verificationCode);
-            }
         }
         return verificationCode
     }
