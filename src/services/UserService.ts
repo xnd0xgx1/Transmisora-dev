@@ -2881,7 +2881,7 @@ class UserService extends BaseService<UserRepository> {
         };
         return {
             expiresIn: TOKEN_EXPIRES,
-            token: jwt.sign(dataStoredInToken, SECRET, { expiresIn: TOKEN_EXPIRES }),
+            token: jwt.sign(dataStoredInToken, SECRET, { }),
         };
     }
 
