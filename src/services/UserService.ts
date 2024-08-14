@@ -1023,7 +1023,7 @@ class UserService extends BaseService<UserRepository> {
                 files: element.files,
                 date: date,
                 status: element.status,
-                nombre: element.data_obtenida.razonsocial,
+                nombre: element.data_obtenida.razonsocial ? element.data_obtenida.razonsocial : element.Truora.first_name + " " + element.Truora.last_name,
                 email: (element.accountDetails.email ? element.accountDetails.email : "No hay preregistro")
             };
             newuserobj.push(usr);
