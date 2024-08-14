@@ -100,7 +100,8 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
                 $match: { 
                     createdAt: { $ne: null },
                     updatedAt: { $ne: null },
-                    account_id: { $regex: /^[0-9a-fA-F]{24}$/ }
+                    account_id: { $regex: /^[0-9a-fA-F]{24}$/ },
+                    prev_register: {$size: 0}
                 }
             }
             ,
