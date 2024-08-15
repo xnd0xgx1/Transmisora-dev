@@ -49,6 +49,11 @@ class RegistersService extends BaseService<RegistersRepository> {
     async updateStatusByAccountId(account_id: string, data: any,status:any) {
         return await this.repository.updateStatusByAccountId(account_id, data,status);
     }
+
+    async getUsersbyprevregister(account_id: string) {
+        return await this.repository.getUsersbyprevregister(account_id);
+    }
+    
 }
 
 export default RegistersService;

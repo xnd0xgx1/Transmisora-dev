@@ -88,9 +88,13 @@ class UploadController extends BaseController<FileService> {
             const id = req.params.id;
 
             let register = undefined;
-            if (fileName !== '')
-                file = await this.service.createFile(fileName, type,id);
-                register = await this.userService.AddFiletoRegister(id,file.id,type);
+            if (fileName !== ''){
+                let register_id = await this.registerService.getByAccountIdAndStatus(id,"");
+                if(register_id){
+                    file = await this.service.createFile(fileName, type,register_id._id);
+                    register = await this.userService.AddFiletoRegister(register_id._id,file.id,type);
+                }
+            }
 
             if(register != undefined){
                 response.send(register);
@@ -156,7 +160,19 @@ class UploadController extends BaseController<FileService> {
             }
             const status = await this.service.decline(fileId,comments);
             // let user = await this.userService.getById(status.registerid);
-            const register = await this.registerService.updateStatusByAccountId(status.registerid, {},"UPLOAD_FILES_FAILED");
+          
+          
+            const lastaccountid = await this.registerService.getUsersbyprevregister(status.registerid);
+            console.log("Get last account id: ",lastaccountid._id);
+            if(lastaccountid){
+                if(lastaccountid.status == "UPLOAD_FILES_STARTED"){
+                    const register = await this.registerService.updateStatusByAccountId(lastaccountid.account_id, {},"UPLOAD_FILES_FAILED");
+                }else{
+                    let user = await this.userService.getbyregisteridandblock(lastaccountid._id);
+                }
+
+            }
+
             response.send({status: 200,mensaje:"declined"});
         } catch (e) {
             next(new HttpException(500, e.message));

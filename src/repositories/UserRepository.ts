@@ -98,9 +98,15 @@ export default class UserRepository extends BaseRepository<typeof User> {
         }).sort({ createdAt: -1 }).populate('administrators');
     }
 
-
+    
     getByemailandphone = async (userdata: any) => {
         return await this.collection.findOne({ phoneCode: userdata.phoneCode,phone:userdata.phone,email:userdata.email});
+    }
+
+    getbyregisterid = async (registerid: string) => {
+        return await this.collection.findOne({
+            registerid: [registerid],
+          }).populate('picture administrators devices address businessAddress language cards accounts');;
     }
 
 

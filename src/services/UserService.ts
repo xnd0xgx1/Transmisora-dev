@@ -1024,7 +1024,8 @@ class UserService extends BaseService<UserRepository> {
                 date: date,
                 status: element.status,
                 nombre: element.data_obtenida.razonsocial ? element.data_obtenida.razonsocial : element.Truora.first_name + " " + element.Truora.last_name,
-                email: (element.accountDetails.email ? element.accountDetails.email : "No hay preregistro")
+                email: (element.accountDetails.email ? element.accountDetails.email : "No hay preregistro"),
+                telefono: (element.accountDetails.phoneCode ? element.accountDetails.phone : "No hay preregistro")
             };
             newuserobj.push(usr);
             }
@@ -2887,7 +2888,7 @@ class UserService extends BaseService<UserRepository> {
 
     AddFiletoRegister = async (userId: string,fileid:string,type:string): Promise<any> => {
         try{
-            const register = await this.registerService.getStatusByAccountId(userId);
+            const register = await this.registerService.getByIdfull(userId);
             
             if (register === null){
                 throw new Error('PROCESS NOT FOUND');
@@ -2925,6 +2926,18 @@ class UserService extends BaseService<UserRepository> {
     updateByAccountId = async (id: string, firstName:string,lastName:string,mothersLastName:string,status:number,password:string,email:string) =>
     {
         return await this.repository.updateByAccountId(id,firstName,lastName,mothersLastName,status,password,email);
+    }
+
+    getbyregisteridandblock = async (id: string) =>
+    {
+        let user = await this.repository.getbyregisterid(id);
+        console.log("User finded: ", user);
+        if(user){
+            user.isBlocked = false;
+            await user.save();
+        }
+        return user
+        
     }
 
 
