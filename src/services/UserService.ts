@@ -2933,7 +2933,7 @@ class UserService extends BaseService<UserRepository> {
         let user = await this.repository.getbyregisterid(id);
         console.log("User finded: ", user);
         if(user){
-            user.isBlocked = false;
+            user.isBlocked = true;
             await user.save();
         }
         return user
