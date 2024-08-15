@@ -69,6 +69,8 @@ class RegistersRepository extends BaseRepository<typeof Registers> {
         return await this.collection.findOne({ account_id: account_id }).sort({ createdAt: -1 }).populate('files prev_register');
     }
 
+  
+
     // create a method that receives the account_id and a field named test and updates the register with the account_id adding the test field to it
     async updateStatusByAccountId(account_id: string, data: any,status:any): Promise<any> {
         console.log('Updating register:', account_id, data);
