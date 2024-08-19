@@ -2928,12 +2928,12 @@ class UserService extends BaseService<UserRepository> {
         return await this.repository.updateByAccountId(id,firstName,lastName,mothersLastName,status,password,email);
     }
 
-    getbyregisteridandblock = async (id: string) =>
+    getbyregisteridandupdateblock = async (id: string,status:boolean) =>
     {
         let user = await this.repository.getbyregisterid(id);
         console.log("User finded: ", user);
         if(user){
-            user.isBlocked = true;
+            user.isBlocked = status;
             await user.save();
         }
         return user

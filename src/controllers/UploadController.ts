@@ -148,11 +148,30 @@ class UploadController extends BaseController<FileService> {
             // let user = await this.userService.getById(status.registerid);
             const filesApproved = user.files.filter((x: any) => x.status === 'APPROVED');
             if (filesApproved.length === user.files.length) {
-                const register = await this.registerService.updateStatusByAccountId(user.account_id, {},"UPLOAD_FILES_APPROVED");
-                let preregister = await this.preregisgterService.getById(register.account_id);
-                let phone = preregister.phoneCode + preregister.phone;
-                await this.notificationService.sendEmailGeneric(preregister.email, `Hola!, Tus archivos en Trasmisora han sido aprovados!.`,'Trasmisora, archivos aprovados!');
-                await this.notificationService.sendSMSGeneric(phone, `Hola!, Tus archivos en Trasmisora han sido aprovados!.`);
+                const lastaccountid = await this.registerService.getUsersbyprevregister(status.registerid);
+                if(lastaccountid){
+                    if(lastaccountid.status == "UPLOAD_FILES_STARTED"){
+                        const register = await this.registerService.updateStatusByAccountId(lastaccountid.account_id, {},"UPLOAD_FILES_APPROVED");
+                       
+                    }else{
+                        let user = await this.userService.getbyregisteridandupdateblock(lastaccountid._id,false);
+                    }
+                    let preregister = await this.preregisgterService.getById(user.account_id);
+                    let phone = preregister.phoneCode + preregister.phone;
+                    await this.notificationService.sendEmailGeneric(preregister.email, `Hola!, Tus archivos en Trasmisora han sido aprovados!.`,'Trasmisora, archivos aprovados!');
+                    await this.notificationService.sendSMSGeneric(phone, `Hola!, Tus archivos en Trasmisora han sido aprovados!.`);
+    
+                }else{
+                    let user = await this.registerService.getById(status.registerid);
+                    if(user.status == "UPLOAD_FILES_STARTED"){
+                        const register = await this.registerService.updateStatusByAccountId(user.account_id, {},"UPLOAD_FILES_APPROVED");
+                    }
+                    let preregister = await this.preregisgterService.getById(user.account_id);
+                    let phone = preregister.phoneCode + preregister.phone;
+                    await this.notificationService.sendEmailGeneric(preregister.email, `Hola!, Tus archivos en Trasmisora han sido aprovados!.`,'Trasmisora, archivos aprovados!');
+                    await this.notificationService.sendSMSGeneric(phone, `Hola!, Tus archivos en Trasmisora han sido aprovados!.`);
+                }
+                
             }
             response.send({status: 200,mensaje:"approved"});
         } catch (e) {
@@ -177,7 +196,7 @@ class UploadController extends BaseController<FileService> {
                     const register = await this.registerService.updateStatusByAccountId(lastaccountid.account_id, {},"UPLOAD_FILES_FAILED");
                    
                 }else{
-                    let user = await this.userService.getbyregisteridandblock(lastaccountid._id);
+                    let user = await this.userService.getbyregisteridandupdateblock(lastaccountid._id,true);
                 }
                 let preregister = await this.preregisgterService.getById(lastaccountid.account_id);
                 let phone = preregister.phoneCode + preregister.phone;
