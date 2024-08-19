@@ -724,14 +724,10 @@ class UserController extends BaseController<UserService> {
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             const user = request.user;
             if (request.body.sendVerificationCodeToPrimary) {
-                if (user.email !== undefined) {
-                    // Send to email.
-                    await this.notificationService.sendEmail(user.email, verificationCode);
-                }
-                else {
-                    // Send to phone.
-                    await this.notificationService.sendSMS(`${user.phoneCode}${user.phone}`, verificationCode)
-                }
+                await this.notificationService.sendEmail(user.email, verificationCode);
+            
+            }else{
+                await this.notificationService.sendSMS(`${user.phoneCode}${user.phone}`, verificationCode)
             }
             const otpresource = await this.otpservice.createOTP(user,OtpType.RECOVER_PASSWORD,verificationCode);
             response.send({ status: 200,message:"OK"});
